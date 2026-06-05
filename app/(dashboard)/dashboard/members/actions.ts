@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { memberFormSchema } from "./schemas"
 import { requireAdmin } from "@/lib/auth"
-import { uploadToCloudinary } from "@/lib/cloudinary"
 
 export async function createMember(formData: FormData) {
   try {
@@ -188,7 +187,7 @@ export async function createMember(formData: FormData) {
     }
 
     revalidatePath("/dashboard/members")
-    revalidatePath("/dashboard/members/[id]")
+    revalidatePath(`/dashboard/members/${member.id}`)
 
     return {
       success: true,
