@@ -1,7 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
   provider = "prisma-client"
@@ -12,4 +9,175 @@ datasource db {
   provider = "sqlite"
 }
 
+enum Role {
+  ADMIN
+  WORKER
+}
 
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+  SEPARATED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum AuditAction {
+  CREATE_USER
+  UPDATE_USER_STATUS
+  UPDATE_USER_ROLE
+  DELETE_USER
+  LOGIN
+}
+
+enum EntityType {
+  MEMBER
+  USER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     
+  isActive  Boolean  @default(true)
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+
+
+// MEMBER MODEL
+model Member {
+  id                         String   @id @default(cuid())
+
+  // PASSPORT
+  passportUrl                String?
+
+  // PERSONAL DATA
+  surname                    String
+  firstName                  String
+  otherNames                 String?
+  presentAddress             String
+  phoneNumber                String
+  email                      String?
+  maritalStatus              MaritalStatus?
+  spouseName                 String?
+  stateOfOrigin              String
+  lga                        String
+  tribe                      String
+  previousPlaceOfWorship     String?
+
+  // CHURCH STRUCTURE
+  homeCell                   String?
+  zone                       String?
+
+  // Fellowship Information
+  fellowshipGroups           MemberFellowship[]
+  // SPIRITUAL DATA
+  acceptedChrist             String  // "YES" or "NO"
+  baptized                   String  // "YES" or "NO"
+  baptismPlace               String?
+  baptizedBy                 String?
+  communicant                String  // "YES" or "NO"
+
+  // Church Discipline Record
+  beenOnDiscipline           String  // "YES" or "NO"
+  disciplineReason           String?
+  disciplineDate             DateTime?
+  disciplineReliefDate       DateTime?
+
+  // PREVIOUS CHURCH EXPERIENCE
+  previousChurchPosition     String?
+
+  // SUGGESTIONS/RECOMMENDATIONS
+  suggestions                String?
+
+  // SIGNATURES & DECLARATION
+  memberSignature            String?
+  memberSignedDate           DateTime?
+  pastorSignature            String?
+  pastorSignedDate           DateTime?
+
+  // RELATIONS
+  children                   Child[]
+
+
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+}
+
+// CHILD MODEL
+
+model Child {
+  id          String   @id @default(cuid())
+
+  name        String
+  contact     String?
+
+  memberId    String
+  member      Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+}
+
+
+
+// FELLOWSHIP GROUP MODEL
+
+model FellowshipGroup {
+  id          String   @id @default(cuid())
+
+  name        String   @unique
+
+  members     MemberFellowship[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+
+// AUDIT LOG MODEL - for tracking system activities
+model AuditLog {
+  id          String      @id @default(cuid())
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id])
+  
+  action      AuditAction
+  entity      EntityType
+  entityId    String?
+  
+  description String?
+  metadata    Json?
+  ipAddress   String?
+  
+  createdAt   DateTime    @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entity, entityId])
+}
+
+// JUNCTION TABLE for Many-to-Many relationship
+model MemberFellowship {
+  memberId      String
+  member        Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  
+  fellowshipId  String
+  fellowship    FellowshipGroup @relation(fields: [fellowshipId], references: [id], onDelete: Cascade)
+  
+  addedAt      DateTime @default(now())
+  role          String?  // e.g., "Member", "Leader", "Assistant"
+  
+  @@id([memberId, fellowshipId])
+  @@map("member_fellowships")
+}

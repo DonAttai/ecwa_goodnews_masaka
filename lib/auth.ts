@@ -1,0 +1,100 @@
+import { compare, hash } from "bcrypt"
+import { sign, verify, SignOptions } from "jsonwebtoken"
+import { cookies } from "next/headers"
+import { prisma } from "./prisma"
+
+const JWT_SECRET = process.env.JWT_SECRET!
+const JWT_EXPIRES_IN =
+  (process.env.JWT_EXPIRES_IN as SignOptions["expiresIn"]) || "7d"
+const COOKIE_NAME = process.env.COOKIE_NAME || "session"
+
+export interface JWTPayload {
+  userId: string
+  email: string
+  role: string
+}
+
+export async function verifyUserCredentials(email: string, password: string) {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      email: true,
+      password: true,
+      role: true,
+      isActive: true,
+      name: true,
+    },
+  })
+
+  if (!user || !user.isActive) {
+    return null
+  }
+
+  const isValid = await compare(password, user.password)
+
+  if (!isValid) {
+    return null
+  }
+
+  return {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    name: user.name,
+  }
+}
+
+export function generateToken(payload: JWTPayload): string {
+  return sign(payload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
+  })
+}
+
+export function verifyToken(token: string): JWTPayload | null {
+  try {
+    const decoded = verify(token, JWT_SECRET) as JWTPayload
+    return decoded
+  } catch (error) {
+    return null
+  }
+}
+
+export async function getSession(): Promise<JWTPayload | null> {
+  const cookieStore = await cookies()
+  const token = cookieStore.get(COOKIE_NAME)?.value
+
+  if (!token) {
+    return null
+  }
+
+  return verifyToken(token)
+}
+
+export async function setSessionCookie(token: string) {
+  const cookieStore = await cookies()
+  cookieStore.set({
+    name: COOKIE_NAME,
+    value: token,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  })
+}
+
+export async function clearSessionCookie() {
+  const cookieStore = await cookies()
+  cookieStore.delete(COOKIE_NAME)
+}
+
+export async function requireAdmin() {
+  const session = await getSession()
+
+  if (!session || session.role !== "ADMIN") {
+    throw new Error("Unauthorized: Admin access required")
+  }
+
+  return session
+}
