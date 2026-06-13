@@ -61,7 +61,10 @@ export function DataTable<TData, TValue>({
     globalFilterFn: (row, _, filterValue) => {
       const search = filterValue.toLowerCase()
 
-      const searchableText = [row.getValue("firstName"), row.getValue("email")]
+      const searchableText = [
+        row.getValue("firstName"),
+        row.getValue("surname"),
+      ]
         .join(" ")
         .toLowerCase()
 

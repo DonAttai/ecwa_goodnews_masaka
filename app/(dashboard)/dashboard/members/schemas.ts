@@ -1,79 +1,87 @@
 import { z } from "zod"
 
 export const optionalDate = () =>
-  z.preprocess((val) => {
-    if (val === "" || val === undefined) return null
-    return val
-  }, z.string().nullable())
+  z
+    .string()
+    .nullable()
+    .optional()
+    .transform((val) => {
+      if (!val || val === "") return null
+      return val
+    })
 
-export const memberFormSchema = z
-  .object({
-    // SECTION A: PERSONAL DATA
-    surname: z.string().min(1, "Surname is required").max(50),
-    firstName: z.string().min(1, "First name is required").max(50),
-    otherNames: z.string().optional(),
-    presentAddress: z.string().min(1, "Present address is required"),
-    phoneNumber: z.string().min(1, "Phone number is required"),
-    email: z
-      .string()
-      .email("Invalid email address")
-      .optional()
-      .or(z.literal("")),
-    previousPlaceOfWorship: z.string().optional(),
-    maritalStatus: z.enum([
-      "SINGLE",
-      "MARRIED",
-      "DIVORCED",
-      "WIDOWED",
-      "SEPARATED",
-    ]),
-    spouseName: z.string().optional(),
-    homeCell: z.string().optional(),
-    zone: z.string().optional(),
-    stateOfOrigin: z.string().min(1, "Please select your state of origin"),
-    lga: z.string().min(1, "Please select your Local Government Area"),
-    tribe: z.string().min(1, "Tribe is required"),
-    passportUrl: z.string().optional(),
+export const baseMemberFormSchema = z.object({
+  // SECTION A: PERSONAL DATA
+  surname: z.string().min(1, "Surname is required").max(50),
+  firstName: z.string().min(1, "First name is required").max(50),
+  otherNames: z.string().optional(),
+  presentAddress: z.string().min(1, "Present address is required"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
+  email: z
+    .email({ message: "Invalid email address" })
+    .optional()
+    .or(z.literal("")),
+  previousPlaceOfWorship: z.string().optional(),
+  maritalStatus: z
+    .enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED", "SEPARATED"])
+    .nullable(),
+  gender: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.enum(["MALE", "FEMALE"], {
+      error: "Please select a gender",
+    })
+  ),
 
-    // Children Information
-    children: z
-      .array(
-        z.object({
-          name: z.string().min(1, "Child name is required"),
-          contact: z.string().optional(),
-        })
-      )
-      .catch([]),
+  spouseName: z.string().optional(),
+  homeCell: z.string().optional(),
+  zone: z.string().optional(),
+  stateOfOrigin: z.string().min(1, "Please select state of origin"),
+  lga: z.string().min(1, "Please select Local Government Area"),
+  tribe: z.string().min(1, "Tribe is required"),
+  passportUrl: z.string().optional(),
 
-    // Fellowship Information
-    fellowshipGroupIds: z.array(z.string()).default([]),
+  // Children Information
+  children: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        name: z.string().min(1, "Child name is required"),
+        contact: z.string().optional(),
+      })
+    )
+    .default([]),
 
-    // SECTION B: SPIRITUAL DATA
-    acceptedChrist: z.enum(["YES", "NO"]),
-    baptized: z.enum(["YES", "NO"]),
-    baptismPlace: z.string().optional(),
-    baptizedBy: z.string().optional(),
-    communicant: z.enum(["YES", "NO"]),
+  // Fellowship Information
+  fellowshipGroupIds: z.array(z.string()).default([]),
 
-    // Church Discipline Record
-    beenOnDiscipline: z.enum(["YES", "NO"]),
-    disciplineReason: z.string().optional(),
-    disciplineDate: optionalDate(),
-    disciplineReliefDate: optionalDate(),
+  // SECTION B: SPIRITUAL DATA
+  acceptedChrist: z.enum(["YES", "NO"]),
+  baptized: z.enum(["YES", "NO"]),
+  baptismPlace: z.string().optional(),
+  baptizedBy: z.string().optional(),
+  communicant: z.enum(["YES", "NO"]),
 
-    // Previous Church Service
-    previousChurchPosition: z.string().optional(),
+  // Church Discipline Record
+  beenOnDiscipline: z.enum(["YES", "NO"]),
+  disciplineReason: z.string().optional(),
+  disciplineDate: optionalDate(),
+  disciplineReliefDate: optionalDate(),
 
-    // Suggestions/Recommendations
-    suggestions: z.string().optional(),
+  // Previous Church Service
+  previousChurchPosition: z.string().optional(),
 
-    // SECTION C: DECLARATION
-    memberSignature: z.string().optional(),
-    memberSignedDate: optionalDate(),
-    pastorSignature: z.string().optional(),
-    pastorSignedDate: optionalDate(),
-  })
-  .superRefine((data, ctx) => {
+  // Suggestions/Recommendations
+  suggestions: z.string().optional(),
+
+  // SECTION C: DECLARATION
+  memberSignature: z.string().optional(),
+  memberSignedDate: optionalDate(),
+  pastorSignature: z.string().optional(),
+  pastorSignedDate: optionalDate(),
+})
+
+export const memberFormSchema = baseMemberFormSchema.superRefine(
+  (data, ctx) => {
     if (data.maritalStatus === "MARRIED" && !data.spouseName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -102,6 +110,19 @@ export const memberFormSchema = z
         path: ["disciplineReason"],
       })
     }
-  })
+  }
+)
 
-export type MemberFormValues = z.infer<typeof memberFormSchema>
+export type MemberFormValues = z.infer<typeof memberFormSchema> & { id: string }
+
+export const STEPS = [
+  "Personal",
+  "Passport",
+  "Family",
+  "Spiritual",
+  "Discipline",
+  "Recommendations",
+  "Declaration",
+] as const
+
+export type Step = (typeof STEPS)[number]

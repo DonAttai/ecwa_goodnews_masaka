@@ -1,9 +1,7 @@
 "use client"
 
-import * as React from "react"
 import { Controller, Control } from "react-hook-form"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
-import { Button } from "@/components/ui/button"
 import RequiredLabel from "../components/RequiredLabel"
 import ChildTable from "../components/ChildTable"
 import FellowshipSelector from "../components/FellowshipSelector"
@@ -21,6 +19,7 @@ interface FamilyFellowshipStepProps {
   ) => void
   fellowships: Array<{ id: string; name: string; description?: string }>
   isLoadingFellowships: boolean
+  showChildrenField: boolean
 }
 
 export default function FamilyFellowshipStep({
@@ -31,22 +30,27 @@ export default function FamilyFellowshipStep({
   onChildUpdate,
   fellowships,
   isLoadingFellowships,
+  showChildrenField, // Make sure to destructure this
 }: FamilyFellowshipStepProps) {
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6">
-        <div className="flex items-center justify-between">
-          <FieldLabel>Children</FieldLabel>
-          <RequiredLabel />
+      {/* Children Section - Only show when not single */}
+      {showChildrenField && (
+        <div className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6">
+          <div className="flex items-center justify-between">
+            <FieldLabel>Children</FieldLabel>
+            <RequiredLabel />
+          </div>
+          <ChildTable
+            childrenList={childrenList}
+            onChildAdd={onChildAdd}
+            onChildRemove={onChildRemove}
+            onChildUpdate={onChildUpdate}
+          />
         </div>
-        <ChildTable
-          childrenList={childrenList}
-          onChildAdd={onChildAdd}
-          onChildRemove={onChildRemove}
-          onChildUpdate={onChildUpdate}
-        />
-      </div>
+      )}
 
+      {/* Fellowship Groups Section - Always visible */}
       <div className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6">
         <div className="flex items-center justify-between">
           <FieldLabel>Fellowship Groups</FieldLabel>

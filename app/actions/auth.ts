@@ -2,7 +2,6 @@
 
 import { z } from "zod"
 import { redirect } from "next/navigation"
-import { hash } from "bcrypt"
 import { prisma } from "@/lib/prisma"
 import {
   verifyUserCredentials,
@@ -26,20 +25,19 @@ const registerSchema = z.object({
   role: z.enum(["WORKER", "ADMIN"]).default("WORKER"),
 })
 
-export type RegisterState =
+export type LoginState =
   | {
       success: boolean
       errors: {
-        name?: string[]
         email?: string[]
         password?: string[]
-        role?: string[]
         _form?: string[]
       }
     }
   | never
 
-export async function login(previousState: RegisterState, formData: FormData) {
+// login
+export async function login(previousState: LoginState, formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
 

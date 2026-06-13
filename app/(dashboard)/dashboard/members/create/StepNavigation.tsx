@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useMemberForm } from "./MemberFormProvider"
-import { STEPS } from "./types"
+import { STEPS } from "../schemas"
 
 export const StepNavigation: React.FC = () => {
   const { stepIndex, back, next, submit, step } = useMemberForm()

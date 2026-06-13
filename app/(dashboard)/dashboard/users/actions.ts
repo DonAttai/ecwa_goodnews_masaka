@@ -6,6 +6,7 @@ import { hash } from "bcrypt"
 
 import { getSession, requireAdmin } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
+import { User } from "./columns"
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -112,6 +113,101 @@ export async function createUser(
       errors: {
         _form: ["An unexpected error occurred"],
       },
+    }
+  }
+}
+
+// update user
+export async function updateUser(data: Omit<User, "email">) {
+  try {
+    await requireAdmin()
+
+    const adminSession = await getSession()
+
+    // Prevent admin from changing their own role
+    if (adminSession?.userId === data.id) {
+      throw new Error("Cannot change your own role")
+    }
+
+    const user = await prisma.user.update({
+      where: { id: data.id },
+      data: { name: data.name, role: data.role, isActive: data.isActive },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+      },
+    })
+
+    // Add audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: adminSession?.userId!,
+        action: "UPDATE_USER_ROLE",
+        entity: "USER",
+        entityId: data.id,
+        description: `Changed user ${user.email} role to ${user.role}`,
+        metadata: {
+          previousRole: user.role,
+          ...data,
+        },
+      },
+    })
+    revalidatePath("/dashboard/users")
+    return {
+      success: true,
+      message: "User updated successfully",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to update user",
+    }
+  }
+}
+
+// delete user
+export async function deleteUser(userId: string) {
+  try {
+    const adminSession = await requireAdmin()
+
+    // Get user details before deletion for audit log
+    const userToDelete = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    })
+
+    // Prevent admin from deleting themselves
+    if (adminSession.userId === userId) {
+      throw new Error("Cannot delete your own account")
+    }
+
+    await prisma.user.delete({
+      where: { id: userId },
+    })
+
+    // Add audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: adminSession.userId,
+        action: "DELETE_USER",
+        entity: "USER",
+        entityId: userId,
+        description: `Admin deleted user ${userToDelete?.email}`,
+        metadata: {
+          deletedUserEmail: userToDelete?.email,
+          deletedBy: adminSession.userId,
+          deletedByEmail: adminSession.email,
+        },
+      },
+    })
+
+    revalidatePath("/dashboard/users")
+    return { success: true, message: "User deleted successfully" }
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to delete user",
     }
   }
 }

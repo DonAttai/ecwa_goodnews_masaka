@@ -1,5 +1,7 @@
 import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import SettingsPage from "./components/settings-page"
+
 export default async function Settings() {
   const session = await getSession()
 
@@ -10,5 +12,9 @@ export default async function Settings() {
   if (session.role !== "ADMIN") {
     redirect("/dashboard")
   }
-  return <div>Settings</div>
+  return (
+    <div>
+      <SettingsPage />
+    </div>
+  )
 }

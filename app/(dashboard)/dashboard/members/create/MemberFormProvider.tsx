@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useMemo, useState } from "react"
 import { useForm, FormProvider } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { MemberFormSchema, MemberFormValues, STEPS, Step } from "./types"
+import { memberFormSchema, MemberFormValues, STEPS, Step } from "../schemas"
 
 type Context = {
   form: ReturnType<typeof useForm<MemberFormValues>>
@@ -28,13 +28,13 @@ export const MemberFormProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const methods = useForm<MemberFormValues>({
-    resolver: zodResolver(MemberFormSchema),
+    resolver: zodResolver(memberFormSchema) as any,
     defaultValues: {
       firstName: "",
-      lastName: "",
+      surname: "",
       otherNames: "",
       children: [],
-      fellowships: [],
+      fellowshipGroupIds: [],
     },
     mode: "onTouched",
   })

@@ -14,6 +14,7 @@ enum Role {
   WORKER
 }
 
+
 enum MaritalStatus {
   SINGLE
   MARRIED
@@ -71,6 +72,7 @@ model Member {
   phoneNumber                String
   email                      String?
   maritalStatus              MaritalStatus?
+  gender                     Gender?
   spouseName                 String?
   stateOfOrigin              String
   lga                        String
@@ -138,6 +140,8 @@ model FellowshipGroup {
   id          String   @id @default(cuid())
 
   name        String   @unique
+
+  description String?
 
   members     MemberFellowship[]
 

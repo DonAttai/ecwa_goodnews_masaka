@@ -15,6 +15,10 @@ export default async function changePassword(
   currentPassword: string,
   newPassword: string
 ) {
+  console.log(
+    "Changing password for user with current password:",
+    currentPassword
+  )
   try {
     const validated = passwordSchema.parse({
       currentPassword,
@@ -80,11 +84,6 @@ export default async function changePassword(
     })
     await clearSessionCookie()
     redirect("/login")
-
-    return {
-      success: true,
-      message: "Password changed successfully. Please log in again.",
-    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {

@@ -1,10 +1,12 @@
 import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
-export default async function MemberPage({
-  params,
-}: {
+import { prisma } from "@/lib/prisma"
+import MemberDetails from "./components/member-details"
+
+type MemberPageProps = {
   params: Promise<{ memberId: string }>
-}) {
+}
+export default async function MemberPage({ params }: MemberPageProps) {
   const session = getSession()
 
   if (!session) {
@@ -12,10 +14,34 @@ export default async function MemberPage({
   }
 
   const memberId = (await params).memberId
+
+  const member = await prisma.member.findUnique({
+    where: { id: memberId },
+    include: {
+      children: true,
+      fellowshipGroups: {
+        include: {
+          fellowship: true,
+        },
+      },
+    },
+  })
+
+  if (!member) {
+    redirect("/dashboard/members")
+  }
+
   return (
-    <div>
-      MemberPage
-      <div className="p-8 text-center">Member ID: {memberId}</div>
-    </div>
+    <>
+      <MemberDetails
+        member={{
+          ...member,
+          gender: (member.gender as "MALE") || "FEMALE",
+          fellowshipGroupIds: member.fellowshipGroups.map(
+            (fg) => fg.fellowship.id
+          ),
+        }}
+      />
+    </>
   )
 }

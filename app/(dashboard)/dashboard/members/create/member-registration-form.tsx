@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -13,22 +13,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { FieldGroup } from "@/components/ui/field"
+
 import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Progress } from "@/components/ui/progress"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import {
   User,
   Users,
@@ -44,14 +38,13 @@ import {
   Trash2,
   X,
   Camera,
+  CheckCircle,
 } from "lucide-react"
 import { nigeriaStates, getLgasByState } from "@/lib/nigeria-locations"
 import { memberFormSchema, MemberFormValues } from "../schemas"
 import { createMember } from "../actions"
-import { CloudinaryUploader } from "./components/cloudinary-uploader"
-import RequiredLabel from "./components/RequiredLabel"
 import { StepIndicator } from "./components/StepIndicator"
-import { FormProgress } from "./FormProgress"
+import { FormProgress } from "./form-progress"
 import PersonalInfoStep from "./steps/PersonalInfoStep"
 import PassportPhotoStep from "./steps/PassportPhotoStep"
 import FamilyFellowshipStep from "./steps/FamilyFellowshipStep"
@@ -59,6 +52,7 @@ import SpiritualDataStep from "./steps/SpiritualDataStep"
 import DisciplineServiceStep from "./steps/DisciplineServiceStep"
 import RecommendationsStep from "./steps/RecommendationsStep"
 import DeclarationStep from "./steps/DeclarationStep"
+import { shouldShowChildrenField } from "./utils/marita-status"
 
 interface Child {
   name: string
@@ -78,11 +72,6 @@ const steps: StepItem[] = [
     description: "Personal & Contact Information",
   },
   {
-    title: "Passport Photo",
-    icon: Camera,
-    description: "Upload your passport photograph",
-  },
-  {
     title: "Family & Fellowship",
     icon: Users,
     description: "Children & Fellowship Groups",
@@ -98,6 +87,11 @@ const steps: StepItem[] = [
     description: "Church Discipline & Previous Service",
   },
   {
+    title: "Passport Photo",
+    icon: Camera,
+    description: "Upload your passport photograph (Optional)",
+  },
+  {
     title: "Recommendations",
     icon: Lightbulb,
     description: "Suggestions & Recommendations",
@@ -109,7 +103,7 @@ const steps: StepItem[] = [
   },
 ]
 
-const DEFAULT_VALUES: MemberFormValues = {
+const DEFAULT_VALUES: Omit<MemberFormValues, "id"> = {
   surname: "",
   firstName: "",
   otherNames: "",
@@ -117,7 +111,8 @@ const DEFAULT_VALUES: MemberFormValues = {
   phoneNumber: "",
   email: "",
   previousPlaceOfWorship: "",
-  maritalStatus: "SINGLE",
+  maritalStatus: "SINGLE" as const,
+  gender: null as any,
   spouseName: "",
   homeCell: "",
   zone: "",
@@ -126,12 +121,12 @@ const DEFAULT_VALUES: MemberFormValues = {
   tribe: "",
   children: [],
   fellowshipGroupIds: [],
-  acceptedChrist: "NO",
-  baptized: "NO",
+  acceptedChrist: "NO" as const,
+  baptized: "NO" as const,
   baptismPlace: "",
   baptizedBy: "",
-  communicant: "NO",
-  beenOnDiscipline: "NO",
+  communicant: "NO" as const,
+  beenOnDiscipline: "NO" as const,
   disciplineReason: "",
   disciplineDate: null,
   disciplineReliefDate: null,
@@ -141,7 +136,7 @@ const DEFAULT_VALUES: MemberFormValues = {
   memberSignedDate: null,
   pastorSignature: "",
   pastorSignedDate: null,
-}
+} satisfies Omit<MemberFormValues, "id">
 
 export default function MemberRegistrationForm() {
   const [currentStep, setCurrentStep] = React.useState(0)
@@ -153,6 +148,10 @@ export default function MemberRegistrationForm() {
   >([])
   const [isLoadingFellowships, setIsLoadingFellowships] = React.useState(true)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false)
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(
+    null
+  )
 
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(memberFormSchema) as any,
@@ -163,10 +162,22 @@ export default function MemberRegistrationForm() {
   const selectedState = form.watch("stateOfOrigin")
   const watchedChildren = (form.watch("children") as Child[]) || []
   const isMarried = form.watch("maritalStatus") === "MARRIED"
+  const maritalStatus = form.watch("maritalStatus")
+  const showChildrenField = shouldShowChildrenField(maritalStatus)
   const isBaptized = form.watch("baptized") === "YES"
   const hasBeenOnDiscipline = form.watch("beenOnDiscipline") === "YES"
 
   const progress = ((currentStep + 1) / steps.length) * 100
+
+  // Clear submit error when form fields change
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      if (submitError) {
+        setSubmitError(null)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form, submitError])
 
   React.useEffect(() => {
     if (selectedState) {
@@ -236,10 +247,14 @@ export default function MemberRegistrationForm() {
   const moveToStep = (step: number) => {
     if (step < currentStep) {
       setCurrentStep(step)
+      setSubmitError(null) // Clear error when moving to previous step
     }
   }
 
   const validateCurrentStep = async () => {
+    // Clear previous errors before validation
+    setSubmitError(null)
+
     const stepFields: Array<keyof MemberFormValues> = []
 
     switch (currentStep) {
@@ -250,6 +265,7 @@ export default function MemberRegistrationForm() {
           "presentAddress",
           "phoneNumber",
           "maritalStatus",
+          "gender",
           "stateOfOrigin",
           "lga",
           "tribe"
@@ -259,26 +275,26 @@ export default function MemberRegistrationForm() {
         }
         break
       case 1:
-        if (!passportUrl) {
-          toast.error("Please upload a passport photograph to continue")
-          return false
-        }
-        return true
-      case 2:
         stepFields.push("children", "fellowshipGroupIds")
+        if (showChildrenField) {
+          stepFields.push("children")
+        }
         break
-      case 3:
+      case 2:
         stepFields.push("acceptedChrist", "baptized", "communicant")
         if (isBaptized) {
           stepFields.push("baptismPlace", "baptizedBy")
         }
         break
-      case 4:
+      case 3:
         stepFields.push("beenOnDiscipline")
         if (hasBeenOnDiscipline) {
           stepFields.push("disciplineReason")
         }
         break
+      case 4:
+        // Passport upload is now optional - no validation needed
+        return true
       case 5:
         stepFields.push("suggestions")
         break
@@ -310,6 +326,9 @@ export default function MemberRegistrationForm() {
           })
         }, 100)
       }
+    } else {
+      // Clear error when validation passes
+      setSubmitError(null)
     }
 
     return isStepValid
@@ -330,17 +349,22 @@ export default function MemberRegistrationForm() {
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
+      setSubmitError(null) // Clear error when going back
       window.scrollTo({ top: 0, behavior: "smooth" })
     }
   }
 
   const onSubmit = async (data: MemberFormValues) => {
-    if (!passportUrl) {
-      toast.error("Please upload a passport photograph before submitting")
-      setCurrentStep(1)
-      return
-    }
-
+    // Remove passport validation - now optional
+    // if (!passportUrl) {
+    //   toast.error("Please upload a passport photograph before submitting")
+    //   setCurrentStep(4)
+    //   return
+    // }
+    console.log("Form data before submit:", {
+      fellowshipGroupIds: data.fellowshipGroupIds,
+      allData: data,
+    })
     setSubmitError(null)
     setIsSubmitting(true)
 
@@ -351,6 +375,8 @@ export default function MemberRegistrationForm() {
         if (value !== undefined && value !== null && value !== "") {
           if (key === "children") {
             formDataToSend.append(key, JSON.stringify(value))
+          } else if (key === "fellowshipGroupIds") {
+            formDataToSend.append(key, JSON.stringify(value))
           } else if (typeof value === "string") {
             formDataToSend.append(key, value)
           } else if (typeof value === "boolean") {
@@ -359,12 +385,17 @@ export default function MemberRegistrationForm() {
         }
       })
 
-      formDataToSend.append("passportUrl", passportUrl)
+      // Only append passportUrl if it exists
+      if (passportUrl) {
+        formDataToSend.append("passportUrl", passportUrl)
+      }
 
       const result = await createMember(formDataToSend)
 
       if (result.success) {
-        toast.success(result.message || "Member registered successfully!")
+        const message = result.message || "Member registered successfully!"
+        setSuccessMessage(message)
+        setShowSuccessModal(true)
         resetForm()
         return
       }
@@ -388,6 +419,7 @@ export default function MemberRegistrationForm() {
             "presentAddress",
             "phoneNumber",
             "maritalStatus",
+            "gender",
             "stateOfOrigin",
             "lga",
             "tribe",
@@ -395,13 +427,13 @@ export default function MemberRegistrationForm() {
         ) {
           errorStepIndex = 0
         } else if (["fellowshipGroupIds"].includes(errorField)) {
-          errorStepIndex = 2
+          errorStepIndex = 1
         } else if (
           ["acceptedChrist", "baptized", "communicant"].includes(errorField)
         ) {
-          errorStepIndex = 3
+          errorStepIndex = 2
         } else if (["beenOnDiscipline"].includes(errorField)) {
-          errorStepIndex = 4
+          errorStepIndex = 3
         } else if (
           [
             "memberSignature",
@@ -441,6 +473,7 @@ export default function MemberRegistrationForm() {
   const handleFormSubmit = form.handleSubmit(onSubmit, () => {
     toast.error("Please fill in all required fields correctly")
   })
+
   return (
     <Card className="mx-auto w-full max-w-5xl shadow-lg">
       <CardHeader className="border-b bg-linear-to-r from-primary/5 to-primary/10">
@@ -482,14 +515,6 @@ export default function MemberRegistrationForm() {
             )}
 
             {currentStep === 1 && (
-              <PassportPhotoStep
-                passportUrl={passportUrl}
-                onUpload={handlePassportUpload}
-                onRemove={handlePassportRemove}
-              />
-            )}
-
-            {currentStep === 2 && (
               <FamilyFellowshipStep
                 control={form.control}
                 childrenList={watchedChildren}
@@ -498,20 +523,30 @@ export default function MemberRegistrationForm() {
                 onChildUpdate={updateChild}
                 fellowships={fellowships}
                 isLoadingFellowships={isLoadingFellowships}
+                showChildrenField={showChildrenField}
               />
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 2 && (
               <SpiritualDataStep
                 control={form.control}
                 isBaptized={isBaptized}
               />
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 3 && (
               <DisciplineServiceStep
                 control={form.control}
                 hasBeenOnDiscipline={hasBeenOnDiscipline}
+              />
+            )}
+
+            {currentStep === 4 && (
+              <PassportPhotoStep
+                passportUrl={passportUrl}
+                onUpload={handlePassportUpload}
+                onRemove={handlePassportRemove}
+                isOptional={true}
               />
             )}
 
@@ -526,9 +561,36 @@ export default function MemberRegistrationForm() {
 
       {submitError && (
         <div className="mx-6 mb-4 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
-          <p className="text-sm text-red-500">{submitError}</p>
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            <p className="text-sm text-red-500">{submitError}</p>
+          </div>
         </div>
       )}
+
+      <AlertDialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mb-2 flex justify-center">
+              <CheckCircle className="h-12 w-12 text-green-600" />
+            </div>
+            <AlertDialogTitle className="text-center text-lg">
+              Success!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {successMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-center gap-2 pt-4">
+            <AlertDialogAction
+              onClick={() => setShowSuccessModal(false)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              OK
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <CardFooter className="flex justify-between border-t pt-6">
         <Button
@@ -551,7 +613,7 @@ export default function MemberRegistrationForm() {
             <Button
               type="button"
               onClick={handleFormSubmit}
-              disabled={isSubmitting || !passportUrl}
+              disabled={isSubmitting}
               className="gap-2 bg-green-600 hover:bg-green-700"
             >
               {isSubmitting ? (
@@ -567,12 +629,7 @@ export default function MemberRegistrationForm() {
               )}
             </Button>
           ) : (
-            <Button
-              type="button"
-              onClick={nextStep}
-              className="gap-2"
-              disabled={currentStep === 1 && !passportUrl}
-            >
+            <Button type="button" onClick={nextStep} className="gap-2">
               Next
               <ChevronRight className="h-4 w-4" />
             </Button>

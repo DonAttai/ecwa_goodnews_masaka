@@ -1,6 +1,6 @@
 "use client"
 
-import MemberRegistrationForm from "./MemberRegistrationForm"
+import MemberRegistrationForm from "./member-registration-form"
 
 export const CreateMemberPage = () => {
   return <MemberRegistrationForm />

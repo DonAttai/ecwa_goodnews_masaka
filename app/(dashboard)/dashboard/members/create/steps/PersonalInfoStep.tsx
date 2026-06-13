@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { Controller, Control } from "react-hook-form"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -25,13 +24,13 @@ interface PersonalInfoStepProps {
 
 export default function PersonalInfoStep({
   control,
-  selectedState,
   availableLgas,
   isMarried,
 }: PersonalInfoStepProps) {
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Name fields - 2 columns on desktop, 1 on mobile */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Controller
           control={control}
           name="surname"
@@ -41,7 +40,15 @@ export default function PersonalInfoStep({
                 <FieldLabel>Surname</FieldLabel>
                 <RequiredLabel />
               </div>
-              <Input {...field} placeholder="Surname" />
+              <Input
+                {...field}
+                placeholder="Surname"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
@@ -56,21 +63,38 @@ export default function PersonalInfoStep({
                 <FieldLabel>First Name</FieldLabel>
                 <RequiredLabel />
               </div>
-              <Input {...field} placeholder="First name" />
+              <Input
+                {...field}
+                placeholder="First name"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Other names and previous place of worship */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Controller
           control={control}
           name="otherNames"
           render={({ field, fieldState }) => (
             <Field>
               <FieldLabel>Other Names</FieldLabel>
-              <Input {...field} placeholder="Other names" />
+              <Input
+                {...field}
+                placeholder="Other names"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
@@ -82,84 +106,57 @@ export default function PersonalInfoStep({
           render={({ field, fieldState }) => (
             <Field>
               <FieldLabel>Previous Place of Worship</FieldLabel>
-              <Input {...field} placeholder="Previous place of worship" />
+              <Input
+                {...field}
+                placeholder="Previous place of worship"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Gender and Marital Status - side by side */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Controller
           control={control}
-          name="presentAddress"
+          name="gender"
           render={({ field, fieldState }) => (
             <Field>
               <div className="flex items-center justify-between gap-2">
-                <FieldLabel>Present Address</FieldLabel>
+                <FieldLabel>Gender</FieldLabel>
                 <RequiredLabel />
               </div>
-              <Textarea {...field} placeholder="Present address" rows={3} />
+              <Select
+                value={field.value || undefined}
+                onValueChange={(value) => {
+                  field.onChange(value)
+                  field.onBlur()
+                }}
+              >
+                <SelectTrigger
+                  className={
+                    fieldState.error
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }
+                >
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MALE">Male</SelectItem>
+                  <SelectItem value="FEMALE">Female</SelectItem>
+                </SelectContent>
+              </Select>
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
         />
-
-        <Controller
-          control={control}
-          name="phoneNumber"
-          render={({ field, fieldState }) => (
-            <Field>
-              <div className="flex items-center justify-between gap-2">
-                <FieldLabel>Phone Number</FieldLabel>
-                <RequiredLabel />
-              </div>
-              <Input {...field} placeholder="Phone number" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Controller
-          control={control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Email</FieldLabel>
-              <Input {...field} placeholder="Email address" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="homeCell"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Home Cell</FieldLabel>
-              <Input {...field} placeholder="Cell name" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Controller
-          control={control}
-          name="zone"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Zone</FieldLabel>
-              <Input {...field} placeholder="Zone" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-
         <Controller
           control={control}
           name="maritalStatus"
@@ -170,10 +167,19 @@ export default function PersonalInfoStep({
                 <RequiredLabel />
               </div>
               <Select
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  field.onChange(value)
+                  field.onBlur()
+                }}
                 value={field.value || "SINGLE"}
               >
-                <SelectTrigger>
+                <SelectTrigger
+                  className={
+                    fieldState.error
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }
+                >
                   <SelectValue placeholder="Select marital status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -189,21 +195,150 @@ export default function PersonalInfoStep({
         />
       </div>
 
-      {isMarried && (
+      {/* Present address and phone number */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Controller
           control={control}
-          name="spouseName"
+          name="presentAddress"
           render={({ field, fieldState }) => (
             <Field>
-              <FieldLabel>Spouse Name</FieldLabel>
-              <Input {...field} placeholder="Spouse name" />
+              <div className="flex items-center justify-between gap-2">
+                <FieldLabel>Present Address</FieldLabel>
+                <RequiredLabel />
+              </div>
+              <Textarea
+                {...field}
+                placeholder="Present address"
+                rows={3}
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
         />
+
+        <Controller
+          control={control}
+          name="phoneNumber"
+          render={({ field, fieldState }) => (
+            <Field>
+              <div className="flex items-center justify-between gap-2">
+                <FieldLabel>Phone Number</FieldLabel>
+                <RequiredLabel />
+              </div>
+              <Input
+                {...field}
+                placeholder="Phone number"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+      </div>
+
+      {/* Email and Home Cell */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <Controller
+          control={control}
+          name="email"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Email</FieldLabel>
+              <Input
+                {...field}
+                placeholder="Email address"
+                type="email"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="homeCell"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Home Cell</FieldLabel>
+              <Input
+                {...field}
+                placeholder="Cell name"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+      </div>
+
+      {/* Zone field - full width on mobile, half on desktop */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <Controller
+          control={control}
+          name="zone"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Zone</FieldLabel>
+              <Input
+                {...field}
+                placeholder="Zone"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+      </div>
+
+      {/* Spouse name - conditional */}
+      {isMarried && (
+        <div className="grid grid-cols-1 gap-6">
+          <Controller
+            control={control}
+            name="spouseName"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Spouse Name</FieldLabel>
+                <Input
+                  {...field}
+                  placeholder="Spouse name"
+                  className={
+                    fieldState.error
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }
+                />
+                <FieldError>{fieldState.error?.message}</FieldError>
+              </Field>
+            )}
+          />
+        </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-3">
+      {/* Location fields - 3 columns on desktop, 1 on mobile */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Controller
           control={control}
           name="stateOfOrigin"
@@ -213,8 +348,20 @@ export default function PersonalInfoStep({
                 <FieldLabel>State of Origin</FieldLabel>
                 <RequiredLabel />
               </div>
-              <Select onValueChange={field.onChange} value={field.value || ""}>
-                <SelectTrigger>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value)
+                  field.onBlur()
+                }}
+                value={field.value || undefined}
+              >
+                <SelectTrigger
+                  className={
+                    fieldState.error
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }
+                >
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -239,8 +386,20 @@ export default function PersonalInfoStep({
                 <FieldLabel>LGA</FieldLabel>
                 <RequiredLabel />
               </div>
-              <Select onValueChange={field.onChange} value={field.value || ""}>
-                <SelectTrigger>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value)
+                  field.onBlur()
+                }}
+                value={field.value || undefined}
+              >
+                <SelectTrigger
+                  className={
+                    fieldState.error
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }
+                >
                   <SelectValue placeholder="Select LGA" />
                 </SelectTrigger>
                 <SelectContent>
@@ -261,8 +420,19 @@ export default function PersonalInfoStep({
           name="tribe"
           render={({ field, fieldState }) => (
             <Field>
-              <FieldLabel>Tribe</FieldLabel>
-              <Input {...field} placeholder="Tribe" />
+              <div className="flex items-center justify-between gap-2">
+                <FieldLabel>Tribe</FieldLabel>
+                <RequiredLabel />
+              </div>
+              <Input
+                {...field}
+                placeholder="Tribe"
+                className={
+                  fieldState.error
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}

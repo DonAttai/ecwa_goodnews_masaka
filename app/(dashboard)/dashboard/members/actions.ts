@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { memberFormSchema } from "./schemas"
+import { memberFormSchema, baseMemberFormSchema } from "./schemas"
 import { requireAdmin } from "@/lib/auth"
 
 export async function createMember(formData: FormData) {
@@ -20,6 +20,7 @@ export async function createMember(formData: FormData) {
       "previousPlaceOfWorship"
     ) as string
     const maritalStatus = formData.get("maritalStatus") as string
+    const gender = formData.get("gender") as string
     const spouseName = formData.get("spouseName") as string
     const homeCell = formData.get("homeCell") as string
     const zone = formData.get("zone") as string
@@ -44,6 +45,9 @@ export async function createMember(formData: FormData) {
     const pastorSignature = formData.get("pastorSignature") as string
     const pastorSignedDate = formData.get("pastorSignedDate") as string
     const children = JSON.parse((formData.get("children") as string) || "[]")
+    const fellowshipGroupIds = JSON.parse(
+      (formData.get("fellowshipGroupIds") as string) || "[]"
+    )
 
     // Handle passport upload
     const passportUrl = formData.get("passportUrl") as string | null
@@ -62,6 +66,7 @@ export async function createMember(formData: FormData) {
       phoneNumber,
       email: email || undefined,
       previousPlaceOfWorship: previousPlaceOfWorship || undefined,
+      gender: gender || undefined,
       maritalStatus,
       spouseName: spouseName || undefined,
       homeCell: homeCell || undefined,
@@ -71,9 +76,7 @@ export async function createMember(formData: FormData) {
       tribe,
       passportUrl: passportUrl || undefined,
       children,
-      fellowshipGroupIds: JSON.parse(
-        (formData.get("fellowshipGroupIds") as string) || "[]"
-      ),
+      fellowshipGroupIds,
       acceptedChrist: acceptedChrist as "YES" | "NO",
       baptized: baptized as "YES" | "NO",
       baptismPlace: baptismPlace || undefined,
@@ -90,6 +93,7 @@ export async function createMember(formData: FormData) {
       pastorSignature: pastorSignature || undefined,
       pastorSignedDate: pastorSignedDate || undefined,
     }
+    // check fellowshipGroup
 
     const parsed = memberFormSchema.safeParse(validationData)
 
@@ -114,6 +118,7 @@ export async function createMember(formData: FormData) {
         phoneNumber: validatedData.phoneNumber,
         email: validatedData.email,
         previousPlaceOfWorship: validatedData.previousPlaceOfWorship,
+        gender: validatedData.gender,
         maritalStatus: validatedData.maritalStatus,
         spouseName: validatedData.spouseName,
         homeCell: validatedData.homeCell,
@@ -203,5 +208,204 @@ export async function createMember(formData: FormData) {
           ? error.message
           : "Server error occurred while creating member",
     }
+  }
+}
+
+// Delete member action
+export async function deleteMember(memberId: string) {
+  try {
+    await requireAdmin()
+    await prisma.member.delete({ where: { id: memberId } })
+
+    // Simulate deletion
+    console.log(`Deleting member with ID: ${memberId}`)
+
+    // Revalidate the members list page
+    revalidatePath("/members")
+
+    return { success: true, message: "Member deleted successfully" }
+  } catch (error) {
+    console.error("Error deleting member:", error)
+    return { success: false, message: "Failed to delete member" }
+  }
+}
+
+// Update member action
+export async function updateMember(memberId: string, formData: FormData) {
+  console.log(formData)
+  try {
+    await requireAdmin()
+
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+      include: {
+        children: true, // Include existing children
+      },
+    })
+
+    if (!member) {
+      return {
+        success: false,
+        message: "Member not found!",
+      }
+    }
+
+    // Extract text fields
+    const surname = formData.get("surname") as string
+    const firstName = formData.get("firstName") as string
+    const otherNames = formData.get("otherNames") as string
+    const presentAddress = formData.get("presentAddress") as string
+    const phoneNumber = formData.get("phoneNumber") as string
+    const email = formData.get("email") as string
+
+    const spouseName = formData.get("spouseName") as string
+    const homeCell = formData.get("homeCell") as string
+    const zone = formData.get("zone") as string
+    const acceptedChrist = formData.get("acceptedChrist") as string
+    const baptized = formData.get("baptized") as string
+    const baptismPlace = formData.get("baptismPlace") as string
+    const baptizedBy = formData.get("baptizedBy") as string
+    const communicant = formData.get("communicant") as string
+    const beenOnDiscipline = formData.get("beenOnDiscipline") as string
+    const disciplineReason = formData.get("disciplineReason") as string
+    const disciplineDate = formData.get("disciplineDate") as string
+    const disciplineReliefDate = formData.get("disciplineReliefDate") as string
+
+    const fellowshipGroupIds = JSON.parse(
+      (formData.get("fellowshipGroupIds") as string) || "[]"
+    )
+
+    // Family Information
+    const maritalStatus = formData.get("maritalStatus") as string
+    const newChildren = JSON.parse((formData.get("children") as string) || "[]")
+
+    // Validate with Zod
+    const validationData = {
+      surname,
+      firstName,
+      otherNames: otherNames || undefined,
+      presentAddress,
+      phoneNumber,
+      email: email || undefined,
+      maritalStatus,
+      spouseName: spouseName || undefined,
+      homeCell: homeCell || undefined,
+      zone: zone || undefined,
+      children: newChildren,
+      fellowshipGroupIds,
+      acceptedChrist: acceptedChrist as "YES" | "NO",
+      baptized: baptized as "YES" | "NO",
+      baptismPlace: baptismPlace || undefined,
+      baptizedBy: baptizedBy || undefined,
+      communicant: communicant as "YES" | "NO",
+      beenOnDiscipline: beenOnDiscipline as "YES" | "NO",
+      disciplineReason: disciplineReason || undefined,
+      disciplineDate: disciplineDate || undefined,
+      disciplineReliefDate: disciplineReliefDate || undefined,
+    }
+
+    const partialMemberFromSchema = baseMemberFormSchema.partial()
+    const parsed = partialMemberFromSchema.safeParse(validationData)
+
+    if (!parsed.success) {
+      console.error("Validation errors:", parsed.error.flatten())
+      return {
+        success: false,
+        fieldErrors: parsed.error.flatten().fieldErrors,
+        message: "Please check the form for errors",
+      }
+    }
+
+    const validatedData = parsed.data
+
+    // Update member and add new children
+    await prisma.$transaction(async (tx) => {
+      // Update the member
+      await tx.member.update({
+        where: { id: memberId },
+        data: {
+          surname: validatedData?.surname,
+          firstName: validatedData?.firstName,
+          otherNames: validatedData.otherNames,
+          presentAddress: validatedData.presentAddress,
+          phoneNumber: validatedData.phoneNumber,
+          email: validatedData.email,
+          maritalStatus: validatedData.maritalStatus,
+          spouseName: validatedData.spouseName,
+          homeCell: validatedData.homeCell,
+          zone: validatedData.zone,
+          acceptedChrist: validatedData.acceptedChrist,
+          baptized: validatedData.baptized,
+          baptismPlace: validatedData.baptismPlace,
+          baptizedBy: validatedData.baptizedBy,
+          communicant: validatedData.communicant,
+          beenOnDiscipline: validatedData.beenOnDiscipline,
+          disciplineReason: validatedData.disciplineReason,
+          disciplineDate: validatedData.disciplineDate,
+          disciplineReliefDate: validatedData.disciplineReliefDate,
+        },
+      })
+
+      // Only add new children (not replacing existing ones)
+      if (validatedData.children && validatedData.children.length > 0) {
+        // Filter out children that already exist (if you have a way to identify duplicates)
+        // For example, check by name and contact to avoid duplicates
+        const existingChildKeys = new Set(
+          member.children.map((child) => `${child.name}-${child.contact || ""}`)
+        )
+
+        const childrenToAdd = validatedData.children.filter((child: any) => {
+          const childKey = `${child.name}-${child.contact || ""}`
+          return !existingChildKeys.has(childKey)
+        })
+
+        if (childrenToAdd.length > 0) {
+          await tx.child.createMany({
+            data: childrenToAdd.map((child: any) => ({
+              name: child.name,
+              contact: child.contact,
+              memberId,
+            })),
+          })
+        }
+      }
+
+      // Handle fellowship group associations (keeping existing, adding new ones)
+      if (validatedData.fellowshipGroupIds?.length) {
+        // Get existing associations
+        const existingAssociations = await tx.memberFellowship.findMany({
+          where: { memberId },
+          select: { fellowshipId: true },
+        })
+
+        const existingFellowshipIds = new Set(
+          existingAssociations.map((a) => a.fellowshipId)
+        )
+
+        // Only add new ones that don't exist
+        const newFellowshipIds = validatedData.fellowshipGroupIds.filter(
+          (id: string) => !existingFellowshipIds.has(id)
+        )
+
+        if (newFellowshipIds.length > 0) {
+          await tx.memberFellowship.createMany({
+            data: newFellowshipIds.map((fellowshipId: string) => ({
+              memberId,
+              fellowshipId,
+              addedAt: new Date(),
+            })),
+          })
+        }
+      }
+    })
+
+    // Revalidate the member details page
+    revalidatePath(`/dashboard/members/${memberId}`)
+    revalidatePath("/dashboard/members")
+
+    return { success: true, message: "Member updated successfully" }
+  } catch (error) {
+    console.error("Error updating member:", error)
+    return { success: false, message: "Failed to update member" }
   }
 }

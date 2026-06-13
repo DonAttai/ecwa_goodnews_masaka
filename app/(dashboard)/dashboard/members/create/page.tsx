@@ -4,7 +4,7 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import CreateMemberPage from "./CreateMemberPage"
+import CreateMemberPage from "./create-member-page"
 
 export const metadata: Metadata = {
   title: "Create New Member",

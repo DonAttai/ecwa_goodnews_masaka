@@ -9,12 +9,14 @@ interface PassportPhotoStepProps {
   passportUrl: string | null
   onUpload: (url: string) => void
   onRemove: () => void
+  isOptional?: boolean
 }
 
 export default function PassportPhotoStep({
   passportUrl,
   onUpload,
   onRemove,
+  isOptional = false,
 }: PassportPhotoStepProps) {
   return (
     <div className="space-y-6">
@@ -23,13 +25,17 @@ export default function PassportPhotoStep({
           <div>
             <p className="text-lg font-semibold">Passport Photograph</p>
             <p className="text-sm text-slate-600">
-              Upload a recent passport photograph for the membership record.
+              {isOptional
+                ? "Upload a recent passport photograph for the membership record (Optional)."
+                : "Upload a recent passport photograph for the membership record."}
             </p>
           </div>
           {passportUrl ? (
             <Badge variant="secondary">Uploaded</Badge>
           ) : (
-            <Badge variant="outline">Required</Badge>
+            <Badge variant={isOptional ? "outline" : "default"}>
+              {isOptional ? "Optional" : "Required"}
+            </Badge>
           )}
         </div>
 

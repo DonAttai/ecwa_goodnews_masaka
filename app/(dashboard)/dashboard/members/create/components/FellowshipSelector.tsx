@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { useCallback } from "react"
 
 interface FellowshipGroup {
   id: string
@@ -23,6 +24,16 @@ export const FellowshipSelector: React.FC<FellowshipSelectorProps> = ({
   isLoading,
   onChange,
 }) => {
+  const handleToggle = useCallback(
+    (fellowshipId: string, currentlySelected: boolean) => {
+      const nextIds = currentlySelected
+        ? selectedFellowshipIds.filter((id) => id !== fellowshipId)
+        : [...selectedFellowshipIds, fellowshipId]
+      onChange(nextIds)
+    },
+    [selectedFellowshipIds, onChange]
+  )
+
   if (isLoading) {
     return <div>Loading fellowship groups…</div>
   }
@@ -32,17 +43,19 @@ export const FellowshipSelector: React.FC<FellowshipSelectorProps> = ({
       {fellowships.map((fellowship) => {
         const selected = selectedFellowshipIds.includes(fellowship.id)
         return (
-          <button
+          <div
             key={fellowship.id}
-            type="button"
-            onClick={() => {
-              const nextIds = selected
-                ? selectedFellowshipIds.filter((id) => id !== fellowship.id)
-                : [...selectedFellowshipIds, fellowship.id]
-              onChange(nextIds)
+            onClick={() => handleToggle(fellowship.id, selected)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                handleToggle(fellowship.id, selected)
+              }
             }}
             className={cn(
-              "rounded-lg border p-4 text-left transition",
+              "cursor-pointer rounded-lg border p-4 text-left transition",
               selected
                 ? "border-primary bg-primary/10"
                 : "border-slate-200 bg-white hover:border-slate-300"
@@ -57,10 +70,18 @@ export const FellowshipSelector: React.FC<FellowshipSelectorProps> = ({
                   </p>
                 )}
               </div>
-              <Checkbox checked={selected} disabled />
+              <div onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={selected}
+                  onCheckedChange={(checked) => {
+                    // 'checked' is the new state (true/false)
+                    handleToggle(fellowship.id, !selected)
+                  }}
+                />
+              </div>
             </div>
             {selected && <Badge className="mt-3 inline-flex">Selected</Badge>}
-          </button>
+          </div>
         )
       })}
     </div>
