@@ -16,14 +16,14 @@ export default async function Page({
   const { token } = await params
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-950 via-slate-900 to-slate-800 px-4">
-      <Card className="w-full max-w-md border border-slate-800/60 bg-slate-900/70 shadow-2xl backdrop-blur-xl">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-md border-border bg-card shadow-2xl">
         <CardHeader className="space-y-3 text-center">
-          <CardTitle className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+          <CardTitle className="text-gold text-2xl font-bold tracking-tight sm:text-3xl">
             ECWA Goodnews 1, Masaka
           </CardTitle>
 
-          <CardDescription className="text-sm leading-relaxed text-slate-400 sm:text-base">
+          <CardDescription className="text-sm leading-relaxed text-muted-foreground sm:text-base">
             Set your password to activate and access your account securely
           </CardDescription>
         </CardHeader>

@@ -26,14 +26,14 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-950 via-slate-900 to-slate-800 px-4 py-8 sm:px-6 sm:py-10">
-      <Card className="mx-4 w-full max-w-lg border border-slate-800 bg-slate-900/80 shadow-2xl backdrop-blur-xl sm:mx-0">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8 sm:px-6 sm:py-10">
+      <Card className="mx-4 w-full max-w-lg border-border bg-card shadow-2xl sm:mx-0">
         <CardHeader className="space-y-2 px-4 pt-6 text-center sm:px-6 sm:pt-8">
-          <CardTitle className="text-2xl font-bold text-white sm:text-3xl">
+          <CardTitle className="text-gold text-2xl font-bold sm:text-3xl">
             ECWA Goodnews 1, Masaka
           </CardTitle>
 
-          <CardDescription className="text-sm text-slate-400 sm:text-base">
+          <CardDescription className="text-sm text-muted-foreground sm:text-base">
             Church Membership Management System - Login to your account
           </CardDescription>
         </CardHeader>
@@ -42,7 +42,7 @@ export default function LoginForm() {
           <form action={formAction} className="space-y-5 sm:space-y-6">
             {/* GLOBAL ERROR */}
             {"_form" in state.errors && (
-              <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-400 sm:px-4 sm:py-3 sm:text-sm">
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive sm:px-4 sm:py-3 sm:text-sm">
                 {state.errors._form?.[0]}
               </div>
             )}
@@ -51,7 +51,7 @@ export default function LoginForm() {
             <div className="space-y-1.5 sm:space-y-2">
               <Label
                 htmlFor="email"
-                className="text-sm text-slate-200 sm:text-base"
+                className="text-sm text-foreground sm:text-base"
               >
                 Email Address
               </Label>
@@ -61,11 +61,11 @@ export default function LoginForm() {
                 name="email"
                 type="email"
                 placeholder="admin@ecwa.com"
-                className="h-10 border-slate-700 bg-slate-800 text-sm text-white placeholder:text-slate-500 focus-visible:ring-indigo-500 sm:h-12 sm:text-base"
+                className="h-10 border-border bg-muted/30 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary sm:h-12 sm:text-base"
               />
 
               {"email" in state.errors && (
-                <p className="text-xs text-red-400 sm:text-sm">
+                <p className="text-xs text-destructive sm:text-sm">
                   {state.errors.email?.[0]}
                 </p>
               )}
@@ -75,7 +75,7 @@ export default function LoginForm() {
             <div className="space-y-1.5 sm:space-y-2">
               <Label
                 htmlFor="password"
-                className="text-sm text-slate-200 sm:text-base"
+                className="text-sm text-foreground sm:text-base"
               >
                 Password
               </Label>
@@ -86,12 +86,12 @@ export default function LoginForm() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter password"
-                  className="h-10 border-slate-700 bg-slate-800 pr-10 text-sm text-white placeholder:text-slate-500 focus-visible:ring-indigo-500 sm:h-12 sm:text-base"
+                  className="h-10 border-border bg-muted/30 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary sm:h-12 sm:text-base"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 transition-colors hover:text-slate-200"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {showPassword ? (
                     <svg
@@ -132,7 +132,7 @@ export default function LoginForm() {
               </div>
 
               {"password" in state.errors && (
-                <p className="text-xs text-red-400 sm:text-sm">
+                <p className="text-xs text-destructive sm:text-sm">
                   {state.errors.password?.[0]}
                 </p>
               )}
@@ -142,7 +142,7 @@ export default function LoginForm() {
             <Button
               type="submit"
               disabled={pending}
-              className="h-10 w-full rounded-xl bg-linear-to-r from-indigo-600 to-blue-600 text-sm font-semibold text-white transition hover:opacity-90 sm:h-12 sm:text-base"
+              className="btn-gold h-10 w-full rounded-xl text-sm font-semibold sm:h-12 sm:text-base"
             >
               {pending ? "Please wait..." : "Login"}
             </Button>

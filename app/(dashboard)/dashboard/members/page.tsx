@@ -27,8 +27,10 @@ export default async function MembersPage() {
     <div className="space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-white sm:text-3xl">Members</h1>
-          <p className="text-sm text-slate-400 sm:text-base">
+          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+            Members
+          </h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
             Manage church members
           </p>
         </div>

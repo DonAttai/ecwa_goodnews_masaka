@@ -20,9 +20,8 @@ export default function MobileSidebar({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent
         side="left"
-        className="w-72 border-slate-800 bg-slate-950 p-0"
+        className="w-72 border-r border-[#2a3444] bg-[#1a2332] p-0"
       >
-        {/* 🔥 REQUIRED FOR ACCESSIBILITY */}
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>
         </SheetHeader>

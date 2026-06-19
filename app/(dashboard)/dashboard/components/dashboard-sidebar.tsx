@@ -14,9 +14,8 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  Heart,
 } from "lucide-react"
-
-import LogoutButton from "@/app/(dashboard)/dashboard/components/logout-button"
 
 interface DashboardSidebarProps {
   userRole: "ADMIN" | "WORKER"
@@ -66,29 +65,32 @@ export default function DashboardSidebar({
   return (
     <aside
       className={clsx(
-        "flex h-full flex-col border-r border-slate-800 bg-slate-950 transition-all duration-300",
+        "flex h-full flex-col border-r border-[#2a3444] bg-[#1a2332] transition-all duration-300",
         collapsed ? "w-20" : "w-72"
       )}
     >
-      {/* HEADER */}
-      <div className="flex h-20 shrink-0 items-center justify-between border-b border-slate-800 px-4">
+      {/* HEADER with Church Logo */}
+      <div className="flex h-20 shrink-0 items-center justify-between border-b border-[#2a3444] px-4">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-blue-500 text-white">
-            <Church className="h-5 w-5" />
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#c9a84c] to-[#e8d5a3] shadow-lg shadow-[#c9a84c]/20">
+            <Church className="h-5 w-5 text-[#1a2332]" />
+            <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#c9a84c] ring-2 ring-[#1a2332]" />
           </div>
 
           {!collapsed && (
             <div className="leading-tight">
-              <h2 className="text-sm font-bold text-white">ECWA GOODNEWS</h2>
-              <p className="text-xs text-slate-400">MASAKA</p>
+              <h2 className="text-sm font-bold tracking-wide text-white">
+                ECWA GOODNEWS
+              </h2>
+              <p className="text-xs text-[#c9a84c]/70">MASAKA</p>
             </div>
           )}
         </div>
 
-        {/* collapse button */}
+        {/* Collapse button */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden items-center justify-center text-slate-400 hover:text-white md:flex"
+          className="hidden items-center justify-center rounded-lg text-[#c9a84c]/50 transition-all hover:bg-[#2a3444] hover:text-[#c9a84c] md:flex"
         >
           {collapsed ? (
             <ChevronRight className="h-5 w-5" />
@@ -98,8 +100,8 @@ export default function DashboardSidebar({
         </button>
       </div>
 
-      {/* NAV - This will scroll if there are many items */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
+      {/* NAVIGATION */}
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-6">
         {links.map((link) => {
           const hasAccess = link.roles.includes(userRole)
           if (!hasAccess) return null
@@ -115,24 +117,34 @@ export default function DashboardSidebar({
             <Link
               key={link.href}
               href={link.href}
-              onClick={() => {
-                onNavigate?.()
-              }}
+              onClick={() => onNavigate?.()}
               className={clsx(
-                "group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all",
+                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 collapsed && "justify-center px-2",
                 isActive
-                  ? "bg-linear-to-r from-indigo-600 to-blue-600 text-white shadow-md"
-                  : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                  ? "bg-linear-to-r from-[#c9a84c]/20 to-[#c9a84c]/5 text-[#c9a84c] shadow-sm"
+                  : "text-[#8a95a8] hover:bg-[#2a3444] hover:text-white"
               )}
             >
-              <Icon className="h-5 w-5 shrink-0" />
+              {/* Active indicator bar */}
+              {isActive && (
+                <span className="absolute top-1/2 left-0 h-8 w-0.5 -translate-y-1/2 rounded-r-full bg-[#c9a84c] shadow-sm shadow-[#c9a84c]/50" />
+              )}
+
+              <Icon
+                className={clsx(
+                  "h-5 w-5 shrink-0 transition-colors",
+                  isActive
+                    ? "text-[#c9a84c]"
+                    : "text-[#8a95a8] group-hover:text-white"
+                )}
+              />
 
               {!collapsed && <span>{link.title}</span>}
 
-              {/* tooltip for collapsed mode */}
+              {/* Tooltip for collapsed mode */}
               {collapsed && (
-                <span className="absolute left-20 z-50 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white group-hover:block">
+                <span className="absolute left-16 z-50 hidden rounded-lg bg-[#2a3444] px-3 py-1.5 text-xs text-white shadow-xl group-hover:block">
                   {link.title}
                 </span>
               )}
@@ -140,17 +152,6 @@ export default function DashboardSidebar({
           )
         })}
       </nav>
-
-      {/* FOOTER */}
-      <div className="shrink-0 border-t border-slate-800 p-3">
-        {!collapsed ? (
-          <LogoutButton />
-        ) : (
-          <div className="flex justify-center">
-            <LogoutButton />
-          </div>
-        )}
-      </div>
     </aside>
   )
 }

@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import ProfileClient from "./profile-client"
 import { redirect } from "next/navigation"
+import { Toaster } from "sonner"
 
 export default async function ProfilePage() {
   const session = await getSession()
@@ -26,5 +27,10 @@ export default async function ProfilePage() {
     return <div className="p-8 text-center">User not found</div>
   }
 
-  return <ProfileClient user={user} />
+  return (
+    <>
+      <ProfileClient user={user} />
+      <Toaster />
+    </>
+  )
 }

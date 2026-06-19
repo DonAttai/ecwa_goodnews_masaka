@@ -7,32 +7,39 @@ import { z } from "zod"
 import { redirect } from "next/navigation"
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  currentPassword: z.string().min(1).trim(),
+  newPassword: z
+    .string()
+    .trim()
+    .min(8, "Password must be at least 8 characters"),
 })
 
-export default async function changePassword(
-  currentPassword: string,
-  newPassword: string
-) {
-  console.log(
-    "Changing password for user with current password:",
-    currentPassword
-  )
+type PasswordSchemaType = z.infer<typeof passwordSchema>
+
+export default async function changePassword({
+  currentPassword,
+  newPassword,
+}: PasswordSchemaType) {
   try {
-    const validated = passwordSchema.parse({
-      currentPassword,
-      newPassword,
-    })
-
     const session = await getSession()
-
     if (!session) {
       return {
         success: false,
         message: "Unauthorized",
       }
     }
+
+    const validationData = { currentPassword, newPassword }
+    const parsed = passwordSchema.safeParse(validationData)
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: "Invalid input",
+      }
+    }
+
+    const validatedData = parsed.data
 
     const user = await prisma.user.findUnique({
       where: {
@@ -51,8 +58,15 @@ export default async function changePassword(
       }
     }
 
+    if (!user.password) {
+      return {
+        success: false,
+        message: "Password not set for this account",
+      }
+    }
+
     const isCurrentPasswordValid = await compare(
-      validated.currentPassword,
+      validatedData.currentPassword,
       user.password
     )
 
@@ -63,7 +77,10 @@ export default async function changePassword(
       }
     }
 
-    const isSamePassword = await compare(validated.newPassword, user.password)
+    const isSamePassword = await compare(
+      validatedData.newPassword,
+      user.password
+    )
 
     if (isSamePassword) {
       return {
@@ -72,7 +89,7 @@ export default async function changePassword(
       }
     }
 
-    const hashedPassword = await hash(validated.newPassword, 10)
+    const hashedPassword = await hash(validatedData.newPassword, 10)
 
     await prisma.user.update({
       where: {

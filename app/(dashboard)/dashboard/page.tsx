@@ -11,7 +11,7 @@ export default async function Dashboard() {
     redirect("/login")
   }
 
-  const totalMembers = await prisma.member.count()
+  const adulCount = await prisma.member.count()
 
   const maleCount = await prisma.member.count({
     where: { gender: "MALE" },
@@ -20,15 +20,17 @@ export default async function Dashboard() {
     where: { gender: "FEMALE" },
   })
 
-  const children = await prisma.child.count()
+  const childrenCount = await prisma.child.count()
+
+  const totalMembers = adulCount + childrenCount
 
   return (
     <div className="space-y-4 p-3 sm:space-y-6 sm:p-4 md:p-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        <h1 className="text-gold text-2xl font-bold tracking-tight sm:text-3xl">
           Dashboard
         </h1>
-        <div className="text-xs text-muted-foreground sm:text-sm">
+        <div className="text-sm text-muted-foreground sm:text-base">
           Welcome back, {currentUser?.name}
         </div>
       </div>
@@ -38,22 +40,22 @@ export default async function Dashboard() {
         <StatCard
           title="Total Members"
           value={totalMembers}
-          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+          icon={<Users className="h-4 w-4 text-primary" />}
         />
         <StatCard
           title="Men"
           value={maleCount}
-          icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
+          icon={<UserCheck className="h-4 w-4 text-primary" />}
         />
         <StatCard
           title="Women"
           value={femaleCount}
-          icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />}
+          icon={<CalendarDays className="h-4 w-4 text-primary" />}
         />
         <StatCard
           title="Children"
-          value={children}
-          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+          value={childrenCount}
+          icon={<Activity className="h-4 w-4 text-primary" />}
         />
       </div>
 
@@ -73,13 +75,17 @@ function StatCard({
   icon: React.ReactNode
 }) {
   return (
-    <Card className="w-full">
+    <Card className="w-full border-border bg-card shadow-lg transition-all hover:shadow-xl hover:shadow-primary/5">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon}
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div className="rounded-lg bg-primary/10 p-2">{icon}</div>
       </CardHeader>
       <CardContent>
-        <div className="text-xl font-bold sm:text-2xl">{value}</div>
+        <div className="text-2xl font-bold text-foreground sm:text-3xl">
+          {value}
+        </div>
       </CardContent>
     </Card>
   )

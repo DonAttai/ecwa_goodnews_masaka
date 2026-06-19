@@ -221,20 +221,24 @@ export default function SettingsPage({
 
   if (loading)
     return (
-      <div className="p-10 text-center text-white">Loading settings...</div>
+      <div className="p-10 text-center text-foreground">
+        Loading settings...
+      </div>
     )
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 md:flex">
+    <div className="min-h-screen bg-background md:flex">
       {/* Mobile Header with Hamburger */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-800 bg-slate-900/80 p-4 backdrop-blur-sm md:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card/80 p-4 backdrop-blur-sm md:hidden">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
             <Church className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-white">Settings</h1>
-            <p className="text-sm text-slate-400 capitalize">{activeSection}</p>
+            <h1 className="text-xl font-semibold text-foreground">Settings</h1>
+            <p className="text-sm text-muted-foreground capitalize">
+              {activeSection}
+            </p>
           </div>
         </div>
         <Button
@@ -242,7 +246,7 @@ export default function SettingsPage({
           size="icon"
           onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           aria-label="Toggle menu"
-          className="text-slate-300 hover:bg-slate-800 hover:text-white"
+          className="text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           {isMobileSidebarOpen ? (
             <X className="h-6 w-6" />
@@ -253,7 +257,7 @@ export default function SettingsPage({
       </div>
 
       {/* Sidebar - Desktop */}
-      <div className="hidden w-72 shrink-0 border-r border-slate-800 bg-slate-900/80 p-6 backdrop-blur-sm md:block">
+      <div className="hidden w-72 shrink-0 border-r border-border bg-card/80 p-6 backdrop-blur-sm md:block">
         <div className="mb-10 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
             <Church className="h-6 w-6 text-primary" />
@@ -270,8 +274,8 @@ export default function SettingsPage({
                 onClick={() => setActiveSection(item.id)}
                 className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all ${
                   isActive
-                    ? "bg-primary/20 text-white shadow-sm"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                    ? "bg-primary/20 text-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Icon className="h-5 w-5 shrink-0" />
@@ -295,7 +299,7 @@ export default function SettingsPage({
 
         {/* Sidebar Panel */}
         <div
-          className={`fixed inset-y-0 left-0 z-50 w-70 transform border-r border-slate-800 bg-slate-900 p-6 transition-transform duration-300 ease-in-out md:hidden ${
+          className={`fixed inset-y-0 left-0 z-50 w-70 transform border-r border-border bg-card p-6 transition-transform duration-300 ease-in-out md:hidden ${
             isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -305,8 +309,12 @@ export default function SettingsPage({
                 <Church className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-white">Settings</h1>
-                <p className="text-sm text-slate-400">Church Administration</p>
+                <h1 className="text-xl font-semibold text-foreground">
+                  Settings
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Church Administration
+                </p>
               </div>
             </div>
             <Button
@@ -314,7 +322,7 @@ export default function SettingsPage({
               size="icon"
               onClick={() => setIsMobileSidebarOpen(false)}
               aria-label="Close menu"
-              className="text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <X className="h-6 w-6" />
             </Button>
@@ -333,8 +341,8 @@ export default function SettingsPage({
                   }}
                   className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all ${
                     isActive
-                      ? "bg-primary/20 text-white shadow-sm"
-                      : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                      ? "bg-primary/20 text-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
@@ -350,20 +358,20 @@ export default function SettingsPage({
       <div className="flex-1 p-4 sm:p-6 md:p-8">
         {/* Desktop Header */}
         <div className="mb-6 hidden md:block">
-          <h2 className="bg-linear-to-r from-white via-slate-200 to-slate-300 bg-clip-text text-2xl font-bold tracking-tight text-transparent capitalize sm:text-3xl">
+          <h2 className="text-gold text-2xl font-bold tracking-tight capitalize sm:text-3xl">
             {activeSection}
           </h2>
-          <p className="text-sm text-slate-400 sm:text-base">
+          <p className="text-sm text-muted-foreground sm:text-base">
             Manage your church configuration
           </p>
         </div>
 
         {/* Mobile Header (hidden when sidebar is open) */}
         <div className="mb-6 md:hidden">
-          <h2 className="bg-linear-to-r from-white via-slate-200 to-slate-300 bg-clip-text text-2xl font-bold tracking-tight text-transparent capitalize">
+          <h2 className="text-gold text-2xl font-bold tracking-tight capitalize">
             {activeSection}
           </h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Manage your church configuration
           </p>
         </div>
@@ -399,10 +407,12 @@ export default function SettingsPage({
         open={!!editingFellowship}
         onOpenChange={() => setEditingFellowship(null)}
       >
-        <DialogContent className="mx-4 border border-slate-800 bg-slate-900 text-white sm:mx-auto">
+        <DialogContent className="mx-4 border-border bg-card text-foreground sm:mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Edit Fellowship</DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <DialogTitle className="text-foreground">
+              Edit Fellowship
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Update the fellowship details below.
             </DialogDescription>
           </DialogHeader>
@@ -415,7 +425,7 @@ export default function SettingsPage({
             >
               <div className="space-y-6 py-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Name</Label>
+                  <Label className="text-foreground">Name</Label>
                   <Input
                     value={editingFellowship.name}
                     onChange={(e) =>
@@ -423,11 +433,11 @@ export default function SettingsPage({
                         prev ? { ...prev, name: e.target.value } : null
                       )
                     }
-                    className="border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-primary"
+                    className="border-border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:border-primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Description</Label>
+                  <Label className="text-foreground">Description</Label>
                   <Textarea
                     value={editingFellowship.description || ""}
                     onChange={(e) =>
@@ -436,7 +446,7 @@ export default function SettingsPage({
                       )
                     }
                     rows={5}
-                    className="border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-primary"
+                    className="border-border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:border-primary"
                   />
                 </div>
               </div>
@@ -445,11 +455,11 @@ export default function SettingsPage({
                   type="button"
                   variant="outline"
                   onClick={() => setEditingFellowship(null)}
-                  className="w-full border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white sm:w-auto"
+                  className="w-full border-border text-foreground hover:bg-muted sm:w-auto"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="w-full sm:w-auto">
+                <Button type="submit" className="btn-gold w-full sm:w-auto">
                   Save Changes
                 </Button>
               </DialogFooter>
@@ -460,12 +470,12 @@ export default function SettingsPage({
 
       {/* Delete Confirmation AlertDialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="mx-4 border border-slate-800 bg-slate-900 text-white sm:mx-auto">
+        <AlertDialogContent className="mx-4 border-border bg-card text-foreground sm:mx-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-foreground">
               Delete Fellowship?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone. This fellowship will be permanently
               removed from the system.
             </AlertDialogDescription>
@@ -476,13 +486,13 @@ export default function SettingsPage({
                 setDeleteDialogOpen(false)
                 setFellowshipToDelete(null)
               }}
-              className="w-full border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white sm:w-auto"
+              className="w-full border-border bg-muted/30 text-foreground hover:bg-muted sm:w-auto"
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteFellowship}
-              className="w-full bg-red-600 text-white hover:bg-red-700 sm:w-auto"
+              className="text-destructive-foreground w-full bg-destructive hover:bg-destructive/90 sm:w-auto"
             >
               Delete
             </AlertDialogAction>

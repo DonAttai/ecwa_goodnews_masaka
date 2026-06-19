@@ -19,17 +19,17 @@ export default function AddUserDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="h-11 rounded-xl bg-linear-to-r from-indigo-600 to-blue-600 px-5 text-white hover:opacity-90">
+        <Button className="btn-gold h-11 rounded-xl px-5">
           <Plus className="mr-2 h-4 w-4" />
           Add User
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="border border-slate-800 bg-slate-950 text-white sm:max-w-lg">
+      <DialogContent className="border border-border bg-background text-foreground sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl">Create User</DialogTitle>
 
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             Add a new administrator or worker.
           </DialogDescription>
         </DialogHeader>
