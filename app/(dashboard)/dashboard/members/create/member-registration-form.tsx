@@ -361,10 +361,7 @@ export default function MemberRegistrationForm() {
     //   setCurrentStep(4)
     //   return
     // }
-    console.log("Form data before submit:", {
-      fellowshipGroupIds: data.fellowshipGroupIds,
-      allData: data,
-    })
+
     setSubmitError(null)
     setIsSubmitting(true)
 

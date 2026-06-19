@@ -2,16 +2,16 @@
 
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
-import { hash } from "bcrypt"
 
 import { getSession, requireAdmin } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { User } from "./columns"
+import { generateUserToken } from "@/lib/generate-token"
+import { sendAccountCreatedEmail } from "@/lib/email/send-account-created-email"
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
   role: z.enum(["WORKER", "ADMIN"]).default("WORKER"),
 })
 
@@ -36,11 +36,10 @@ export async function createUser(
 
   const name = formData.get("name") as string
   const email = formData.get("email") as string
-  const password = formData.get("password") as string
   const role = (formData.get("role") as string) || "WORKER"
 
   // Validate input
-  const validation = registerSchema.safeParse({ name, email, password, role })
+  const validation = registerSchema.safeParse({ name, email, role })
 
   if (!validation.success) {
     return {
@@ -64,23 +63,41 @@ export async function createUser(
       }
     }
 
-    // Hash password
-    const hashedPassword = await hash(password, 10)
-
     // Create user - for first user, always make them ADMIN
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        password: hashedPassword,
         role: role as "WORKER" | "ADMIN",
+        password: null,
+        mustChangePassword: true,
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
+        mustChangePassword: true,
       },
+    })
+
+    const token = generateUserToken()
+
+    await prisma.passwordSetupToken.create({
+      data: {
+        token,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      },
+    })
+
+    const setupLink =
+      `${process.env.NEXT_PUBLIC_APP_URL}` + `/set-password/${token}`
+
+    await sendAccountCreatedEmail({
+      email,
+      name,
+      setupLink,
     })
 
     // Get current admin session for audit log

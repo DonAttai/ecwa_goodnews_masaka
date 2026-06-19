@@ -55,7 +55,7 @@ export async function login(previousState: LoginState, formData: FormData) {
     // Verify credentials using your existing function
     const user = await verifyUserCredentials(email, password)
 
-    if (!user) {
+    if (user === null) {
       return {
         success: false,
         errors: {
@@ -88,7 +88,16 @@ export async function login(previousState: LoginState, formData: FormData) {
       },
     })
   } catch (error) {
-    console.error("Login error:", error)
+    if (error instanceof Error) {
+      if (error.message === "No password") {
+        return {
+          success: false,
+          errors: {
+            _form: ["Please check your email and create a password first."],
+          },
+        }
+      }
+    }
     return {
       success: false,
       errors: {
@@ -100,6 +109,8 @@ export async function login(previousState: LoginState, formData: FormData) {
   // Redirect to dashboard on success
   redirect("/dashboard")
 }
+
+// logout action
 
 export async function logout() {
   await clearSessionCookie()

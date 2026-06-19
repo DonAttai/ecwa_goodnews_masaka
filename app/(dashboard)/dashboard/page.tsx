@@ -1,23 +1,26 @@
-import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, UserCheck, CalendarDays, Activity } from "lucide-react"
+import { getCurrentUser } from "@/app/actions/auth"
 
 export default async function Dashboard() {
-  const session = await getSession()
+  const currentUser = await getCurrentUser()
 
-  if (!session) {
+  if (!currentUser) {
     redirect("/login")
   }
 
-  const currentUser = await prisma.user.findUnique({
-    where: { email: session?.email! },
-    select: { role: true, isActive: true, name: true },
+  const totalMembers = await prisma.member.count()
+
+  const maleCount = await prisma.member.count({
+    where: { gender: "MALE" },
+  })
+  const femaleCount = await prisma.member.count({
+    where: { gender: "FEMALE" },
   })
 
-  // Fetch real stats (example for admin)
-  const totalMembers = await prisma.member.count()
+  const children = await prisma.child.count()
 
   return (
     <div className="space-y-4 p-3 sm:space-y-6 sm:p-4 md:p-6">
@@ -39,17 +42,17 @@ export default async function Dashboard() {
         />
         <StatCard
           title="Men"
-          value="5"
+          value={maleCount}
           icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard
           title="Women"
-          value="12"
+          value={femaleCount}
           icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard
           title="Children"
-          value="10"
+          value={children}
           icon={<Activity className="h-4 w-4 text-muted-foreground" />}
         />
       </div>

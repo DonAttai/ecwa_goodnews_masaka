@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { memberFormSchema, baseMemberFormSchema } from "./schemas"
 import { requireAdmin } from "@/lib/auth"
+import { sendMemberCreationEmail } from "@/lib/email/send-member-creation-email"
 
 export async function createMember(formData: FormData) {
   try {
@@ -190,7 +191,14 @@ export async function createMember(formData: FormData) {
 
       await Promise.all(operations)
     }
+    if (member.email) {
+      const name = `${member.firstName} ${member.surname}`
 
+      await sendMemberCreationEmail({
+        email: member.email,
+        name: name,
+      })
+    }
     revalidatePath("/dashboard/members")
     revalidatePath(`/dashboard/members/${member.id}`)
 
@@ -217,22 +225,17 @@ export async function deleteMember(memberId: string) {
     await requireAdmin()
     await prisma.member.delete({ where: { id: memberId } })
 
-    // Simulate deletion
-    console.log(`Deleting member with ID: ${memberId}`)
-
     // Revalidate the members list page
     revalidatePath("/members")
 
     return { success: true, message: "Member deleted successfully" }
   } catch (error) {
-    console.error("Error deleting member:", error)
     return { success: false, message: "Failed to delete member" }
   }
 }
 
 // Update member action
 export async function updateMember(memberId: string, formData: FormData) {
-  console.log(formData)
   try {
     await requireAdmin()
 
@@ -405,7 +408,6 @@ export async function updateMember(memberId: string, formData: FormData) {
 
     return { success: true, message: "Member updated successfully" }
   } catch (error) {
-    console.error("Error updating member:", error)
     return { success: false, message: "Failed to update member" }
   }
 }

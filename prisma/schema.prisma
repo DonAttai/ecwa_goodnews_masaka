@@ -45,13 +45,27 @@ model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
-  password  String
+  password  String?
   role      Role     
-  isActive  Boolean  @default(true)
+  isActive  Boolean  @default(false)
+
+  mustChangePassword Boolean @default(true)
+
+  PasswordSetupToken PasswordSetupToken[]
   auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PasswordSetupToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 
@@ -184,4 +198,21 @@ model MemberFellowship {
   
   @@id([memberId, fellowshipId])
   @@map("member_fellowships")
+}
+
+
+
+model Settings {
+  id                  Int   @id @default(1)
+  churchName          String
+  address             String?
+  phone               String?
+  email               String?
+  website             String?
+  logoUrl             String?
+  welcomeMessage      String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("settings")
 }
