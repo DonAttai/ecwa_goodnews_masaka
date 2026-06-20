@@ -28,14 +28,14 @@ import { MemberFormValues } from "../../schemas"
 
 type MemberDetailsPageProps = {
   member: MemberFormValues
+  isAdmin: boolean
 }
 
 export default async function MemberDetailsPage({
   member,
+  isAdmin,
 }: MemberDetailsPageProps) {
-  if (!member) {
-    notFound()
-  }
+  if (!member) notFound()
 
   const getInitials = () => {
     return `${member.firstName?.[0] || ""}${member.surname?.[0] || ""}`.toUpperCase()
@@ -58,9 +58,11 @@ export default async function MemberDetailsPage({
         {/* HERO SECTION */}
         <Card className="relative overflow-hidden border-0 shadow-xl">
           {/* Edit Button - Top Right Corner */}
-          <div className="absolute top-4 right-4 z-10">
-            <EditButton memberId={member.id} />
-          </div>
+          {isAdmin && (
+            <div className="absolute top-4 right-4 z-10">
+              <EditButton memberId={member.id} />
+            </div>
+          )}
 
           <div className="absolute inset-0 bg-linear-to-r from-primary/10 via-primary/5 to-transparent" />
           <CardContent className="relative p-6 sm:p-8">
@@ -359,9 +361,12 @@ export default async function MemberDetailsPage({
         )}
 
         {/* DELETE BUTTON - Bottom Right Corner */}
-        <div className="flex justify-end pt-4">
-          <DeleteButton memberId={member.id} memberName={memberFullName} />
-        </div>
+
+        {isAdmin && (
+          <div className="flex justify-end pt-4">
+            <DeleteButton memberId={member.id} memberName={memberFullName} />
+          </div>
+        )}
       </div>
     </div>
   )

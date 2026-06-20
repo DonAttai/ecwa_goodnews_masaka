@@ -30,12 +30,12 @@ export default function AddUserForm() {
     <form action={formAction} className="space-y-5">
       {/* NAME */}
       <div className="space-y-2">
-        <Label className="text-slate-200">Full Name</Label>
+        <Label className="text-muted-foreground">Full Name</Label>
 
         <Input
           name="name"
           placeholder="John Doe"
-          className="h-11 border-slate-700 bg-slate-900 text-white"
+          className="h-11 border-border bg-background text-foreground placeholder:text-muted-foreground"
         />
 
         {"name" in state.errors && (
@@ -45,13 +45,13 @@ export default function AddUserForm() {
 
       {/* EMAIL */}
       <div className="space-y-2">
-        <Label className="text-slate-200">Email Address</Label>
+        <Label className="text-muted-foreground">Email Address</Label>
 
         <Input
           type="email"
           name="email"
           placeholder="john@example.com"
-          className="h-11 border-slate-700 bg-slate-900 text-white"
+          className="h-11 border-border bg-background text-foreground placeholder:text-muted-foreground"
         />
 
         {"email" in state.errors && (
@@ -61,14 +61,14 @@ export default function AddUserForm() {
 
       {/* ROLE */}
       <div className="space-y-2">
-        <Label className="text-slate-200">Role</Label>
+        <Label className="text-muted-foreground">Role</Label>
 
         <Select name="role" defaultValue="WORKER">
-          <SelectTrigger className="h-11 border-slate-700 bg-slate-900 text-white">
+          <SelectTrigger className="h-11 border-border bg-background text-foreground">
             <SelectValue />
           </SelectTrigger>
 
-          <SelectContent className="border-slate-700 bg-slate-900 text-white">
+          <SelectContent className="border-border bg-card text-foreground">
             <SelectItem value="WORKER">Worker</SelectItem>
 
             <SelectItem value="ADMIN">Administrator</SelectItem>
@@ -80,7 +80,7 @@ export default function AddUserForm() {
       <Button
         type="submit"
         disabled={pending}
-        className="h-11 w-full bg-linear-to-r from-indigo-600 to-blue-600 text-white hover:opacity-90"
+        className="h-11 w-full bg-linear-to-r from-primary to-primary/80 text-primary-foreground hover:opacity-90"
       >
         {pending ? "Creating..." : "Create User"}
       </Button>

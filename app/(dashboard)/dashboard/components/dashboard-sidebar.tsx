@@ -72,7 +72,7 @@ export default function DashboardSidebar({
       {/* HEADER with Church Logo */}
       <div className="flex h-20 shrink-0 items-center justify-between border-b border-[#2a3444] px-4">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#c9a84c] to-[#e8d5a3] shadow-lg shadow-[#c9a84c]/20">
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-[#c9a84c] to-[#e8d5a3] shadow-lg shadow-[#c9a84c]/20">
             <Church className="h-5 w-5 text-[#1a2332]" />
             <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#c9a84c] ring-2 ring-[#1a2332]" />
           </div>
@@ -80,7 +80,7 @@ export default function DashboardSidebar({
           {!collapsed && (
             <div className="leading-tight">
               <h2 className="text-sm font-bold tracking-wide text-white">
-                ECWA GOODNEWS
+                ECWA GOODNEWS 1
               </h2>
               <p className="text-xs text-[#c9a84c]/70">MASAKA</p>
             </div>

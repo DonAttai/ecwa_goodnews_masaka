@@ -26,6 +26,7 @@ export async function verifyUserCredentials(email: string, password: string) {
       name: true,
     },
   })
+
   if (user?.password === null) {
     throw Error("No password")
   }

@@ -14,57 +14,31 @@ import {
 
 // Validation schemas
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email({ message: "Invalid email address" }),
   password: z.string().min(1, "Password is required"),
 })
 
-const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["WORKER", "ADMIN"]).default("WORKER"),
-})
-
-export type LoginState =
-  | {
-      success: boolean
-      errors: {
-        email?: string[]
-        password?: string[]
-        _form?: string[]
-      }
-    }
-  | never
-
 // login
-export async function login(previousState: LoginState, formData: FormData) {
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
-
-  // Validate input
-  const validation = loginSchema.safeParse({ email, password })
+export async function login(data: z.infer<typeof loginSchema>) {
+  const validation = loginSchema.safeParse({ ...data })
 
   if (!validation.success) {
     return {
       success: false,
-      errors: validation.error.flatten().fieldErrors,
+      message: "Invalid form inputs",
     }
   }
 
   try {
-    // Verify credentials using your existing function
-    const user = await verifyUserCredentials(email, password)
-
+    const user = await verifyUserCredentials(data.email, data.password)
     if (user === null) {
       return {
         success: false,
-        errors: {
-          _form: ["Invalid email or password"],
-        },
+        message: "Invalid email or password",
       }
     }
 
-    // Generate token and set cookie using your existing functions
+    // Generate token and set cookie
     const token = generateToken({
       userId: user.id,
       email: user.email,
@@ -73,7 +47,7 @@ export async function login(previousState: LoginState, formData: FormData) {
 
     await setSessionCookie(token)
 
-    // Optional: Add audit log
+    // Add audit log
     await prisma.auditLog.create({
       data: {
         userId: user.id,
@@ -92,17 +66,13 @@ export async function login(previousState: LoginState, formData: FormData) {
       if (error.message === "No password") {
         return {
           success: false,
-          errors: {
-            _form: ["Please check your email and create a password first."],
-          },
+          message: "Please check your email and create a password first.",
         }
       }
     }
     return {
       success: false,
-      errors: {
-        _form: ["An unexpected error occurred"],
-      },
+      message: "An unexpected error occurred",
     }
   }
 
@@ -111,7 +81,6 @@ export async function login(previousState: LoginState, formData: FormData) {
 }
 
 // logout action
-
 export async function logout() {
   await clearSessionCookie()
   redirect("/login")
@@ -164,39 +133,6 @@ export async function getAllUsers() {
   return users
 }
 
-export async function updateUserStatus(userId: string, isActive: boolean) {
-  await requireAdmin()
-
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: { isActive },
-    select: {
-      id: true,
-      email: true,
-      isActive: true,
-    },
-  })
-
-  // Optional: Add audit log
-  const adminSession = await getSession()
-  await prisma.auditLog.create({
-    data: {
-      userId: adminSession?.userId,
-      action: "UPDATE_USER_STATUS",
-      entity: "USER",
-      entityId: userId,
-      description: `User ${user.email} status changed to ${isActive ? "active" : "inactive"}`,
-      metadata: {
-        previousStatus: !isActive,
-        newStatus: isActive,
-        changedBy: adminSession?.userId,
-      },
-    },
-  })
-
-  return user
-}
-
 export async function deleteUser(userId: string) {
   const adminSession = await requireAdmin()
 
@@ -232,45 +168,4 @@ export async function deleteUser(userId: string) {
   })
 
   return { success: true }
-}
-
-export async function updateUserRole(
-  userId: string,
-  newRole: "WORKER" | "ADMIN"
-) {
-  await requireAdmin()
-
-  const adminSession = await getSession()
-
-  // Prevent admin from changing their own role
-  if (adminSession?.userId === userId) {
-    throw new Error("Cannot change your own role")
-  }
-
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: { role: newRole },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-    },
-  })
-
-  // Add audit log
-  await prisma.auditLog.create({
-    data: {
-      userId: adminSession?.userId!,
-      action: "UPDATE_USER_ROLE",
-      entity: "USER",
-      entityId: userId,
-      description: `Changed user ${user.email} role to ${user.role}`,
-      metadata: {
-        previousRole: user.role,
-        newRole,
-      },
-    },
-  })
-
-  return user
 }

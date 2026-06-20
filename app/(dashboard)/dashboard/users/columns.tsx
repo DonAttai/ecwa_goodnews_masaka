@@ -19,7 +19,12 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: () => <span className="hidden sm:table-cell">Email</span>,
+    cell: ({ row }) => {
+      const email = row.getValue("email") as string
+      // Hide on mobile, show on sm screens and up
+      return <span className="hidden sm:table-cell">{email}</span>
+    },
   },
   {
     accessorKey: "role",
@@ -27,10 +32,13 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "isActive",
-    header: "Active",
+    header: () => <span className="hidden sm:table-cell">Active</span>,
     cell: ({ row }) => {
-      const isActive = row.getValue("isActive")
-      return isActive ? "Yes" : "No"
+      const isActive = row.getValue("isActive") as boolean
+      // Hide on mobile, show on sm screens and up
+      return (
+        <span className="hidden sm:table-cell">{isActive ? "Yes" : "No"}</span>
+      )
     },
   },
 

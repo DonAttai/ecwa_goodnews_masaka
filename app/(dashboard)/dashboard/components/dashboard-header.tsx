@@ -110,7 +110,6 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
               className="cursor-pointer rounded-xl text-[#4a5568] hover:bg-[#f8f6f3] hover:text-[#1a2332]"
               onSelect={() => router.push("/dashboard/profile")}
             >
-              <User className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>
             {isAdmin && (
@@ -118,18 +117,15 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
                 className="cursor-pointer rounded-xl text-[#4a5568] hover:bg-[#f8f6f3] hover:text-[#1a2332]"
                 onSelect={() => router.push("/dashboard/settings")}
               >
-                <Settings className="mr-2 h-4 w-4" />
                 Settings
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700"
+              className="cursor-pointer rounded-xl text-[#4a5568] hover:bg-[#f8f6f3] hover:text-[#1a2332]"
               onClick={handleLogout}
             >
-              <LogOut className="mr-2 h-4 w-4" />
               Logout
-              {/* <LogoutButton /> */}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

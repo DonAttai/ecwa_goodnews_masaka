@@ -34,7 +34,7 @@ interface Props {
 }
 
 export default function SetPasswordForm({ token }: Props) {
-  const [isPending, startTransition] = useTransition()
+  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
@@ -46,26 +46,27 @@ export default function SetPasswordForm({ token }: Props) {
   })
 
   const onSubmit = async (values: FormSchemaType) => {
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/auth/set-password", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, password: values.password }),
-        })
+    try {
+      setIsLoading(true)
+      const res = await fetch("/api/auth/set-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password: values.password }),
+      })
 
-        const data = await res.json()
+      const data = await res.json()
 
-        if (res.ok) {
-          toast.success("Password created successfully!")
-          router.push("/login")
-        } else {
-          toast.error(data.message || "Failed to set password")
-        }
-      } catch (error) {
-        toast.error("Network error. Please try again.")
+      if (res.ok) {
+        toast.success("Password created successfully!")
+        router.push("/login")
+      } else {
+        toast.error(data.message || "Failed to set password")
       }
-    })
+    } catch (error) {
+      toast.error("Network error. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -145,9 +146,9 @@ export default function SetPasswordForm({ token }: Props) {
       <Button
         type="submit"
         className="btn-gold w-full py-5 text-base font-semibold"
-        disabled={isPending}
+        disabled={isLoading}
       >
-        {isPending ? "Creating Password..." : "Create Password"}
+        {isLoading ? "Creating Password..." : "Create Password"}
       </Button>
     </form>
   )

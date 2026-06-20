@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import SetPasswordForm from "./set-password-form"
-import { Toaster } from "sonner"
 
 export default async function Page({
   params,
@@ -32,7 +31,6 @@ export default async function Page({
           <SetPasswordForm token={token} />
         </CardContent>
       </Card>
-      <Toaster />
     </main>
   )
 }

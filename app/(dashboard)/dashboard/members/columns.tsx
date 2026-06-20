@@ -47,15 +47,21 @@ export const columns: ColumnDef<Member>[] = [
   },
   {
     accessorKey: "phoneNumber",
-    header: "Phone Number",
+    header: () => <span className="hidden sm:table-cell">Phone Number</span>,
+    cell: ({ row }) => {
+      const phone = row.getValue("phoneNumber") as boolean
+      // Hide on mobile, show on sm screens and up
+      return <span className="hidden sm:table-cell">{phone}</span>
+    },
   },
 
   {
     accessorKey: "gender",
-    header: "Gender",
+    header: () => <span className="hidden sm:table-cell">Gender</span>,
     cell: ({ row }) => {
-      const member = row.original
-      return <div>{member.gender}</div>
+      const gender = row.getValue("gender") as boolean
+      // Hide on mobile, show on sm screens and up
+      return <span className="hidden sm:table-cell">{gender}</span>
     },
   },
 

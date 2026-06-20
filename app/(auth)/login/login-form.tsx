@@ -1,153 +1,166 @@
 "use client"
 
-import { useActionState, useState } from "react"
-
-import { login, LoginState } from "@/app/actions/auth"
-
+import { useState } from "react"
+import { login } from "@/app/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import * as z from "zod"
+import { Controller, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field"
+import { Eye, EyeOff } from "lucide-react"
 
-import { Label } from "@/components/ui/label"
+const formSchema = z.object({
+  email: z.email({ message: "Invalid email address" }),
+  password: z.string().min(1, "Password field is required"),
+})
 
-const initialState: LoginState = {
-  success: false,
-  errors: {},
-}
+type FormSchemaType = z.infer<typeof formSchema>
 
 export default function LoginForm() {
-  const [state, formAction, pending] = useActionState(login, initialState)
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: "", password: "" },
+    mode: "onBlur",
+  })
+
+  const onSubmit = async (values: FormSchemaType) => {
+    try {
+      const result = await login({ ...values })
+      if (!result.success) {
+        toast.error(result.message ?? "Login failed")
+        return
+      }
+
+      toast.success("Login successful! Redirecting...", {
+        duration: 3000,
+        position: "top-center",
+      })
+    } catch (error) {
+      toast.error("Network error. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8 sm:px-6 sm:py-10">
-      <Card className="mx-4 w-full max-w-lg border-border bg-card shadow-2xl sm:mx-0">
+    <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
+      <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg">
         <CardHeader className="space-y-2 px-4 pt-6 text-center sm:px-6 sm:pt-8">
-          <CardTitle className="text-gold text-2xl font-bold sm:text-3xl">
+          <CardTitle className="text-gold text-2xl font-bold sm:text-3xl md:text-4xl">
             ECWA Goodnews 1, Masaka
           </CardTitle>
-
           <CardDescription className="text-sm text-muted-foreground sm:text-base">
             Church Membership Management System - Login to your account
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="px-4 pb-6 sm:px-6 sm:pb-8">
-          <form action={formAction} className="space-y-5 sm:space-y-6">
-            {/* GLOBAL ERROR */}
-            {"_form" in state.errors && (
-              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive sm:px-4 sm:py-3 sm:text-sm">
-                {state.errors._form?.[0]}
-              </div>
-            )}
-
-            {/* EMAIL */}
-            <div className="space-y-1.5 sm:space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-sm text-foreground sm:text-base"
-              >
-                Email Address
-              </Label>
-
-              <Input
-                id="email"
+        <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
+          {/* Form with ID for button to reference */}
+          <form id="login-form" onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="space-y-5 sm:space-y-6">
+              {/* EMAIL */}
+              <Controller
                 name="email"
-                type="email"
-                placeholder="admin@ecwa.com"
-                className="h-10 border-border bg-muted/30 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary sm:h-12 sm:text-base"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="text-foreground"
+                    >
+                      Email Address
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="admin@ecwa.com"
+                      autoComplete="off"
+                      className="border-border bg-muted/30 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
 
-              {"email" in state.errors && (
-                <p className="text-xs text-destructive sm:text-sm">
-                  {state.errors.email?.[0]}
-                </p>
-              )}
-            </div>
-
-            {/* PASSWORD */}
-            <div className="space-y-1.5 sm:space-y-2">
-              <Label
-                htmlFor="password"
-                className="text-sm text-foreground sm:text-base"
-              >
-                Password
-              </Label>
-
-              <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter password"
-                  className="h-10 border-border bg-muted/30 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary sm:h-12 sm:text-base"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {showPassword ? (
-                    <svg
-                      className="h-4 w-4 sm:h-5 sm:w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+              {/* PASSWORD */}
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="text-foreground"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      Password
+                    </FieldLabel>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Enter your password"
+                        autoComplete="new-password"
+                        className="border-border bg-muted/30 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
+                        type={showPassword ? "text" : "password"}
                       />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="h-4 w-4 sm:h-5 sm:w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                      />
-                    </svg>
-                  )}
-                </button>
-              </div>
-
-              {"password" in state.errors && (
-                <p className="text-xs text-destructive sm:text-sm">
-                  {state.errors.password?.[0]}
-                </p>
-              )}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground focus:outline-none"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
+                    <FieldDescription className="text-muted-foreground">
+                      Password must be at least 8 characters.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
             </div>
-
-            {/* SUBMIT BUTTON */}
-            <Button
-              type="submit"
-              disabled={pending}
-              className="btn-gold h-10 w-full rounded-xl text-sm font-semibold sm:h-12 sm:text-base"
-            >
-              {pending ? "Please wait..." : "Login"}
-            </Button>
           </form>
         </CardContent>
+
+        <CardFooter className="flex flex-col gap-3 px-4 pb-6 sm:px-6 sm:pb-8">
+          <Button
+            type="submit"
+            form="login-form"
+            disabled={isLoading}
+            className="btn-gold h-10 w-full rounded-xl text-sm font-semibold sm:h-12 sm:text-base"
+          >
+            {isLoading ? "Please wait..." : "Login"}
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   )

@@ -5,8 +5,13 @@ generator client {
   output   = "../generated/prisma"
 }
 
+
+
+// prisma/schema.prisma
 datasource db {
-  provider = "sqlite"
+  // provider  = "postgresql"
+  provider  = "sqlite"
+
 }
 
 enum Role {
