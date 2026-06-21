@@ -23,6 +23,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Eye, EyeOff } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   email: z.email({ message: "Invalid email address" }),
@@ -34,6 +35,7 @@ type FormSchemaType = z.infer<typeof formSchema>
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
@@ -43,16 +45,15 @@ export default function LoginForm() {
 
   const onSubmit = async (values: FormSchemaType) => {
     try {
+      setIsLoading(true)
       const result = await login({ ...values })
-      if (!result.success) {
-        toast.error(result.message ?? "Login failed")
-        return
-      }
 
-      toast.success("Login successful! Redirecting...", {
-        duration: 3000,
-        position: "top-center",
-      })
+      if (result.success) {
+        toast.success("Login successful!")
+        router.push("/dashboard")
+      } else {
+        toast.error(result.message ?? "Login failed")
+      }
     } catch (error) {
       toast.error("Network error. Please try again.")
     } finally {

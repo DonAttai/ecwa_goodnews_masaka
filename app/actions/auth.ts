@@ -61,6 +61,9 @@ export async function login(data: z.infer<typeof loginSchema>) {
         },
       },
     })
+
+    // Redirect to dashboard on success
+    return { success: true }
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "No password") {
@@ -75,9 +78,6 @@ export async function login(data: z.infer<typeof loginSchema>) {
       message: "An unexpected error occurred",
     }
   }
-
-  // Redirect to dashboard on success
-  redirect("/dashboard")
 }
 
 // logout action
