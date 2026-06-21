@@ -1,6 +1,6 @@
 "use server"
 
-import { z } from "zod"
+import { success, z } from "zod"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import {
@@ -61,7 +61,6 @@ export async function login(data: z.infer<typeof loginSchema>) {
         },
       },
     })
-
     return { success: true }
   } catch (error) {
     if (error instanceof Error) {
