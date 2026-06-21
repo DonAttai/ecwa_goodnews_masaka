@@ -61,11 +61,7 @@ export async function login(data: z.infer<typeof loginSchema>) {
         },
       },
     })
-<<<<<<< HEAD
-=======
 
-    // Redirect to dashboard on success
->>>>>>> member_form
     return { success: true }
   } catch (error) {
     if (error instanceof Error) {
