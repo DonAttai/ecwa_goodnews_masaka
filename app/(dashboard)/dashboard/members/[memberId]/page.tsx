@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import MemberDetails from "./components/member-details"
 import { isAdmin } from "@/app/actions/auth"
+import { MemberFormValues } from "../schemas"
 
 type MemberPageProps = {
   params: Promise<{ memberId: string }>
@@ -31,16 +32,22 @@ export default async function MemberPage({ params }: MemberPageProps) {
 
   return (
     <>
-      <MemberDetails
-        member={{
-          ...member,
-          gender: (member.gender as "MALE") || "FEMALE",
-          fellowshipGroupIds: member.fellowshipGroups.map(
-            (fg) => fg.fellowship.id
-          ),
-        }}
-        isAdmin={isAdminUser}
-      />
+      return (
+      <>
+        <MemberDetails
+          member={
+            {
+              ...member,
+              gender: (member.gender as "MALE") || "FEMALE",
+              fellowshipGroupIds: member.fellowshipGroups.map(
+                (fg) => fg.fellowship.id
+              ),
+            } as MemberFormValues
+          }
+          isAdmin={isAdminUser}
+        />
+      </>
+      )
     </>
   )
 }

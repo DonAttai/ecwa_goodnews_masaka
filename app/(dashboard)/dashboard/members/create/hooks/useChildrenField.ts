@@ -1,7 +1,7 @@
 "use client"
 
 import { useFieldArray, useFormContext } from "react-hook-form"
-import { MemberFormValues } from "../schemas"
+import { MemberFormValues } from "../../schemas"
 
 export const useChildrenField = () => {
   const { control } = useFormContext<MemberFormValues>()

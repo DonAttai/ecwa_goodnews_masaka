@@ -109,7 +109,7 @@ export default function UpdateUserForm({
             aria-invalid={errors.name ? "true" : "false"}
           />
           {errors.name && (
-            <FieldError errors={[errors.name.message || "Invalid input"]} />
+            <FieldError errors={[errors.name[0].message || "Invalid input"]} />
           )}
         </Field>
 
