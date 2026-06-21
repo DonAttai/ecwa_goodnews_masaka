@@ -98,19 +98,6 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
         />
 
         {/* Name Field */}
-        <Field>
-          <FieldLabel htmlFor="name">Full Name</FieldLabel>
-          <Input
-            id="name"
-            type="text"
-            placeholder="John Doe"
-            {...register("name")}
-            aria-invalid={errors.name ? "true" : "false"}
-          />
-          {errors.name && (
-            <FieldError errors={[errors.name.message || "Invalid input"]} />
-          )}
-        />
 
         {/* Role Field using Select */}
         <Controller
