@@ -98,25 +98,6 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
         />
 
         {/* Name Field */}
-<<<<<<< HEAD
-=======
-        <Controller
-          name="name"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
-              <Input
-                {...field}
-                id={field.name}
-                aria-invalid={fieldState.invalid}
-                placeholder="John Doe"
-                autoComplete="off"
-              />
-            </Field>
-          )}
-        />
->>>>>>> member_form
 
         {/* Role Field using Select */}
         <Controller
