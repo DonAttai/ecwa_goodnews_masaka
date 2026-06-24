@@ -49,8 +49,8 @@ export default function LoginForm() {
       const result = await login({ ...values })
 
       if (result.success) {
-        toast.success("Login successful!")
         router.push("/dashboard")
+        toast.success("Login successful!")
       } else {
         toast.error(result.message ?? "Login failed")
       }

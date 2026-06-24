@@ -1,6 +1,6 @@
 "use server"
 
-import { success, z } from "zod"
+import { z } from "zod"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import {
@@ -11,6 +11,7 @@ import {
   getSession,
   requireAdmin,
 } from "@/lib/auth"
+import { error } from "node:console"
 
 // Validation schemas
 const loginSchema = z.object({
@@ -20,24 +21,39 @@ const loginSchema = z.object({
 
 // login
 export async function login(data: z.infer<typeof loginSchema>) {
-  const validation = loginSchema.safeParse({ ...data })
-
-  if (!validation.success) {
-    return {
-      success: false,
-      message: "Invalid form inputs",
-    }
-  }
-
   try {
-    const user = await verifyUserCredentials(data.email, data.password)
-    if (user === null) {
+    const validation = loginSchema.safeParse({ ...data })
+
+    if (!validation.success) {
+      return {
+        success: false,
+        message: "Invalid form inputs",
+      }
+    }
+
+    const result = await verifyUserCredentials(data.email, data.password)
+
+    if (result.status === "PASSWORD_NOT_SET") {
+      return {
+        success: false,
+        message: "Please set your password using the link sent to your email.",
+      }
+    }
+
+    if (result.status === "INVALID_CREDENTIALS") {
       return {
         success: false,
         message: "Invalid email or password",
       }
     }
+    if (result.status === "ACCOUNT_NOT_ACTIVE") {
+      return {
+        success: false,
+        message: "Your account is not active",
+      }
+    }
 
+    const user = result.user
     // Generate token and set cookie
     const token = generateToken({
       userId: user.id,
@@ -63,15 +79,9 @@ export async function login(data: z.infer<typeof loginSchema>) {
     })
 
     return { success: true }
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "No password") {
-        return {
-          success: false,
-          message: "Please check your email and create a password first.",
-        }
-      }
-    }
+  } catch (error: any) {
+    console.log(error.message)
+    console.log(error?.stack)
     return {
       success: false,
       message: "An unexpected error occurred",

@@ -1,54 +1,34 @@
 "use server"
 
-import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 
 import { getSession, requireAdmin } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-import { User } from "./columns"
 import { generateUserToken } from "@/lib/generate-token"
 import { sendAccountCreatedEmail } from "@/lib/email/send-account-created-email"
+import {
+  createUserSchema,
+  CreateUserSchemaType,
+  updateUserSchema,
+  UpdateUserSchemaType,
+} from "./schemas"
 
-const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  role: z.enum(["WORKER", "ADMIN"]).default("WORKER"),
-})
+export async function createUser(data: CreateUserSchemaType) {
+  try {
+    await requireAdmin()
 
-export type CreateUserState =
-  | {
-      success: boolean
-      errors: {
-        name?: string[]
-        email?: string[]
-        password?: string[]
-        role?: string[]
-        _form?: string[]
+    // Validate input
+    const validationData = createUserSchema.safeParse({ ...data })
+
+    if (!validationData.success) {
+      return {
+        success: false,
+        message: "Invalid form inputs",
       }
     }
-  | never
 
-export async function createUser(
-  previousState: CreateUserState,
-  formData: FormData
-): Promise<CreateUserState> {
-  await requireAdmin()
+    const { email, name, role } = validationData.data
 
-  const name = formData.get("name") as string
-  const email = formData.get("email") as string
-  const role = (formData.get("role") as string) || "WORKER"
-
-  // Validate input
-  const validation = registerSchema.safeParse({ name, email, role })
-
-  if (!validation.success) {
-    return {
-      success: false,
-      errors: validation.error.flatten().fieldErrors,
-    }
-  }
-
-  try {
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -57,9 +37,7 @@ export async function createUser(
     if (existingUser) {
       return {
         success: false,
-        errors: {
-          email: ["User with this email already exists"],
-        },
+        message: "User with this email already exists",
       }
     }
 
@@ -121,34 +99,41 @@ export async function createUser(
     })
 
     revalidatePath("/dashboard/users")
-
-    return { success: true, errors: {} }
+    return { success: true, message: "User creation successs" }
   } catch (error) {
-    console.error("Registration error:", error)
     return {
       success: false,
-      errors: {
-        _form: ["An unexpected error occurred"],
-      },
+      message: "An unexpected error occurred",
     }
   }
 }
 
 // update user
-export async function updateUser(data: Omit<User, "email">) {
+export async function updateUser(data: UpdateUserSchemaType) {
   try {
     await requireAdmin()
+    const validationData = updateUserSchema.safeParse(data)
+
+    if (!validationData.success) {
+      return {
+        success: false,
+        message: "Invalid form inputs",
+      }
+    }
 
     const adminSession = await getSession()
 
     // Prevent admin from changing their own role
     if (adminSession?.userId === data.id) {
-      throw new Error("Cannot change your own role")
+      return {
+        success: false,
+        message: "Cannot update your own data",
+      }
     }
-
+    const { name, role, isActive } = validationData.data
     const user = await prisma.user.update({
       where: { id: data.id },
-      data: { name: data.name, role: data.role, isActive: data.isActive },
+      data: { name, role, isActive },
       select: {
         id: true,
         email: true,

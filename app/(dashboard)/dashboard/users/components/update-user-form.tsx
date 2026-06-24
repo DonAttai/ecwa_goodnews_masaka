@@ -63,6 +63,7 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
 
       if (result.success) {
         toast.success(result.message || "User updated successfully")
+        onClose()
       } else {
         toast.error(result.message || "Failed to update user")
       }

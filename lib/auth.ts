@@ -27,24 +27,34 @@ export async function verifyUserCredentials(email: string, password: string) {
     },
   })
 
-  if (user?.password === null) {
-    throw Error("No password")
+  // user not found OR inactive
+  if (!user) {
+    return { status: "INVALID_CREDENTIALS" as const }
   }
-  if (!user || !user.isActive) {
-    return null
+
+  // user exists but must set password first
+  if (!user.password) {
+    return { status: "PASSWORD_NOT_SET" as const }
+  }
+
+  // user account not active
+  if (!user.isActive) {
+    return { status: "ACCOUNT_NOT_ACTIVE" as const }
   }
 
   const isValid = await compare(password, user.password)
 
   if (!isValid) {
-    return null
+    return { status: "INVALID_CREDENTIALS" as const }
   }
-
   return {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    name: user.name,
+    status: "SUCCESS" as const,
+    user: {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    },
   }
 }
 

@@ -14,10 +14,16 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 
 import AddUserForm from "./add-user-form"
+import { useState } from "react"
 
 export default function AddUserDialog() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleClose = () => {
+    setIsOpen(false)
+  }
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="btn-gold h-11 rounded-xl px-5">
           <Plus className="mr-2 h-4 w-4" />
@@ -34,7 +40,7 @@ export default function AddUserDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <AddUserForm />
+        <AddUserForm onClose={() => setIsOpen(false)} />
       </DialogContent>
     </Dialog>
   )

@@ -41,7 +41,7 @@ function CustomToaster() {
     <Toaster
       richColors
       position="top-center"
-      duration={4000}
+      duration={3000}
       visibleToasts={3}
       className="font-sans"
       toastOptions={{

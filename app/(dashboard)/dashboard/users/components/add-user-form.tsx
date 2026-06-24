@@ -1,8 +1,8 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useState } from "react"
 
-import { createUser, CreateUserState } from "../actions"
+import { createUser } from "../actions"
 
 import { Button } from "@/components/ui/button"
 
@@ -17,72 +17,130 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Controller, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { createUserSchema, CreateUserSchemaType } from "../schemas"
+import { toast } from "sonner"
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field"
 
-const initialState: CreateUserState = {
-  success: false,
-  errors: {},
-}
+export default function AddUserForm({ onClose }: { onClose: () => void }) {
+  const [isLoading, setIsLoading] = useState(false)
+  const form = useForm<CreateUserSchemaType>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      role: "WORKER",
+    },
+  })
 
-export default function AddUserForm() {
-  const [state, formAction, pending] = useActionState(createUser, initialState)
+  const onSubmit = async (data: CreateUserSchemaType) => {
+    try {
+      setIsLoading(true)
+      const result = await createUser(data)
+
+      if (result.success) {
+        toast.success(result.message || "User updated successfully")
+        onClose()
+      } else {
+        toast.error(result.message || "Failed to update user")
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
       {/* NAME */}
-      <div className="space-y-2">
-        <Label className="text-muted-foreground">Full Name</Label>
-
-        <Input
-          name="name"
-          placeholder="John Doe"
-          className="h-11 border-border bg-background text-foreground placeholder:text-muted-foreground"
-        />
-
-        {"name" in state.errors && (
-          <p className="text-sm text-red-400">{state.errors.name?.[0]}</p>
+      <Controller
+        name="name"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
+            <Input
+              {...field}
+              id={field.name}
+              aria-invalid={fieldState.invalid}
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
-      </div>
+      />
 
       {/* EMAIL */}
-      <div className="space-y-2">
-        <Label className="text-muted-foreground">Email Address</Label>
-
-        <Input
-          type="email"
-          name="email"
-          placeholder="john@example.com"
-          className="h-11 border-border bg-background text-foreground placeholder:text-muted-foreground"
-        />
-
-        {"email" in state.errors && (
-          <p className="text-sm text-red-400">{state.errors.email?.[0]}</p>
+      <Controller
+        name="email"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+            <Input
+              {...field}
+              id={field.name}
+              aria-invalid={fieldState.invalid}
+            />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
-      </div>
+      />
 
       {/* ROLE */}
       <div className="space-y-2">
-        <Label className="text-muted-foreground">Role</Label>
-
-        <Select name="role" defaultValue="WORKER">
-          <SelectTrigger className="h-11 border-border bg-background text-foreground">
-            <SelectValue />
-          </SelectTrigger>
-
-          <SelectContent className="border-border bg-card text-foreground">
-            <SelectItem value="WORKER">Worker</SelectItem>
-
-            <SelectItem value="ADMIN">Administrator</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="role"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field orientation="responsive" data-invalid={fieldState.invalid}>
+              <FieldContent>
+                <FieldLabel htmlFor={field.name}>Role</FieldLabel>
+                <FieldDescription>
+                  {field.value === "ADMIN"
+                    ? "Admins have full system access"
+                    : "Workers have limited permissions"}
+                </FieldDescription>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </FieldContent>
+              <Select
+                name={field.name}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                  className="min-w-30"
+                >
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent position="item-aligned">
+                  <SelectItem value="WORKER">Worker</SelectItem>
+                  <SelectItem value="ADMIN">Administrator</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          )}
+        />
       </div>
 
       {/* SUBMIT */}
       <Button
         type="submit"
-        disabled={pending}
+        disabled={isLoading}
         className="h-11 w-full bg-linear-to-r from-primary to-primary/80 text-primary-foreground hover:opacity-90"
       >
-        {pending ? "Creating..." : "Create User"}
+        {isLoading ? "Creating..." : "Create User"}
       </Button>
     </form>
   )

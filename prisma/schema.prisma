@@ -1,24 +1,139 @@
-
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
 }
 
-
-
-// prisma/schema.prisma
 datasource db {
-  provider  = "postgresql"
-  // provider  = "sqlite"
+  provider = "postgresql"
+}
 
+model User {
+  id                 String               @id @default(cuid())
+  name               String
+  email              String               @unique
+  password           String?
+  role               Role
+  isActive           Boolean              @default(false)
+  mustChangePassword Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  auditLogs          AuditLog[]
+  PasswordSetupToken PasswordSetupToken[]
+}
+
+model PasswordSetupToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Member {
+  id                     String             @id @default(cuid())
+  passportUrl            String?
+  surname                String
+  firstName              String
+  otherNames             String?
+  presentAddress         String
+  phoneNumber            String
+  email                  String?
+  maritalStatus          MaritalStatus?
+  gender                 Gender?
+  spouseName             String?
+  stateOfOrigin          String
+  lga                    String
+  tribe                  String
+  previousPlaceOfWorship String?
+  homeCell               String?
+  zone                   String?
+  acceptedChrist         String
+  baptized               String
+  baptismPlace           String?
+  baptizedBy             String?
+  communicant            String
+  beenOnDiscipline       String
+  disciplineReason       String?
+  disciplineDate         DateTime?
+  disciplineReliefDate   DateTime?
+  previousChurchPosition String?
+  suggestions            String?
+  memberSignature        String?
+  memberSignedDate       DateTime?
+  pastorSignature        String?
+  pastorSignedDate       DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  children               Child[]
+  fellowshipGroups       MemberFellowship[]
+}
+
+model Child {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String?
+  memberId  String
+  createdAt DateTime @default(now())
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model FellowshipGroup {
+  id          String             @id @default(cuid())
+  name        String             @unique
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  members     MemberFellowship[]
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  userId      String?
+  action      AuditAction
+  entity      EntityType
+  entityId    String?
+  description String?
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime    @default(now())
+  user        User?       @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([entity, entityId])
+}
+
+model MemberFellowship {
+  memberId     String
+  fellowshipId String
+  addedAt      DateTime        @default(now())
+  role         String?
+  fellowship   FellowshipGroup @relation(fields: [fellowshipId], references: [id], onDelete: Cascade)
+  member       Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([memberId, fellowshipId])
+  @@map("member_fellowships")
+}
+
+model Settings {
+  id             Int      @id @default(1)
+  churchName     String
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  logoUrl        String?
+  welcomeMessage String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("settings")
 }
 
 enum Role {
   ADMIN
   WORKER
 }
-
 
 enum MaritalStatus {
   SINGLE
@@ -44,180 +159,4 @@ enum AuditAction {
 enum EntityType {
   MEMBER
   USER
-}
-
-model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String?
-  role      Role     
-  isActive  Boolean  @default(false)
-
-  mustChangePassword Boolean @default(true)
-
-  PasswordSetupToken PasswordSetupToken[]
-  auditLogs AuditLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model PasswordSetupToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  expiresAt DateTime
-  userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-}
-
-
-
-
-// MEMBER MODEL
-model Member {
-  id                         String   @id @default(cuid())
-
-  // PASSPORT
-  passportUrl                String?
-
-  // PERSONAL DATA
-  surname                    String
-  firstName                  String
-  otherNames                 String?
-  presentAddress             String
-  phoneNumber                String
-  email                      String?
-  maritalStatus              MaritalStatus?
-  gender                     Gender?
-  spouseName                 String?
-  stateOfOrigin              String
-  lga                        String
-  tribe                      String
-  previousPlaceOfWorship     String?
-
-  // CHURCH STRUCTURE
-  homeCell                   String?
-  zone                       String?
-
-  // Fellowship Information
-  fellowshipGroups           MemberFellowship[]
-  // SPIRITUAL DATA
-  acceptedChrist             String  // "YES" or "NO"
-  baptized                   String  // "YES" or "NO"
-  baptismPlace               String?
-  baptizedBy                 String?
-  communicant                String  // "YES" or "NO"
-
-  // Church Discipline Record
-  beenOnDiscipline           String  // "YES" or "NO"
-  disciplineReason           String?
-  disciplineDate             DateTime?
-  disciplineReliefDate       DateTime?
-
-  // PREVIOUS CHURCH EXPERIENCE
-  previousChurchPosition     String?
-
-  // SUGGESTIONS/RECOMMENDATIONS
-  suggestions                String?
-
-  // SIGNATURES & DECLARATION
-  memberSignature            String?
-  memberSignedDate           DateTime?
-  pastorSignature            String?
-  pastorSignedDate           DateTime?
-
-  // RELATIONS
-  children                   Child[]
-
-
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
-}
-
-// CHILD MODEL
-
-model Child {
-  id          String   @id @default(cuid())
-
-  name        String
-  contact     String?
-
-  memberId    String
-  member      Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime @default(now())
-}
-
-
-
-// FELLOWSHIP GROUP MODEL
-
-model FellowshipGroup {
-  id          String   @id @default(cuid())
-
-  name        String   @unique
-
-  description String?
-
-  members     MemberFellowship[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-
-
-// AUDIT LOG MODEL - for tracking system activities
-model AuditLog {
-  id          String      @id @default(cuid())
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
-  
-  action      AuditAction
-  entity      EntityType
-  entityId    String?
-  
-  description String?
-  metadata    Json?
-  ipAddress   String?
-  
-  createdAt   DateTime    @default(now())
-
-  @@index([userId, createdAt])
-  @@index([entity, entityId])
-}
-
-// JUNCTION TABLE for Many-to-Many relationship
-model MemberFellowship {
-  memberId      String
-  member        Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  
-  fellowshipId  String
-  fellowship    FellowshipGroup @relation(fields: [fellowshipId], references: [id], onDelete: Cascade)
-  
-  addedAt      DateTime @default(now())
-  role          String?  // e.g., "Member", "Leader", "Assistant"
-  
-  @@id([memberId, fellowshipId])
-  @@map("member_fellowships")
-}
-
-
-
-model Settings {
-  id                  Int   @id @default(1)
-  churchName          String
-  address             String?
-  phone               String?
-  email               String?
-  website             String?
-  logoUrl             String?
-  welcomeMessage      String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  @@map("settings")
 }

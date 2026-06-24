@@ -41,8 +41,6 @@ export default async function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* 🔥 WELCOME SECTION WITH GOLD ACCENT */}
-
       {/* 🔥 KPI GRID - WARM & ELEGANT */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -83,7 +81,7 @@ export default async function Dashboard() {
         />
       </div>
 
-      {/* 🔥 BOTTOM SECTION - ANALYTICS & ACTIVITY */}
+      {/* BOTTOM SECTION - ANALYTICS & ACTIVITY */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Analytics Card */}
         <Card className="overflow-hidden border-[#e2dcd5]/50 shadow-sm transition-all duration-300 hover:shadow-md lg:col-span-2">
@@ -272,11 +270,11 @@ function StatCard({
       <div
         className={cn(
           "absolute top-0 left-0 h-1 w-12 transition-all duration-300 group-hover:w-16",
-          color === "gold" && "bg-gradient-to-r from-[#c9a84c] to-[#e8d5a3]",
-          color === "blue" && "bg-gradient-to-r from-blue-500 to-blue-400",
-          color === "rose" && "bg-gradient-to-r from-rose-500 to-rose-400",
+          color === "gold" && "bg-linear-to-r from-[#c9a84c] to-[#e8d5a3]",
+          color === "blue" && "bg-linear-to-r from-blue-500 to-blue-400",
+          color === "rose" && "bg-linear-to-r from-rose-500 to-rose-400",
           color === "emerald" &&
-            "bg-gradient-to-r from-emerald-500 to-emerald-400"
+            "bg-linear-to-r from-emerald-500 to-emerald-400"
         )}
       />
 

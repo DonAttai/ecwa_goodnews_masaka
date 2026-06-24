@@ -31,23 +31,17 @@ export default async function MemberPage({ params }: MemberPageProps) {
   if (!member) redirect("/dashboard/members")
 
   return (
-    <>
-      return (
-      <>
-        <MemberDetails
-          member={
-            {
-              ...member,
-              gender: (member.gender as "MALE") || "FEMALE",
-              fellowshipGroupIds: member.fellowshipGroups.map(
-                (fg) => fg.fellowship.id
-              ),
-            } as MemberFormValues
-          }
-          isAdmin={isAdminUser}
-        />
-      </>
-      )
-    </>
+    <MemberDetails
+      member={
+        {
+          ...member,
+          gender: (member.gender as "MALE") || "FEMALE",
+          fellowshipGroupIds: member.fellowshipGroups.map(
+            (fg) => fg.fellowship.id
+          ),
+        } as MemberFormValues
+      }
+      isAdmin={isAdminUser}
+    />
   )
 }

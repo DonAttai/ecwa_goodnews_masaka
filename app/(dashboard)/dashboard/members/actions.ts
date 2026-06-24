@@ -208,7 +208,6 @@ export async function createMember(formData: FormData) {
       memberId: member.id,
     }
   } catch (error) {
-    console.error("Create Member Error:", error)
     return {
       success: false,
       message:

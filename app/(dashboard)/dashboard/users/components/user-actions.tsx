@@ -120,8 +120,6 @@ export function UserActions({ user }: { user: User }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Notification Dialog */}
     </>
   )
 }
