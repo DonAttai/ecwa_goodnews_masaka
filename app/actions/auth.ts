@@ -11,7 +11,6 @@ import {
   getSession,
   requireAdmin,
 } from "@/lib/auth"
-import { error } from "node:console"
 
 // Validation schemas
 const loginSchema = z.object({
