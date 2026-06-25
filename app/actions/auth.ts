@@ -77,7 +77,7 @@ export async function login(data: z.infer<typeof loginSchema>) {
       },
     })
 
-    return { success: true }
+    return { success: true, message: "Login successful" }
   } catch (error: any) {
     console.log(error.message)
     console.log(error?.stack)
