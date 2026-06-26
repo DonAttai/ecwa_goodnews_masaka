@@ -64,6 +64,7 @@ export function DataTable<TData, TValue>({
       const searchableText = [
         row.getValue("firstName"),
         row.getValue("surname"),
+        row.getValue("email"),
       ]
         .join(" ")
         .toLowerCase()
@@ -81,7 +82,7 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Search by email or first name..."
+          placeholder="Search by email, surname or first name..."
           value={globalFilter}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
