@@ -1,4 +1,3 @@
-// SettingsPage.tsx
 "use client"
 
 import { useState, useTransition, useEffect } from "react"
@@ -42,6 +41,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { fellowshipSchema, FellowshipType } from "../types/fellowship"
 import { generalSchema, GeneralType } from "../types/general"
 import GeneralSection from "./general-section"
+import MembershipLandingPage from "./membership"
 
 interface SettingsPageProps {
   fellowships: FellowshipType[]
@@ -57,7 +57,6 @@ export default function SettingsPage({
   >("general")
 
   const [isPending, startTransition] = useTransition()
-  const [loading, setLoading] = useState(false)
 
   // Mobile sidebar state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
@@ -218,13 +217,6 @@ export default function SettingsPage({
     { id: "membership", label: "Membership", icon: User },
     { id: "fellowships", label: "Fellowships", icon: Users },
   ] as const
-
-  if (loading)
-    return (
-      <div className="p-10 text-center text-foreground">
-        Loading settings...
-      </div>
-    )
 
   return (
     <div className="min-h-screen bg-background md:flex">
@@ -387,6 +379,10 @@ export default function SettingsPage({
               handleUpdateSettings={handleUpdateSettings}
             />
           )}
+
+          {/* MEMBERSHIP */}
+
+          {activeSection === "membership" && <MembershipLandingPage />}
 
           {/* FELLOWSHIPS (Full CRUD) */}
           {activeSection === "fellowships" && (

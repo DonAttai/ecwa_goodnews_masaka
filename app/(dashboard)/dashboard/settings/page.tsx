@@ -1,8 +1,8 @@
-import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import SettingsPage from "./components/settings-page"
 import { prisma } from "@/lib/prisma"
 import { GeneralType } from "./types/general"
+import { getCurrentUser } from "@/app/actions/auth"
 
 async function getFellowships() {
   return prisma.fellowshipGroup.findMany({
@@ -19,10 +19,10 @@ async function getSettings() {
   return prisma.settings.findUnique({ where: { id: 1 } })
 }
 export default async function Settings() {
-  const session = await getSession()
+  const user = await getCurrentUser()
 
-  if (!session) redirect("/login")
-  if (session.role !== "ADMIN") redirect("/dashboard")
+  if (!user) redirect("/login")
+  if (user.role !== "ADMIN") redirect("/dashboard")
 
   const [fellowships, settings] = await Promise.all([
     getFellowships(),
