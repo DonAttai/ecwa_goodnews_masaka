@@ -1,33 +1,77 @@
 "use client"
 
-import { Construction, Users } from "lucide-react"
+import {
+  Users,
+  UserPlus,
+  CalendarDays,
+  BadgeCheck,
+  Construction,
+} from "lucide-react"
+
+const upcomingFeatures = [
+  {
+    title: "Member Directory",
+    icon: Users,
+  },
+  {
+    title: "Visitor & New Member Tracking",
+    icon: UserPlus,
+  },
+  {
+    title: "Attendance Records",
+    icon: CalendarDays,
+  },
+  {
+    title: "Membership Status",
+    icon: BadgeCheck,
+  },
+]
 
 export default function MembershipLandingPage() {
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-6">
-      <div className="max-w-lg text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-          <Users className="h-10 w-10 text-primary" />
-        </div>
-
-        <h1 className="text-3xl font-bold tracking-tight">Membership Module</h1>
-
-        <p className="mt-4 leading-7 text-muted-foreground">
-          This section is currently being prepared. Soon you'll be able to
-          manage church members, track attendance, organize groups, monitor
-          membership status, and access detailed member information from one
-          place.
-        </p>
-
-        <div className="mt-8 rounded-xl border bg-muted/40 p-5">
-          <div className="flex items-center justify-center gap-2 text-sm font-medium">
-            <Construction className="h-4 w-4" />
-            Under Development
+    <div className="space-y-8 p-8">
+      <div className="rounded-2xl border bg-card p-8">
+        <div className="flex items-center gap-4">
+          <div className="rounded-xl bg-primary/10 p-3">
+            <Users className="h-8 w-8 text-primary" />
           </div>
 
-          <p className="mt-2 text-sm text-muted-foreground">
-            We're working to make this module available in a future update.
-          </p>
+          <div>
+            <h1 className="text-3xl font-bold">Membership</h1>
+            <p className="text-muted-foreground">
+              This module is currently under development.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-2 rounded-lg border bg-muted/40 p-4 text-sm">
+          <Construction className="h-5 w-5 text-primary" />
+          New membership management features will be available soon.
+        </div>
+      </div>
+
+      <div>
+        <h2 className="mb-4 text-lg font-semibold">Planned Features</h2>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {upcomingFeatures.map((feature) => {
+            const Icon = feature.icon
+
+            return (
+              <div
+                key={feature.title}
+                className="rounded-xl border p-5 transition hover:bg-muted/40"
+              >
+                <Icon className="mb-3 h-7 w-7 text-primary" />
+
+                <h3 className="font-medium">{feature.title}</h3>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Coming in a future update.
+                </p>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
