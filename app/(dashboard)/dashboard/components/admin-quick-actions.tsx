@@ -10,25 +10,25 @@ export default function AdminQuickActions() {
       label: "Add New Member",
       icon: Users,
       color: "gold",
-      href: "/members/add",
+      href: "/dashboard/members/create",
     },
     {
       label: "View Reports",
       icon: TrendingUp,
       color: "blue",
-      href: "/reports",
+      href: "/dashboard",
     },
     {
       label: "Schedule Event",
       icon: CalendarDays,
       color: "emerald",
-      href: "/events/new",
+      href: "/dashboard",
     },
     {
       label: "Send Message",
       icon: Heart,
       color: "rose",
-      href: "/messages/new",
+      href: "/dashboard",
     },
   ]
 

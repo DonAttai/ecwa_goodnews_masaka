@@ -114,20 +114,6 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
     })
   }
 
-  if (!isFormReady) {
-    return (
-      <div className="flex justify-center px-4">
-        <Card className="w-full max-w-4xl">
-          <CardContent className="py-8">
-            <div className="flex justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   return (
     <div className="flex justify-center px-4">
       <Card className="w-full max-w-4xl">

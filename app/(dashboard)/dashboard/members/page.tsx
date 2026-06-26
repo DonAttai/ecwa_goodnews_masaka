@@ -2,15 +2,10 @@ import AddMemberButton from "./create/components/add-member-button"
 import { columns, Member } from "./columns"
 import { DataTable } from "./data-table"
 import { prisma } from "@/lib/prisma"
-import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { isAdmin } from "@/app/actions/auth"
+import { getCurrentUser } from "@/app/actions/auth"
 
 async function getData(): Promise<Member[]> {
-  const session = await getSession()
-
-  if (!session) redirect("/login")
-
   const membersData = await prisma.member.findMany({
     orderBy: { createdAt: "desc" },
   })
@@ -18,8 +13,11 @@ async function getData(): Promise<Member[]> {
 }
 
 export default async function MembersPage() {
-  const data = await getData()
-  const isAdminUser = await isAdmin()
+  const [data, user] = await Promise.all([getData(), getCurrentUser()])
+
+  if (!user) redirect("/login")
+
+  const isAdmin = user.role === "ADMIN"
 
   return (
     <div className="space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8">
@@ -31,7 +29,7 @@ export default async function MembersPage() {
           </p>
         </div>
 
-        {isAdminUser && (
+        {isAdmin && (
           <div className="self-start sm:self-auto">
             <AddMemberButton />
           </div>

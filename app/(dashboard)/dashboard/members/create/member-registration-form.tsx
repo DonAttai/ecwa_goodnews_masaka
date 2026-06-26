@@ -567,7 +567,7 @@ export default function MemberRegistrationForm() {
 
       <AlertDialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
         <AlertDialogContent>
-          <AlertDialogHeader>
+          <AlertDialogHeader className="items-center text-center">
             <div className="mb-2 flex justify-center">
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>

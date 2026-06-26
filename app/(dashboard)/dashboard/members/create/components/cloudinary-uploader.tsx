@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { CldUploadWidget } from "next-cloudinary"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Upload, X, Loader2 } from "lucide-react"
@@ -17,91 +17,6 @@ export function CloudinaryUploader({
   onRemove,
   currentImage,
 }: CloudinaryUploaderProps) {
-  const widgetRef = useRef<any>(null)
-  const [isUploading, setIsUploading] = useState(false)
-  const [isReady, setIsReady] = useState(false)
-
-  /**
-   * 1. Initialize widget ONCE on mount
-   */
-  useEffect(() => {
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-
-    if (!cloudName) {
-      toast.error("Cloudinary is not configured")
-      return
-    }
-
-    // Ensure Cloudinary script exists
-    if (!(window as any).cloudinary) {
-      toast.error("Cloudinary SDK not loaded")
-      return
-    }
-
-    widgetRef.current = (window as any).cloudinary.createUploadWidget(
-      {
-        cloudName,
-        uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-        maxFiles: 1,
-        maxFileSize: 5_242_880,
-        sources: ["local", "camera", "url"],
-        cropping: true,
-        croppingAspectRatio: 1,
-        folder: "members",
-      },
-      (error: any, result: any) => {
-        if (error) {
-          setIsUploading(false)
-          console.error(error)
-          toast.error("Upload failed")
-          return
-        }
-
-        if (result?.event === "upload-added") {
-          setIsUploading(true)
-        }
-
-        if (result?.event === "success") {
-          setIsUploading(false)
-
-          const url = result?.info?.secure_url
-
-          if (!url) {
-            toast.error("No image URL returned")
-            return
-          }
-
-          onUpload(url)
-          toast.success("Upload successful")
-        }
-      }
-    )
-
-    setIsReady(true)
-
-    // cleanup (optional but good practice)
-    return () => {
-      widgetRef.current = null
-    }
-  }, [onUpload])
-
-  /**
-   * 2. Safe open handler
-   */
-  const handleOpen = () => {
-    if (!widgetRef.current) {
-      toast.error("Upload widget is not ready yet")
-      return
-    }
-
-    try {
-      widgetRef.current.open()
-    } catch (err) {
-      console.error("Widget open error:", err)
-      toast.error("Could not open upload widget")
-    }
-  }
-
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="text-center">
@@ -112,7 +27,6 @@ export function CloudinaryUploader({
         </p>
       </div>
 
-      {/* Preview */}
       {currentImage ? (
         <div className="relative">
           <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-primary/20">
@@ -123,7 +37,6 @@ export function CloudinaryUploader({
               className="object-cover"
             />
           </div>
-
           <Button
             type="button"
             variant="destructive"
@@ -135,25 +48,52 @@ export function CloudinaryUploader({
           </Button>
         </div>
       ) : (
-        <Button
-          type="button"
-          variant="outline"
-          className="min-w-[160px]"
-          disabled={!isReady || isUploading}
-          onClick={handleOpen}
+        <CldUploadWidget
+          signatureEndpoint="/api/cloudinary-sign"
+          options={{
+            maxFiles: 1,
+            maxFileSize: 5242880, // 5MB
+            sources: ["local", "camera", "url"],
+            cropping: true,
+            croppingAspectRatio: 1,
+            folder: "members",
+          }}
+          onSuccess={(result: any) => {
+            const url = result?.info?.secure_url
+            if (url) {
+              onUpload(url)
+              toast.success("Upload successful")
+            } else {
+              toast.error("No image URL returned")
+            }
+          }}
+          onError={(error: any) => {
+            console.error("Upload error:", error)
+            toast.error("Upload failed. Please try again.")
+          }}
         >
-          {isUploading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading...
-            </>
-          ) : (
-            <>
-              <Upload className="mr-2 h-4 w-4" />
-              Choose Photo
-            </>
+          {({ open, isLoading }) => (
+            <Button
+              type="button"
+              variant="outline"
+              className="min-w-[160px]"
+              disabled={isLoading}
+              onClick={() => open()}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Choose Photo
+                </>
+              )}
+            </Button>
           )}
-        </Button>
+        </CldUploadWidget>
       )}
     </div>
   )

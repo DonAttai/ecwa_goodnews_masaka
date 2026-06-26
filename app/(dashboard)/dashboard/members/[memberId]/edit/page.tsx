@@ -1,9 +1,7 @@
-// app/(dashboard)/dashboard/members/[memberId]/edit/page.tsx
-
-import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { notFound, redirect } from "next/navigation"
 import UpdateMemberForm from "./components/update-member-form"
+import { getCurrentUser } from "@/app/actions/auth"
 
 type EditPageProps = {
   params: Promise<{ memberId: string }>
@@ -52,15 +50,11 @@ function mapMemberToFormValues(member: any) {
 }
 
 export default async function EditMemberPage({ params }: EditPageProps) {
-  const session = await getSession()
+  const user = await getCurrentUser()
 
-  if (!session) {
-    redirect("/login")
-  }
+  if (!user) redirect("/login")
 
-  if (session.role !== "ADMIN") {
-    redirect("/dashboard")
-  }
+  if (user.role !== "ADMIN") redirect("/dashboard")
 
   const memberId = (await params).memberId
   const member = await prisma.member.findUnique({
