@@ -1,4 +1,4 @@
-import { compare, hash } from "bcrypt"
+import { compare } from "bcrypt"
 import { sign, verify, SignOptions } from "jsonwebtoken"
 import { cookies } from "next/headers"
 import { prisma } from "./prisma"

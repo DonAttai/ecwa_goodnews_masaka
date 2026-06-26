@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { getCurrentUser } from "@/app/actions/auth"
 import { cn } from "@/lib/utils"
+import AdminQuickActions from "./components/admin-quick-actions"
 
 export default async function Dashboard() {
   const currentUser = await getCurrentUser()
@@ -181,32 +182,7 @@ export default async function Dashboard() {
       </div>
 
       {/* 🔥 QUICK ACTIONS */}
-      {isAdmin && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { label: "Add New Member", icon: Users, color: "gold" },
-            { label: "View Reports", icon: TrendingUp, color: "blue" },
-            { label: "Schedule Event", icon: CalendarDays, color: "emerald" },
-            { label: "Send Message", icon: Heart, color: "rose" },
-          ].map((action, i) => (
-            <button
-              key={i}
-              className="group flex items-center justify-center gap-2 rounded-xl border border-[#e2dcd5]/50 bg-white px-4 py-3 text-sm font-medium text-[#1a2332] transition-all duration-300 hover:border-[#c9a84c]/30 hover:bg-[#f8f6f3] hover:shadow-md hover:shadow-[#c9a84c]/5"
-            >
-              <action.icon
-                className={cn(
-                  "h-4 w-4 transition-colors",
-                  action.color === "gold" && "text-[#c9a84c]",
-                  action.color === "blue" && "text-blue-500",
-                  action.color === "emerald" && "text-emerald-500",
-                  action.color === "rose" && "text-rose-500"
-                )}
-              />
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
+      {isAdmin && <AdminQuickActions />}
     </div>
   )
 }
