@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { login } from "@/app/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -22,38 +21,46 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field"
-import { Eye, EyeOff } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Eye, EyeOff, TriangleAlert } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+import { resetPassword } from "../actions"
+import { resetPasswordSchema, ResetPasswordSchemaType } from "../schemas"
+import InvalidResetLink from "./invalid-reset-link"
 
-const formSchema = z.object({
-  email: z.email({ message: "Invalid email address" }),
-  password: z.string().min(1, "Password field is required"),
-})
-
-type FormSchemaType = z.infer<typeof formSchema>
-
-export default function LoginForm() {
+export default function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const token = searchParams.get("token")
 
-  const form = useForm<FormSchemaType>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<ResetPasswordSchemaType>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: { email: "", password: "" },
     mode: "onBlur",
   })
 
-  const onSubmit = async (values: FormSchemaType) => {
+  const onSubmit = async (values: ResetPasswordSchemaType) => {
+    if (!token) {
+      toast.error("Invalid or missing reset token")
+      return
+    }
+
     try {
       setIsLoading(true)
-      const result = await login({ ...values })
+      const result = await resetPassword({
+        token,
+        email: values.email,
+        password: values.password,
+      })
 
       if (result.success) {
-        router.push("/dashboard")
-        toast.success("Login successful!")
+        toast.success(result.message ?? "Password reset successful!")
+        router.push("/login")
       } else {
-        toast.error(result.message ?? "Login failed")
+        toast.error(result.message ?? "Password reset failed")
       }
     } catch (error) {
       toast.error("Network error. Please try again.")
@@ -61,6 +68,8 @@ export default function LoginForm() {
       setIsLoading(false)
     }
   }
+
+  if (!token) return <InvalidResetLink />
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
@@ -70,13 +79,12 @@ export default function LoginForm() {
             ECWA Goodnews 1, Masaka
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground sm:text-base">
-            Church Membership Management System - Login to your account
+            Create a new password for your account
           </CardDescription>
         </CardHeader>
 
         <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-          {/* Form with ID for button to reference */}
-          <form id="login-form" onSubmit={form.handleSubmit(onSubmit)}>
+          <form id="reset-password-form" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="space-y-5 sm:space-y-6">
               {/* EMAIL */}
               <Controller
@@ -95,9 +103,12 @@ export default function LoginForm() {
                       id={field.name}
                       aria-invalid={fieldState.invalid}
                       placeholder="admin@ecwa.com"
-                      autoComplete="off"
+                      autoComplete="email"
                       className="border-border bg-muted/30 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                     />
+                    <FieldDescription className="text-muted-foreground">
+                      Enter the email address associated with your account
+                    </FieldDescription>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -105,7 +116,7 @@ export default function LoginForm() {
                 )}
               />
 
-              {/* PASSWORD */}
+              {/* NEW PASSWORD */}
               <Controller
                 name="password"
                 control={form.control}
@@ -115,14 +126,14 @@ export default function LoginForm() {
                       htmlFor={field.name}
                       className="text-foreground"
                     >
-                      Password
+                      New Password
                     </FieldLabel>
                     <div className="relative">
                       <Input
                         {...field}
                         id={field.name}
                         aria-invalid={fieldState.invalid}
-                        placeholder="Enter your password"
+                        placeholder="Enter new password"
                         autoComplete="new-password"
                         className="border-border bg-muted/30 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                         type={showPassword ? "text" : "password"}
@@ -140,17 +151,9 @@ export default function LoginForm() {
                         )}
                       </button>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <FieldDescription className="text-muted-foreground">
-                        Password must be at least 8 characters.
-                      </FieldDescription>
-                      <Link
-                        href="/forgot-password"
-                        className="text-sm text-primary transition-colors hover:text-primary/80 hover:underline"
-                      >
-                        Forgot Password?
-                      </Link>
-                    </div>
+                    <FieldDescription className="text-muted-foreground">
+                      Must be at least 8 characters
+                    </FieldDescription>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -164,12 +167,19 @@ export default function LoginForm() {
         <CardFooter className="flex flex-col gap-3 px-4 pb-6 sm:px-6 sm:pb-8">
           <Button
             type="submit"
-            form="login-form"
+            form="reset-password-form"
             disabled={isLoading}
             className="btn-gold h-10 w-full rounded-xl text-sm font-semibold sm:h-12 sm:text-base"
           >
-            {isLoading ? "Please wait..." : "Login"}
+            {isLoading ? "Resetting..." : "Reset Password"}
           </Button>
+          <Link
+            href="/login"
+            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to sign in
+          </Link>
         </CardFooter>
       </Card>
     </div>

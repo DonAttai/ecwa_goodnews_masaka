@@ -8,6 +8,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
+    // supabase
     url: env("DIRECT_URL"),
     shadowDatabaseUrl: env("DATABASE_URL"),
   },

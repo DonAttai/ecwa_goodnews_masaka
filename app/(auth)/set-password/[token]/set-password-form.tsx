@@ -57,7 +57,7 @@ export default function SetPasswordForm({ token }: Props) {
       const data = await res.json()
 
       if (res.ok) {
-        toast.success("Password created successfully!")
+        toast.success("Password created! Please log in to continue.")
         router.push("/login")
       } else {
         toast.error(data.message || "Failed to set password")

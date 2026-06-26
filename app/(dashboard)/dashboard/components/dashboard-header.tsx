@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Menu, User, Bell, Search, Settings, LogOut } from "lucide-react"
+import { User, Bell, Search, Settings, LogOut } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,6 +15,7 @@ import { useSidebar } from "./sidebar-context"
 import { usePathname, useRouter } from "next/navigation"
 import { logout } from "@/app/actions/auth"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 interface DashboardHeaderProps {
   title: string
@@ -25,7 +26,7 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
-  const { setOpen } = useSidebar()
+  const { open, setOpen } = useSidebar()
   const pathname = usePathname()
 
   const router = useRouter()
@@ -46,19 +47,44 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
     await logout()
     router.push("/login")
   }
+
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[#e2dcd5]/50 bg-white/80 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
       {/* LEFT */}
       <div className="flex items-center gap-4">
-        <Button
-          size="icon"
-          variant="ghost"
-          className="text-[#4a5568] hover:bg-[#f8f6f3] hover:text-[#1a2332] md:hidden"
-          onClick={() => setOpen(true)}
+        {/* Animated Hamburger Menu Button - Only change here */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="group relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-[#f8f6f3] focus:outline-none md:hidden"
+          aria-label="Toggle navigation menu"
+          aria-expanded={open}
         >
-          <Menu className="h-5 w-5" />
-        </Button>
+          <div className="relative h-5 w-5">
+            {/* Top line */}
+            <span
+              className={cn(
+                "absolute left-0 h-0.5 w-full rounded-full bg-[#1a2332] transition-all duration-300 ease-in-out",
+                open ? "top-2.25 rotate-45" : "top-0"
+              )}
+            />
 
+            {/* Middle line */}
+            <span
+              className={cn(
+                "absolute left-0 h-0.5 w-full rounded-full bg-[#1a2332] transition-all duration-300 ease-in-out",
+                open ? "top-2.25 opacity-0" : "top-2.25"
+              )}
+            />
+
+            {/* Bottom line */}
+            <span
+              className={cn(
+                "absolute left-0 h-0.5 w-full rounded-full bg-[#1a2332] transition-all duration-300 ease-in-out",
+                open ? "bottom-2.25 -rotate-45" : "bottom-0"
+              )}
+            />
+          </div>
+        </button>
         <div>
           <h1 className="text-xl font-bold text-[#1a2332] sm:text-2xl">
             {title}
@@ -71,7 +97,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
         </div>
       </div>
 
-      {/* RIGHT */}
+      {/* RIGHT - Unchanged */}
       <div className="flex items-center gap-3 sm:gap-4">
         {/* Role Badge */}
         <Badge className="hidden border-[#c9a84c]/30 bg-[#c9a84c]/10 px-3 py-1 text-xs font-medium text-[#c9a84c] sm:flex">

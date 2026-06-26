@@ -1,20 +1,18 @@
-import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import MemberDetails from "./components/member-details"
-import { isAdmin } from "@/app/actions/auth"
+import { getCurrentUser, isAdmin } from "@/app/actions/auth"
 import { MemberFormValues } from "../schemas"
 
 type MemberPageProps = {
   params: Promise<{ memberId: string }>
 }
 export default async function MemberPage({ params }: MemberPageProps) {
-  const session = getSession()
-
-  if (!session) redirect("/login")
+  const user = await getCurrentUser()
+  if (!user) redirect("/login")
 
   const memberId = (await params).memberId
-  const isAdminUser = await isAdmin()
+  const isAdmin = user.role === "ADMIN"
 
   const member = await prisma.member.findUnique({
     where: { id: memberId },
@@ -41,7 +39,7 @@ export default async function MemberPage({ params }: MemberPageProps) {
           ),
         } as MemberFormValues
       }
-      isAdmin={isAdminUser}
+      isAdmin={isAdmin}
     />
   )
 }

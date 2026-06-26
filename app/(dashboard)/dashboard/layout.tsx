@@ -8,24 +8,17 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 
 import { SidebarProvider } from "./components/sidebar-context"
-import { Toaster } from "sonner"
+import { getCurrentUser } from "@/app/actions/auth"
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await getSession()
-  if (!session) redirect("/login")
+  const curretntUser = await getCurrentUser()
+  if (!curretntUser) redirect("/login")
 
-  const user = await prisma.user.findUnique({
-    where: { email: session?.email },
-    select: { name: true, role: true },
-  })
-
-  if (!user) redirect("/login")
-
-  const userRole = user?.role || "WORKER"
+  const userRole = curretntUser?.role || "WORKER"
 
   return (
     <SidebarProvider>
@@ -40,7 +33,7 @@ export default async function DashboardLayout({
 
         {/* MAIN CONTENT AREA */}
         <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          <DashboardHeader title="Dashboard" user={user} />
+          <DashboardHeader title="Dashboard" user={curretntUser} />
 
           {/* Only the main content scrolls, header and footer are fixed */}
           <main className="flex-1 overflow-y-auto bg-[#f8f6f3]">
