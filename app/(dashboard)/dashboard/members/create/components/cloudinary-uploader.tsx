@@ -76,7 +76,7 @@ export function CloudinaryUploader({
             <Button
               type="button"
               variant="outline"
-              className="min-w-[160px]"
+              className="min-w-40"
               disabled={isLoading}
               onClick={() => open()}
             >
