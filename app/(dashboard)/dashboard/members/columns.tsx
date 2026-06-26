@@ -45,6 +45,17 @@ export const columns: ColumnDef<Member>[] = [
       )
     },
   },
+
+  {
+    accessorKey: "email",
+    header: () => <span className="hidden sm:table-cell">Email</span>,
+    cell: ({ row }) => {
+      const email = row.getValue("email") as boolean
+      // Hide on mobile, show on sm screens and up
+      return <span className="hidden sm:table-cell">{email}</span>
+    },
+  },
+
   {
     accessorKey: "phoneNumber",
     header: () => <span className="hidden sm:table-cell">Phone Number</span>,
