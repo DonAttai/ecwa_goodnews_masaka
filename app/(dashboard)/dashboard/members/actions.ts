@@ -239,7 +239,7 @@ export async function deleteMember(memberId: string) {
   try {
     const admin = await requireAdmin()
     // Get user details before deletion for audit log
-    const memberToDelete = await prisma.user.findUnique({
+    const memberToDelete = await prisma.member.findUnique({
       where: { id: memberId },
       select: { email: true, firstName: true, surname: true },
     })
