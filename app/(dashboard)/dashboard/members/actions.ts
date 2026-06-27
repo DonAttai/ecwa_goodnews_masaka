@@ -254,7 +254,7 @@ export async function deleteMember(memberId: string) {
         action: "DELETE_MEMBER",
         entity: "MEMBER",
         entityId: memberId,
-        description: `${admin.name} deleted ${memberToDeleteName}`,
+        description: `${admin.name} deleted member ${memberToDeleteName}`,
         metadata: {
           deletedUserEmail: memberToDelete?.email,
           deletedBy: admin.userId,
@@ -449,7 +449,7 @@ export async function updateMember(memberId: string, formData: FormData) {
         action: "UPDATE_MEMBER",
         entity: "MEMBER",
         entityId: member.id,
-        description: `${admin.name} created user ${memberToUpdateName}`,
+        description: `${admin.name} updated user ${memberToUpdateName}'s profile`,
         metadata: {
           createdBy: admin?.userId,
           createdByEmail: admin?.email,
