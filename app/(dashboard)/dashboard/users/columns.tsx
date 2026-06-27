@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 
 import { UserActions } from "./components/user-actions"
+import { Badge } from "@/components/ui/badge"
 
 export type User = {
   id: string
@@ -37,7 +38,17 @@ export const columns: ColumnDef<User>[] = [
       const isActive = row.getValue("isActive") as boolean
       // Hide on mobile, show on sm screens and up
       return (
-        <span className="hidden sm:table-cell">{isActive ? "Yes" : "No"}</span>
+        <span className="hidden sm:table-cell">
+          {isActive ? (
+            <Badge className="border-2 border-green-600 bg-green-100 text-base font-semibold text-green-800 hover:bg-green-100">
+              Yes
+            </Badge>
+          ) : (
+            <Badge className="border-2 border-red-600 bg-red-100 text-base font-semibold text-red-800 hover:bg-red-100">
+              No
+            </Badge>
+          )}
+        </span>
       )
     },
   },
