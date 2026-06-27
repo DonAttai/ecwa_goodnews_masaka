@@ -104,10 +104,16 @@ export async function clearSessionCookie() {
 
 export async function requireAdmin() {
   const session = await getSession()
+  const user = await prisma.user.findUnique({ where: { id: session?.userId } })
 
   if (!session || session.role !== "ADMIN") {
     throw new Error("Unauthorized: Admin access required")
   }
 
-  return session
+  return {
+    userId: user?.id,
+    role: user?.role,
+    email: user?.email,
+    name: user?.name,
+  }
 }

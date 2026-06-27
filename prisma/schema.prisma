@@ -151,11 +151,19 @@ enum Gender {
 }
 
 enum AuditAction {
-  CREATE_USER
-  UPDATE_USER_STATUS
-  UPDATE_USER_ROLE
-  DELETE_USER
+  // Authentication
   LOGIN
+  LOGOUT
+
+  // Users
+  CREATE_USER
+  UPDATE_USER
+  DELETE_USER
+
+  // Members
+  CREATE_MEMBER
+  UPDATE_MEMBER
+  DELETE_MEMBER
 }
 
 enum EntityType {

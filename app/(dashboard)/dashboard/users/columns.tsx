@@ -33,26 +33,25 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "isActive",
-    header: () => <span className="hidden sm:table-cell">Active</span>,
+    header: () => <span className="hidden sm:table-cell">Status</span>,
     cell: ({ row }) => {
       const isActive = row.getValue("isActive") as boolean
-      // Hide on mobile, show on sm screens and up
+
       return (
         <span className="hidden sm:table-cell">
           {isActive ? (
-            <Badge className="border-2 border-green-600 bg-green-100 text-base font-semibold text-green-800 hover:bg-green-100">
-              Yes
+            <Badge className="bg-green-600 text-sm font-semibold text-white">
+              Active
             </Badge>
           ) : (
-            <Badge className="border-2 border-red-600 bg-red-100 text-base font-semibold text-red-800 hover:bg-red-100">
-              No
+            <Badge className="bg-red-600 text-sm font-semibold text-white">
+              Inactive
             </Badge>
           )}
         </span>
       )
     },
   },
-
   {
     id: "actions",
     cell: ({ row }) => {

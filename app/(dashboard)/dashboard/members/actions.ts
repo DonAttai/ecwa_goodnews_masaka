@@ -8,7 +8,7 @@ import { sendMemberCreationEmail } from "@/lib/email/send-member-creation-email"
 
 export async function createMember(formData: FormData) {
   try {
-    await requireAdmin()
+    const admin = await requireAdmin()
 
     // Extract text fields
     const surname = formData.get("surname") as string
@@ -199,6 +199,22 @@ export async function createMember(formData: FormData) {
         name: name,
       })
     }
+
+    // Add audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: admin?.userId,
+        action: "CREATE_MEMBER",
+        entity: "MEMBER",
+        entityId: member.id,
+        description: `${admin.name} created member ${member.firstName} ${member.surname}`,
+        metadata: {
+          createdBy: admin?.userId,
+          createdByEmail: admin?.email,
+          newMenberEmail: member.email,
+        },
+      },
+    })
     revalidatePath("/dashboard/members")
     revalidatePath(`/dashboard/members/${member.id}`)
 
@@ -221,8 +237,31 @@ export async function createMember(formData: FormData) {
 // Delete member action
 export async function deleteMember(memberId: string) {
   try {
-    await requireAdmin()
+    const admin = await requireAdmin()
+    // Get user details before deletion for audit log
+    const memberToDelete = await prisma.user.findUnique({
+      where: { id: memberId },
+      select: { email: true, firstName: true, surname: true },
+    })
+
     await prisma.member.delete({ where: { id: memberId } })
+
+    // Add audit log
+    const memberToDeleteName = `${memberToDelete?.firstName} ${memberToDelete?.surname}`
+    await prisma.auditLog.create({
+      data: {
+        userId: admin.userId,
+        action: "DELETE_MEMBER",
+        entity: "MEMBER",
+        entityId: memberId,
+        description: `${admin.name} deleted ${memberToDeleteName}`,
+        metadata: {
+          deletedUserEmail: memberToDelete?.email,
+          deletedBy: admin.userId,
+          deletedByEmail: admin.email,
+        },
+      },
+    })
 
     // Revalidate the members list page
     revalidatePath("/members")
@@ -236,7 +275,7 @@ export async function deleteMember(memberId: string) {
 // Update member action
 export async function updateMember(memberId: string, formData: FormData) {
   try {
-    await requireAdmin()
+    const admin = await requireAdmin()
 
     const member = await prisma.member.findUnique({
       where: { id: memberId },
@@ -401,6 +440,24 @@ export async function updateMember(memberId: string, formData: FormData) {
       }
     })
 
+    const memberToUpdateName = `${member.firstName} ${member.surname}`
+
+    // Add audit log
+    await prisma.auditLog.create({
+      data: {
+        userId: admin?.userId,
+        action: "UPDATE_MEMBER",
+        entity: "MEMBER",
+        entityId: member.id,
+        description: `${admin.name} created user ${memberToUpdateName}`,
+        metadata: {
+          createdBy: admin?.userId,
+          createdByEmail: admin?.email,
+          updatedMemberName: memberToUpdateName,
+          updatedMemberEmail: member.email,
+        },
+      },
+    })
     // Revalidate the member details page
     revalidatePath(`/dashboard/members/${memberId}`)
     revalidatePath("/dashboard/members")

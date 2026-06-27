@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 
-import { getSession, requireAdmin } from "@/lib/auth"
+import { requireAdmin } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { generateUserToken } from "@/lib/generate-token"
 import { sendAccountCreatedEmail } from "@/lib/email/send-account-created-email"
@@ -15,7 +15,7 @@ import {
 
 export async function createUser(data: CreateUserSchemaType) {
   try {
-    await requireAdmin()
+    const admin = await requireAdmin()
 
     // Validate input
     const validationData = createUserSchema.safeParse({ ...data })
@@ -78,20 +78,17 @@ export async function createUser(data: CreateUserSchemaType) {
       setupLink,
     })
 
-    // Get current admin session for audit log
-    const adminSession = await getSession()
-
     // Add audit log
     await prisma.auditLog.create({
       data: {
-        userId: adminSession?.userId,
+        userId: admin?.userId,
         action: "CREATE_USER",
         entity: "USER",
         entityId: user.id,
-        description: `Admin created user ${user.email} with role ${user.role}`,
+        description: `${admin.name} created user ${user.name}`,
         metadata: {
-          createdBy: adminSession?.userId,
-          createdByEmail: adminSession?.email,
+          createdBy: admin?.userId,
+          createdByEmail: admin?.email,
           newUserEmail: user.email,
           newUserRole: user.role,
         },
@@ -111,7 +108,7 @@ export async function createUser(data: CreateUserSchemaType) {
 // update user
 export async function updateUser(data: UpdateUserSchemaType) {
   try {
-    await requireAdmin()
+    const admin = await requireAdmin()
     const validationData = updateUserSchema.safeParse(data)
 
     if (!validationData.success) {
@@ -121,10 +118,8 @@ export async function updateUser(data: UpdateUserSchemaType) {
       }
     }
 
-    const adminSession = await getSession()
-
     // Prevent admin from changing their own role
-    if (adminSession?.userId === data.id) {
+    if (admin?.userId === data.id) {
       return {
         success: false,
         message: "Cannot update your own data",
@@ -138,17 +133,18 @@ export async function updateUser(data: UpdateUserSchemaType) {
         id: true,
         email: true,
         role: true,
+        name: true,
       },
     })
 
     // Add audit log
     await prisma.auditLog.create({
       data: {
-        userId: adminSession?.userId!,
-        action: "UPDATE_USER_ROLE",
+        userId: admin?.userId!,
+        action: "UPDATE_USER",
         entity: "USER",
         entityId: data.id,
-        description: `Changed user ${user.email} role to ${user.role}`,
+        description: `${admin.name} updated ${user.name}'s profile`,
         metadata: {
           previousRole: user.role,
           ...data,
@@ -171,16 +167,16 @@ export async function updateUser(data: UpdateUserSchemaType) {
 // delete user
 export async function deleteUser(userId: string) {
   try {
-    const adminSession = await requireAdmin()
+    const admin = await requireAdmin()
 
     // Get user details before deletion for audit log
     const userToDelete = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true },
+      select: { email: true, name: true },
     })
 
     // Prevent admin from deleting themselves
-    if (adminSession.userId === userId) {
+    if (admin.userId === userId) {
       throw new Error("Cannot delete your own account")
     }
 
@@ -191,15 +187,15 @@ export async function deleteUser(userId: string) {
     // Add audit log
     await prisma.auditLog.create({
       data: {
-        userId: adminSession.userId,
+        userId: admin.userId,
         action: "DELETE_USER",
         entity: "USER",
         entityId: userId,
-        description: `Admin deleted user ${userToDelete?.email}`,
+        description: `${admin.name} deleted ${userToDelete?.name}`,
         metadata: {
           deletedUserEmail: userToDelete?.email,
-          deletedBy: adminSession.userId,
-          deletedByEmail: adminSession.email,
+          deletedBy: admin.userId,
+          deletedByEmail: admin.email,
         },
       },
     })

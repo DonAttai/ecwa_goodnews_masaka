@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { login } from "@/app/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -25,6 +24,7 @@ import {
 import { Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { login } from "./actions"
 
 const formSchema = z.object({
   email: z.email({ message: "Invalid email address" }),
