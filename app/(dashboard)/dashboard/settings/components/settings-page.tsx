@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -56,8 +56,6 @@ export default function SettingsPage({
     "general" | "membership" | "fellowships"
   >("general")
 
-  const [isPending, startTransition] = useTransition()
-
   // Mobile sidebar state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
 
@@ -69,7 +67,8 @@ export default function SettingsPage({
   const [fellowshipToDelete, setFellowshipToDelete] = useState<string | null>(
     null
   )
-
+  const [isLoadingFellowship, setIsloadingFellowship] = useState(false)
+  const [isLoadingSettings, setIsLoadingSettings] = useState(false)
   // Close mobile sidebar when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
@@ -109,26 +108,24 @@ export default function SettingsPage({
 
   // General settings handler
   const handleUpdateSettings = async (data: GeneralType): Promise<void> => {
-    startTransition(async () => {
-      const formDataToSend = new FormData()
+    const formDataToSend = new FormData()
 
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          if (typeof value === "string") {
-            formDataToSend.append(key, value)
-          }
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        if (typeof value === "string") {
+          formDataToSend.append(key, value)
         }
-      })
-
-      const result = await updateGeneralSettings(formDataToSend)
-
-      if (result.success) {
-        toast.success(result.message)
-        return
-      } else {
-        toast.error(result.message || "Failed to create fellowship")
       }
     })
+
+    const result = await updateGeneralSettings(formDataToSend)
+
+    if (result.success) {
+      toast.success(result.message)
+      return
+    } else {
+      toast.error(result.message || "Failed to create fellowship")
+    }
   }
 
   // fellowship form
@@ -375,7 +372,7 @@ export default function SettingsPage({
             <GeneralSection
               generalSettings={generalSettings}
               form={generalForm}
-              isPending={isPending}
+              isSubmitting={generalForm.formState.isSubmitting}
               handleUpdateSettings={handleUpdateSettings}
             />
           )}
@@ -387,7 +384,7 @@ export default function SettingsPage({
           {/* FELLOWSHIPS (Full CRUD) */}
           {activeSection === "fellowships" && (
             <FellowshipSection
-              isPending={isPending}
+              isSubmitting={fellowshipForm.formState.isSubmitting}
               form={fellowshipForm}
               fellowships={fellowships}
               handleAddFellowship={handleAddFellowship}

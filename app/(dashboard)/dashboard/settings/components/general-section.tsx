@@ -23,14 +23,14 @@ interface GeneralPropTypes {
   generalSettings: GeneralType | null
   form: UseFormReturn<GeneralType>
   handleUpdateSettings: (data: GeneralType) => Promise<void>
-  isPending: boolean
+  isSubmitting: boolean
 }
 
 export default function GeneralSection({
   generalSettings,
   form,
   handleUpdateSettings,
-  isPending,
+  isSubmitting,
 }: GeneralPropTypes) {
   return (
     <Card>
@@ -199,9 +199,9 @@ export default function GeneralSection({
         </div>
         <Button
           onClick={form.handleSubmit(handleUpdateSettings)}
-          disabled={isPending}
+          disabled={isSubmitting}
         >
-          {isPending ? "Saving Settings" : "Save Settings"}
+          {isSubmitting ? "Saving Settings" : "Save Settings"}
         </Button>
       </CardContent>
     </Card>

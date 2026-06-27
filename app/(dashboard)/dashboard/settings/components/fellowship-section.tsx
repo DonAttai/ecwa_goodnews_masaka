@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/field"
 
 interface FellowshipPropType {
-  isPending: boolean
+  isSubmitting: boolean
   fellowships: FellowshipType[]
   handleAddFellowship: (data: FellowshipType) => Promise<void>
   form: UseFormReturn<FellowshipType>
@@ -29,7 +29,7 @@ interface FellowshipPropType {
 }
 
 export default function FellowshipSection({
-  isPending,
+  isSubmitting,
   fellowships,
   handleAddFellowship,
   form,
@@ -107,8 +107,8 @@ export default function FellowshipSection({
               />
             </div>
 
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Adding..." : "Add Fellowship"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Adding..." : "Add Fellowship"}
             </Button>
           </form>
         </CardContent>
