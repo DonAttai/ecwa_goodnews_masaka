@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { prisma } from "@/lib/prisma"
 import { CalendarDays, Heart } from "lucide-react"
+import RelativeTime from "./relative-time"
 
 interface RecentActivityProps {
   activities: Awaited<ReturnType<typeof prisma.auditLog.findMany>>
@@ -25,9 +26,9 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
 
         <CardContent>
           <div className="space-y-4">
-            {activities.map((activity, i) => (
+            {activities.map((activity) => (
               <div
-                key={i}
+                key={activity.id}
                 className="group flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-[#f8f6f3]"
               >
                 <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a84c]/10 text-[#c9a84c]">
@@ -39,7 +40,8 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
                   </p>
                   {/* <p className="text-xs text-[#8a95a8]">{activity.action}</p> */}
                   <p className="text-xs text-[#c9a84c]/60">
-                    {formatRelativeTime(activity.createdAt)}
+                    {/* {formatRelativeTime(activity.createdAt)} */}
+                    <RelativeTime date={activity.createdAt} />
                   </p>
                 </div>
               </div>
@@ -49,25 +51,4 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
       </div>
     </Card>
   )
-}
-
-function formatRelativeTime(date: Date) {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
-
-  if (seconds < 60) return `${seconds}s ago`
-
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days}d ago`
-
-  const months = Math.floor(days / 30)
-  if (months < 12) return `${months}mo ago`
-
-  const years = Math.floor(months / 12)
-  return `${years}y ago`
 }

@@ -3,8 +3,8 @@ import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/app/actions/auth"
 import AdminQuickActions from "./components/admin-quick-actions"
 import { DashboardStats } from "./components/dashboard-stats"
-import RecentActivity from "./components/recent-activity"
 import AnalyticsCard from "./components/analytics-card"
+import RecentActivity from "./components/recent-activity"
 
 export default async function Dashboard() {
   const currentUser = await getCurrentUser()
