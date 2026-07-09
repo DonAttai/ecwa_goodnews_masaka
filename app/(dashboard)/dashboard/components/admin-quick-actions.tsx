@@ -1,6 +1,12 @@
 "use client"
 
-import { Users, TrendingUp, CalendarDays, Heart } from "lucide-react"
+import {
+  Users,
+  TrendingUp,
+  CalendarDays,
+  Heart,
+  ClipboardList,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
@@ -13,10 +19,10 @@ export default function AdminQuickActions() {
       href: "/dashboard/members/create",
     },
     {
-      label: "View Reports",
-      icon: TrendingUp,
+      label: "View Requisitions",
+      icon: ClipboardList,
       color: "blue",
-      href: "/dashboard",
+      href: "/dashboard/requisitions",
     },
     {
       label: "Schedule Event",

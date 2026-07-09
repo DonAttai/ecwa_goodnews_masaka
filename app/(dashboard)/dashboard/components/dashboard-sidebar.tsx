@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  ClipboardList,
 } from "lucide-react"
 import { SheetClose } from "@/components/ui/sheet"
 
@@ -39,6 +40,12 @@ export default function DashboardSidebar({
       title: "Members",
       href: "/dashboard/members",
       icon: Users,
+      roles: ["ADMIN", "WORKER"],
+    },
+    {
+      title: "Requisitions",
+      href: "/dashboard/requisitions",
+      icon: ClipboardList,
       roles: ["ADMIN", "WORKER"],
     },
     {

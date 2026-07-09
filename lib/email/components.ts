@@ -1,4 +1,3 @@
-// email/components.ts
 import { colors, layout } from "./styles"
 
 export function escapeHtml(str: string) {

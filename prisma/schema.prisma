@@ -8,19 +8,21 @@ datasource db {
 }
 
 model User {
-  id                 String               @id @default(cuid())
-  name               String
-  email              String               @unique
-  password           String?
-  role               Role
-  isActive           Boolean              @default(false)
-  mustChangePassword Boolean              @default(true)
-  resetToken        String?   @unique
-  resetTokenExpiry  DateTime?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  auditLogs          AuditLog[]
-  PasswordSetupToken PasswordSetupToken[]
+  id                   String               @id @default(cuid())
+  name                 String
+  email                String               @unique
+  password             String?
+  role                 Role
+  isActive             Boolean              @default(false)
+  mustChangePassword   Boolean              @default(true)
+  resetToken           String?              @unique
+  resetTokenExpiry     DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  auditLogs            AuditLog[]
+  PasswordSetupToken   PasswordSetupToken[]
+  requisitions         Requisition[]        @relation("RequestedRequisitions")
+  approvedRequisitions Requisition[]        @relation("ApprovedRequisitions")
 }
 
 model PasswordSetupToken {
@@ -117,6 +119,28 @@ model MemberFellowship {
   @@map("member_fellowships")
 }
 
+model Requisition {
+  id               String               @id @default(cuid())
+  title            String
+  description      String?
+  category         String
+  amount           Float?
+  currency         String               @default("NGN")
+  priority         RequisitionPriority  @default(MEDIUM)
+  status           RequisitionStatus    @default(PENDING)
+  dueDate          DateTime?
+  requestedById    String
+  requestedBy      User                 @relation("RequestedRequisitions", fields: [requestedById], references: [id], onDelete: Restrict)
+  approvedById     String?
+  approvedBy       User?                @relation("ApprovedRequisitions", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt       DateTime?
+  rejectionReason  String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@index([requestedById, status])
+}
+
 model Settings {
   id             Int      @id @default(1)
   churchName     String
@@ -169,4 +193,18 @@ enum AuditAction {
 enum EntityType {
   MEMBER
   USER
+}
+
+enum RequisitionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum RequisitionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
