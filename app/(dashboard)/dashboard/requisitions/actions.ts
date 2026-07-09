@@ -6,7 +6,9 @@ import { getCurrentUser } from "@/app/actions/auth"
 import { redirect } from "next/navigation"
 import { requisitionSchema, RequisitionType } from "./schema"
 import { RequisitionStatus } from "@/generated/prisma/enums"
+import { createNotification } from "@/lib/notifications"
 
+// create requisition
 export async function createRequisition(input: RequisitionType) {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
@@ -27,8 +29,10 @@ export async function createRequisition(input: RequisitionType) {
   }
 
   const data = parsed.data
+  console.log("dueDate:", data.dueDate)
+  console.log("type:", typeof data.dueDate)
 
-  await prisma.requisition.create({
+  const requisition = await prisma.requisition.create({
     data: {
       title: data.title,
       description: data.description ?? null,
@@ -41,6 +45,25 @@ export async function createRequisition(input: RequisitionType) {
       requestedById: user.id,
     },
   })
+
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" },
+    select: { id: true },
+  })
+
+  if (admins.length > 0) {
+    await Promise.all(
+      admins.map((admin) =>
+        createNotification({
+          userId: admin.id,
+          title: "New requisition request",
+          message: `${user.name} submitted a new requisition: ${requisition.title}`,
+          type: "INFO",
+          link: "/dashboard/requisitions",
+        })
+      )
+    )
+  }
 
   revalidatePath("/dashboard/requisitions")
   return { success: true, message: "Requisition submitted successfully." }
@@ -69,9 +92,17 @@ export async function updateRequisitionStatus(
     where: { id },
     select: {
       id: true,
+      title: true,
       status: true,
       requestedById: true,
       approvedAt: true,
+      requestedBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
   })
 
@@ -153,6 +184,28 @@ export async function updateRequisitionStatus(
           ? rejectionReason!.trim()
           : null,
     },
+  })
+
+  const statusLabel = newStatus.toLowerCase()
+  const notificationTitle = `Requisition ${statusLabel}`
+  const notificationMessage =
+    newStatus === RequisitionStatus.APPROVED
+      ? `Your requisition "${requisition.title}" has been approved.`
+      : newStatus === RequisitionStatus.REJECTED
+        ? `Your requisition "${requisition.title}" was rejected.${rejectionReason ? ` Reason: ${rejectionReason.trim()}` : ""}`
+        : `Your requisition "${requisition.title}" is now ${statusLabel}.`
+
+  await createNotification({
+    userId: requisition.requestedById,
+    title: notificationTitle,
+    message: notificationMessage,
+    type:
+      newStatus === RequisitionStatus.APPROVED
+        ? "SUCCESS"
+        : newStatus === RequisitionStatus.REJECTED
+          ? "WARNING"
+          : "INFO",
+    link: "/dashboard/requisitions",
   })
 
   revalidatePath("/dashboard/requisitions")

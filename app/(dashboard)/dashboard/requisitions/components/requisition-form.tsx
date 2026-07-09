@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ClipboardList, Plus, ShieldCheck } from "lucide-react"
+import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -56,11 +56,13 @@ export default function RequisitionForm({
   })
 
   async function onSubmit(data: RequisitionType) {
+    const cleanData = {
+      ...data,
+      amount: data.amount,
+      dueDate: data.dueDate || undefined,
+    }
     try {
-      const result = await createRequisition({
-        ...data,
-        amount: Number(data.amount),
-      })
+      const result = await createRequisition(cleanData)
 
       if (result.success) {
         toast.success(result.message || "Requisition submitted")

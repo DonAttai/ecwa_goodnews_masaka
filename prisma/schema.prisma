@@ -23,6 +23,7 @@ model User {
   PasswordSetupToken   PasswordSetupToken[]
   requisitions         Requisition[]        @relation("RequestedRequisitions")
   approvedRequisitions Requisition[]        @relation("ApprovedRequisitions")
+  notifications        Notification[]
 }
 
 model PasswordSetupToken {
@@ -156,6 +157,22 @@ model Settings {
   @@map("settings")
 }
 
+model Notification {
+  id        String              @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType    @default(INFO)
+  link      String?
+  read      Boolean             @default(false)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
 enum Role {
   ADMIN
   WORKER
@@ -207,4 +224,11 @@ enum RequisitionPriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
 }

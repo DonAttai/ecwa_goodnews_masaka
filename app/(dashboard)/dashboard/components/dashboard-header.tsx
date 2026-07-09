@@ -14,8 +14,8 @@ import {
 import { useSidebar } from "./sidebar-context"
 import { usePathname, useRouter } from "next/navigation"
 import { logout } from "@/app/actions/auth"
-import Link from "next/link"
 import { cn } from "@/lib/utils"
+import NotificationBell from "./notification-bell"
 
 interface DashboardHeaderProps {
   title: string
@@ -104,6 +104,8 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
           {user.role}
         </Badge>
 
+        <NotificationBell />
+
         {/* User Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -146,7 +148,6 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
                 Settings
               </DropdownMenuItem>
             )}
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer rounded-xl text-[#4a5568] hover:bg-[#f8f6f3] hover:text-[#1a2332]"
               onClick={handleLogout}

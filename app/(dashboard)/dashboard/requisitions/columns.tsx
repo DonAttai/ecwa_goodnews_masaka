@@ -68,13 +68,12 @@ export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
       accessorKey: "dueDate",
       header: () => <span className="hidden sm:table-cell">Due Date</span>,
       cell: ({ row }) => {
-        const date = new Date(row.getValue("dueDate") as string)
+        const date = row.getValue<Date | null>("dueDate")
+        const dueDate = date ? new Date(date) : null
 
         return (
           <div className="hidden font-medium sm:table-cell">
-            {!isNaN(date.getTime())
-              ? new Intl.DateTimeFormat("en-NG").format(date)
-              : "N/A"}
+            {dueDate ? new Intl.DateTimeFormat("en-NG").format(dueDate) : "N/A"}
           </div>
         )
       },
