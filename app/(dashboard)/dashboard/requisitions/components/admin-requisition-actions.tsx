@@ -31,9 +31,12 @@ export default function AdminRequisitionActions({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-medium text-slate-500">Admin Actions</h4>
-        <Badge variant="outline" className="text-xs">
-          {isLocked ? "Locked" : "Requires admin privileges"}
-        </Badge>
+
+        {isLocked && (
+          <Badge variant="outline" className="text-xs">
+            "Locked"
+          </Badge>
+        )}
       </div>
 
       {/* Show lock message if completed */}
@@ -64,7 +67,7 @@ export default function AdminRequisitionActions({
           variant="secondary"
           onClick={() => handleStatusChange(requisition.id, "COMPLETED")}
           disabled={isLoading || isLocked}
-          className="min-w-25"
+          className="min-w-30 bg-green-600 text-white hover:bg-green-700"
         >
           Mark Complete
         </Button>
@@ -72,7 +75,7 @@ export default function AdminRequisitionActions({
           size="sm"
           variant="destructive"
           onClick={() => handleStatusChange(requisition.id, "REJECTED")}
-          disabled={isLoading || isLocked}
+          disabled={isLoading || isLocked || isApproved}
           className="min-w-25"
         >
           Reject
@@ -81,7 +84,7 @@ export default function AdminRequisitionActions({
 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-slate-500">
-          Rejection note (optional)
+          Rejection note
         </label>
         <Input
           placeholder="Provide reason for rejection if applicable..."
@@ -92,7 +95,7 @@ export default function AdminRequisitionActions({
               [requisition.id]: event.target.value,
             }))
           }
-          disabled={isLoading || isLocked}
+          disabled={isLoading || isLocked || isApproved}
           className="text-sm"
         />
       </div>
