@@ -80,7 +80,7 @@ export default async function RequisitionsPage() {
       <div className="space-y-4">
         {/* Top section */}
         <div className="flex justify-between">
-          <p className="text-xl font-semibold">Requisition list</p>
+          <p className="text-xl font-semibold">Requisitions</p>
           <div className="w-full sm:w-90">
             <RequisitionForm
               isAdmin={isAdmin}

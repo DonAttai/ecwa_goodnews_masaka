@@ -23,7 +23,7 @@ export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
     },
     {
       accessorKey: "amount",
-      header: () => <div>Amount (NGN)</div>,
+      header: () => <div>Amount(NGN)</div>,
       cell: ({ row }) => {
         const amount = Number(row.getValue("amount"))
 
@@ -52,7 +52,7 @@ export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
     },
     {
       accessorKey: "status",
-      header: () => <span className="hidden sm:table-cell">Status-</span>,
+      header: () => <span className="hidden sm:table-cell">Status</span>,
       cell: ({ row }) => {
         return (
           <span className="hidden sm:table-cell">
