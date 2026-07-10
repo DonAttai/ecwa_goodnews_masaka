@@ -52,7 +52,7 @@ export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: () => <span className="hidden sm:table-cell">Status-</span>,
       cell: ({ row }) => {
         return (
           <span className="hidden sm:table-cell">
