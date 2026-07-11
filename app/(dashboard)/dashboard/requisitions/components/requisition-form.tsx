@@ -87,14 +87,14 @@ export default function RequisitionForm({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {canCreateRequisition && (
-        <DialogTrigger asChild>
-          <Button className="btn-gold h-9 w-fit rounded-lg text-sm sm:w-auto sm:rounded-xl sm:px-4 md:h-10 md:px-5">
-            <Plus />
-            Make a requisition
-          </Button>
-        </DialogTrigger>
-      )}
+      {/* {canCreateRequisition && ( */}
+      <DialogTrigger asChild>
+        <Button className="btn-gold h-9 w-fit rounded-lg text-sm sm:w-auto sm:rounded-xl sm:px-4 md:h-10 md:px-5">
+          <Plus />
+          Make a requisition
+        </Button>
+      </DialogTrigger>
+      {/* )} */}
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-0 sm:max-w-2xl">
         <div className="p-6">
           <DialogHeader className="mb-4">

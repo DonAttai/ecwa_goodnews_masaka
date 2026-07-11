@@ -52,7 +52,7 @@ export default async function RequisitionsPage() {
   ]
 
   return (
-    <div className="space-y-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+    <div className="container mx-auto space-y-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
       <div className="rounded-2xl border border-slate-200 bg-linear-to-br from-slate-50 via-white to-slate-50 p-4 shadow-sm sm:p-6">
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {summaryCards.map((card) => {
@@ -79,9 +79,10 @@ export default async function RequisitionsPage() {
 
       <div className="space-y-4">
         {/* Top section */}
-        <div className="flex justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <p className="text-xl font-semibold">Requisitions</p>
-          <div className="w-full sm:w-90">
+
+          <div className="sm:ml-auto">
             <RequisitionForm
               isAdmin={isAdmin}
               canCreateRequisition={canCreateRequisition}

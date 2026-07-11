@@ -30,6 +30,10 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "role",
     header: "Role",
+    cell: ({ row }) => {
+      const role = row.getValue("role") as string
+      return <span className="text-xs">{role}</span>
+    },
   },
   {
     accessorKey: "isActive",
@@ -40,12 +44,12 @@ export const columns: ColumnDef<User>[] = [
       return (
         <span className="hidden sm:table-cell">
           {isActive ? (
-            <Badge className="bg-green-600 text-sm font-semibold text-white">
-              Active
+            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+              ACTIVE
             </Badge>
           ) : (
-            <Badge className="bg-red-600 text-sm font-semibold text-white">
-              Inactive
+            <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+              INACTIVE
             </Badge>
           )}
         </span>

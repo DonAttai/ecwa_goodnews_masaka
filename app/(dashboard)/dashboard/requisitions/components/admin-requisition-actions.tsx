@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RequisitionItem, Status } from "../types"
 import { RequisitionStatus } from "@/generated/prisma/enums"
+import { Check, CircleCheck, X } from "lucide-react"
 
 export default function AdminRequisitionActions({
   isLoading,
@@ -19,10 +20,11 @@ export default function AdminRequisitionActions({
     React.SetStateAction<Record<string, string>>
   >
 }) {
+  const { COMPLETED, REJECTED, APPROVED } = RequisitionStatus
   // Check if requisition is completed
-  const isCompleted = requisition.status === RequisitionStatus.COMPLETED
-  const isRejected = requisition.status === RequisitionStatus.REJECTED
-  const isApproved = requisition.status === RequisitionStatus.APPROVED
+  const isCompleted = requisition.status === COMPLETED
+  const isRejected = requisition.status === REJECTED
+  const isApproved = requisition.status === APPROVED
 
   // Also consider disabling for rejected items
   const isLocked = isCompleted || isRejected
@@ -34,7 +36,7 @@ export default function AdminRequisitionActions({
 
         {isLocked && (
           <Badge variant="outline" className="text-xs">
-            "Locked"
+            Locked
           </Badge>
         )}
       </div>
@@ -52,32 +54,35 @@ export default function AdminRequisitionActions({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <Button
           size="sm"
           variant="default"
-          onClick={() => handleStatusChange(requisition.id, "APPROVED")}
+          onClick={() => handleStatusChange(requisition.id, APPROVED)}
           disabled={isLoading || isLocked || isApproved}
-          className="min-w-25"
+          className="min-w-32"
         >
+          <Check className="h-4 w-4" />
           {isLoading ? "Processing..." : "Approve"}
         </Button>
         <Button
           size="sm"
-          variant="secondary"
-          onClick={() => handleStatusChange(requisition.id, "COMPLETED")}
+          variant="success"
+          onClick={() => handleStatusChange(requisition.id, COMPLETED)}
           disabled={isLoading || isLocked}
-          className="min-w-30 bg-green-600 text-white hover:bg-green-700"
+          className="min-w-32"
         >
+          <CircleCheck className="h-4 w-4" />
           Mark Complete
         </Button>
         <Button
           size="sm"
           variant="destructive"
-          onClick={() => handleStatusChange(requisition.id, "REJECTED")}
+          onClick={() => handleStatusChange(requisition.id, REJECTED)}
           disabled={isLoading || isLocked || isApproved}
-          className="min-w-25"
+          className="min-w-32"
         >
+          <X className="h-4 w-4" />
           Reject
         </Button>
       </div>
