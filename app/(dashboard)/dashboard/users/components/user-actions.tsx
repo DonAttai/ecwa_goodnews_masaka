@@ -24,7 +24,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, CheckCircle, XCircle } from "lucide-react"
+import {
+  MoreHorizontal,
+  CheckCircle,
+  XCircle,
+  SquarePen,
+  Trash2,
+} from "lucide-react"
 import { useState } from "react"
 import { User } from "../columns"
 import UpdateUserForm from "./update-user-form"
@@ -75,7 +81,8 @@ export function UserActions({ user }: { user: User }) {
               setUpdateOpen(true)
             }}
           >
-            Update User
+            <SquarePen className="mr-1 h-4 w-4" />
+            Edit User
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -84,7 +91,9 @@ export function UserActions({ user }: { user: User }) {
               setMenuOpen(false)
               setDeleteOpen(true)
             }}
+            className="text-destructive"
           >
+            <Trash2 className="mr-1 h-4 w-4" />
             Delete User
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -94,7 +103,7 @@ export function UserActions({ user }: { user: User }) {
       <Dialog open={updateOpen} onOpenChange={setUpdateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update User</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
 
           <UpdateUserForm user={user} onClose={() => setUpdateOpen(false)} />

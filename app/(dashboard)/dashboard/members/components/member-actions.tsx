@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
+import { Copy, Eye, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import { Member } from "../columns"
 
@@ -25,11 +25,15 @@ export default function MemberActions(member: Member) {
         <DropdownMenuItem
           onClick={() => navigator.clipboard.writeText(member.phoneNumber)}
         >
-          Copy Phone Number
+          <Copy className="mr-1 h-4 w-4" />
+          <span>Copy Phone Number</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link href={`/dashboard/members/${member.id}`}>View Member</Link>
+        <DropdownMenuItem asChild>
+          <Link href={`/dashboard/members/${member.id}`}>
+            <Eye className="mr-1 h-4 w-4" />
+            View Details
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
