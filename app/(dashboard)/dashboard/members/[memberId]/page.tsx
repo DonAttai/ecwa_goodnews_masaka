@@ -10,6 +10,7 @@ type MemberPageProps = {
 export default async function MemberPage({ params }: MemberPageProps) {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
+  if (user.role !== "ADMIN") redirect("/dashboard")
 
   const memberId = (await params).memberId
   const isAdmin = user.role === "ADMIN"
