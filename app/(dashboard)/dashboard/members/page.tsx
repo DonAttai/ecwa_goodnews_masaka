@@ -1,9 +1,9 @@
 import AddMemberButton from "./create/components/add-member-button"
-import { columns, Member } from "./columns"
-import { DataTable } from "./data-table"
+import { Member } from "./columns"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/app/actions/auth"
+import MemberTable from "./member-table"
 
 async function getData(): Promise<Member[]> {
   const membersData = await prisma.member.findMany({
@@ -39,7 +39,7 @@ export default async function MembersPage() {
       {/* Add responsive overflow handling for the table */}
       <div className="-mx-4 overflow-x-auto sm:mx-0">
         <div className="inline-block min-w-full align-middle">
-          <DataTable columns={columns} data={data} />
+          <MemberTable isAdmin={isAdmin} data={data} />
         </div>
       </div>
     </div>
