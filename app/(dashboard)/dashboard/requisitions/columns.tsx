@@ -22,6 +22,20 @@ export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
       },
     },
     {
+      accessorKey: "department",
+      header: () => <span className="hidden sm:table-cell">Department</span>,
+      cell: ({ row }) => {
+        const department = row.getValue(
+          "department"
+        ) as RequisitionItem["department"]
+        return (
+          <span className="hidden sm:table-cell">
+            {department?.name ?? "N/A"}
+          </span>
+        )
+      },
+    },
+    {
       accessorKey: "amount",
       header: () => <div>Amount(NGN)</div>,
       cell: ({ row }) => {

@@ -1,35 +1,39 @@
 import { redirect } from "next/navigation"
 import { columns, User } from "./columns"
 import { DataTable } from "./data-table"
-import { prisma } from "@/lib/prisma"
+import { prisma, Role } from "@/lib/prisma"
 import AddUserDialog from "./components/add-user-dialog"
-import { getCurrentUser } from "@/app/actions/auth"
+import { getAllUsers, getCurrentUser } from "@/app/actions/auth"
+import { getDepartments } from "../settings/actions/department"
 
-async function getData(): Promise<User[]> {
+async function getData(): Promise<{
+  users: User[]
+  departments: Array<{ id: string; name: string }>
+}> {
   const user = await getCurrentUser()
 
   if (!user) redirect("/login")
 
   if (user?.role !== "ADMIN") redirect("/dashboard")
 
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      isActive: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
+  const [users, departments] = await Promise.all([
+    getAllUsers(),
+    getDepartments(),
+  ])
 
-  return users
+  return {
+    users: users.map((user: User) => ({
+      ...user,
+      department: user.department
+        ? { id: user.department.id, name: user.department.name }
+        : null,
+    })),
+    departments,
+  }
 }
 
 export default async function Users() {
-  const data = await getData()
+  const { users, departments } = await getData()
 
   return (
     <div className="container mx-auto space-y-6 py-10">
@@ -42,10 +46,10 @@ export default async function Users() {
           </p>
         </div>
 
-        <AddUserDialog />
+        <AddUserDialog departments={departments} />
       </div>
 
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={users} />
     </div>
   )
 }

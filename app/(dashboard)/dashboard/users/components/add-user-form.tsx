@@ -1,14 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { createUser } from "../actions"
 
 import { Button } from "@/components/ui/button"
 
 import { Input } from "@/components/ui/input"
-
-import { Label } from "@/components/ui/label"
 
 import {
   Select,
@@ -29,16 +27,31 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 
-export default function AddUserForm({ onClose }: { onClose: () => void }) {
+export default function AddUserForm({
+  onClose,
+  departments,
+}: {
+  onClose: () => void
+  departments: Array<{ id: string; name: string }>
+}) {
   const [isLoading, setIsLoading] = useState(false)
+
   const form = useForm<CreateUserSchemaType>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
       name: "",
       email: "",
       role: "USER",
+      departmentId: undefined,
     },
   })
+
+  const role = form.watch("role")
+  useEffect(() => {
+    if (role === "ADMIN") {
+      form.setValue("departmentId", undefined)
+    }
+  }, [role, form])
 
   const roleDescriptions = {
     ADMIN: "Admins have full system access",
@@ -138,6 +151,52 @@ export default function AddUserForm({ onClose }: { onClose: () => void }) {
           )}
         />
       </div>
+
+      {/* department */}
+      {(role === "USER" || role === "WORKER") && (
+        <Controller
+          name="departmentId"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>Department</FieldLabel>
+
+              <Select
+                name={field.name}
+                value={field.value ?? ""}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                >
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+
+                <SelectContent position="item-aligned">
+                  {departments.length === 0 ? (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      No departments available yet
+                    </div>
+                  ) : (
+                    departments.map((department) => (
+                      <SelectItem key={department.id} value={department.id}>
+                        {department.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+
+              <FieldDescription>
+                Department is required for workers and users.
+              </FieldDescription>
+
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+      )}
 
       {/* SUBMIT */}
       <Button

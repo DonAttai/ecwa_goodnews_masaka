@@ -27,7 +27,28 @@ export async function createUser(data: CreateUserSchemaType) {
       }
     }
 
-    const { email, name, role } = validationData.data
+    const { email, name, role, departmentId } = validationData.data
+
+    if ((role === "WORKER" || role === "USER") && !departmentId) {
+      return {
+        success: false,
+        message: "Please select a department for this user",
+      }
+    }
+
+    if (departmentId) {
+      const department = await prisma.department.findUnique({
+        where: { id: departmentId },
+        select: { id: true },
+      })
+
+      if (!department) {
+        return {
+          success: false,
+          message: "The selected department could not be found",
+        }
+      }
+    }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -41,14 +62,13 @@ export async function createUser(data: CreateUserSchemaType) {
       }
     }
 
-    console.log("DATA: ", validationData.data)
-
     // Create user - for first user, always make them ADMIN
     const user = await prisma.user.create({
       data: {
         name,
         email,
         role: role as Role,
+        departmentId: role === "ADMIN" ? null : (departmentId ?? null),
         password: null,
         mustChangePassword: true,
       },
@@ -128,10 +148,15 @@ export async function updateUser(data: UpdateUserSchemaType) {
         message: "Cannot update your own data",
       }
     }
-    const { name, role, isActive } = validationData.data
+    const { name, role, isActive, departmentId } = validationData.data
     const user = await prisma.user.update({
       where: { id: data.id },
-      data: { name, role, isActive },
+      data: {
+        name,
+        role,
+        isActive,
+        departmentId: role === "ADMIN" ? null : (departmentId ?? null),
+      },
       select: {
         id: true,
         email: true,

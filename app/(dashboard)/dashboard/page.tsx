@@ -27,14 +27,6 @@ export default async function Dashboard() {
       }),
     ])
 
-  // Calculate percentages for trends (mock data for demo)
-  const trends = {
-    total: "+12%",
-    male: "+8%",
-    female: "+15%",
-    children: "+5%",
-  }
-
   if (currentUser.role === "USER") {
     return <UserDashboard user={currentUser} />
   }

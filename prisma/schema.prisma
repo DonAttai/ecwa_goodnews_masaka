@@ -7,6 +7,16 @@ datasource db {
   provider = "postgresql"
 }
 
+model Department {
+  id           String       @id @default(cuid())
+  name         String       @unique
+  description  String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  users        User[]
+  requisitions Requisition[]
+}
+
 model User {
   id                   String               @id @default(cuid())
   name                 String
@@ -17,6 +27,8 @@ model User {
   mustChangePassword   Boolean              @default(true)
   resetToken           String?              @unique
   resetTokenExpiry     DateTime?
+  departmentId         String?
+  department           Department?          @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   auditLogs            AuditLog[]
@@ -121,23 +133,25 @@ model MemberFellowship {
 }
 
 model Requisition {
-  id               String               @id @default(cuid())
-  title            String
-  description      String?
-  category         String
-  amount           Float?
-  currency         String               @default("NGN")
-  priority         RequisitionPriority  @default(MEDIUM)
-  status           RequisitionStatus    @default(PENDING)
-  dueDate          DateTime?
-  requestedById    String
-  requestedBy      User                 @relation("RequestedRequisitions", fields: [requestedById], references: [id], onDelete: Restrict)
-  approvedById     String?
-  approvedBy       User?                @relation("ApprovedRequisitions", fields: [approvedById], references: [id], onDelete: SetNull)
-  approvedAt       DateTime?
-  rejectionReason  String?
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  id              String              @id @default(cuid())
+  title           String
+  description     String?
+  category        String
+  amount          Float?
+  currency        String              @default("NGN")
+  priority        RequisitionPriority @default(MEDIUM)
+  status          RequisitionStatus   @default(PENDING)
+  dueDate         DateTime?
+  requestedById   String
+  requestedBy     User                @relation("RequestedRequisitions", fields: [requestedById], references: [id], onDelete: Restrict)
+  approvedById    String?
+  approvedBy      User?               @relation("ApprovedRequisitions", fields: [approvedById], references: [id], onDelete: SetNull)
+  departmentId    String?
+  department      Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  approvedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   @@index([requestedById, status])
 }

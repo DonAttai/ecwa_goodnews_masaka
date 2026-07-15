@@ -5,18 +5,18 @@ import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/app/actions/auth"
 import { redirect } from "next/navigation"
 import { requisitionSchema, RequisitionType } from "./schema"
-import { RequisitionStatus } from "@/generated/prisma/enums"
+import { RequisitionStatus, Role } from "@/generated/prisma/enums"
 import { createNotification } from "@/lib/notifications"
 
 // create requisition
 export async function createRequisition(input: RequisitionType) {
   const user = await getCurrentUser()
-  if (!user) redirect("/login")
+  if (user === null) redirect("/login")
 
-  if (user.role !== "WORKER") {
+  if (user.role === Role.ADMIN) {
     return {
       success: false,
-      message: "Only workers can submit requisitions.",
+      message: "Only workers or users can submit requisitions.",
     }
   }
 
@@ -29,8 +29,15 @@ export async function createRequisition(input: RequisitionType) {
   }
 
   const data = parsed.data
-  console.log("dueDate:", data.dueDate)
-  console.log("type:", typeof data.dueDate)
+  const departmentId = user.department ? user.department?.id : null
+
+  if ((user.role === "WORKER" || user.role === "USER") && !departmentId) {
+    return {
+      success: false,
+      message:
+        "Your account must be linked to a department before submitting requisitions.",
+    }
+  }
 
   const requisition = await prisma.requisition.create({
     data: {
@@ -43,6 +50,7 @@ export async function createRequisition(input: RequisitionType) {
       status: data.status ?? "PENDING",
       dueDate: data.dueDate ? new Date(data.dueDate) : null,
       requestedById: user.id,
+      departmentId: departmentId ?? null,
     },
   })
 
@@ -239,6 +247,12 @@ export async function getRequisitions() {
           id: true,
           name: true,
           role: true,
+        },
+      },
+      department: {
+        select: {
+          id: true,
+          name: true,
         },
       },
     },

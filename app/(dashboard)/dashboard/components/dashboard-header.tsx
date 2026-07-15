@@ -16,6 +16,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { logout } from "@/app/actions/auth"
 import { cn } from "@/lib/utils"
 import NotificationBell from "./notification-bell"
+import { toast } from "sonner"
 
 interface DashboardHeaderProps {
   title: string
@@ -45,6 +46,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
 
   const handleLogout = async () => {
     await logout()
+    toast.success("You have been logged out.")
     router.push("/login")
   }
 

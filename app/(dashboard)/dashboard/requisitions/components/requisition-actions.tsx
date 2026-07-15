@@ -42,7 +42,10 @@ export default function RequisitionActions({
       if (result.success) {
         toast.success(result.message)
         setIsDialogOpen(false)
-        router.refresh()
+
+        setTimeout(() => {
+          router.refresh()
+        }, 200)
       } else {
         toast.error(result.message)
       }

@@ -28,10 +28,19 @@ import { RHFSelect } from "./rhf-select"
 import * as z from "zod"
 
 interface RequisitionFormProps {
-  isAdmin: boolean
   canCreateRequisition: boolean
 }
 
+const defaultValues = {
+  title: "",
+  description: "",
+  category: "",
+  amount: "",
+  currency: "NGN",
+  priority: "MEDIUM" as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
+  dueDate: "",
+  rejectionReason: "",
+}
 export default function RequisitionForm({
   canCreateRequisition,
 }: RequisitionFormProps) {
@@ -42,51 +51,38 @@ export default function RequisitionForm({
     RequisitionType
   >({
     resolver: zodResolver(requisitionSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      category: "",
-      amount: "",
-      currency: "NGN",
-      priority: "MEDIUM" as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
-      dueDate: "",
-      rejectionReason: "",
-    },
+    defaultValues,
     mode: "onBlur",
   })
 
   async function onSubmit(data: RequisitionType) {
-    const cleanData = {
-      ...data,
-      amount: data.amount,
-      dueDate: data.dueDate || undefined,
-    }
     try {
-      const result = await createRequisition(cleanData)
+      const result = await createRequisition({
+        ...data,
+        dueDate: data.dueDate || undefined,
+      })
 
-      if (result.success) {
-        toast.success(result.message || "Requisition submitted")
-        form.reset({
-          title: "",
-          description: "",
-          category: "",
-          amount: "",
-          currency: "NGN",
-          priority: "MEDIUM",
-          dueDate: "",
-          rejectionReason: "",
-        })
-        setOpen(false)
-      } else {
+      if (!result.success) {
         toast.error(result.message || "Failed to submit requisition")
+        return
       }
-    } catch {
+
+      setOpen(false)
+      toast.success(result.message || "Requisition submitted")
+    } catch (error) {
+      console.error(error)
       toast.error("An unexpected error happened")
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (isOpen) form.reset(defaultValues)
+        setOpen(isOpen)
+      }}
+    >
       {canCreateRequisition && (
         <DialogTrigger asChild>
           <Button className="btn-gold h-9 w-fit rounded-lg text-sm sm:w-auto sm:rounded-xl sm:px-4 md:h-10 md:px-5">

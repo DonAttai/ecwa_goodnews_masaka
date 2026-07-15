@@ -13,6 +13,7 @@ export type User = {
   email: string
   role: "WORKER" | "ADMIN" | "USER"
   isActive: boolean
+  department?: { id: string; name: string } | null
 }
 
 export const columns: ColumnDef<User>[] = [
@@ -45,6 +46,18 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const role = row.getValue("role") as string
       return <span className="text-xs">{role}</span>
+    },
+  },
+  {
+    accessorKey: "department",
+    header: () => <span className="hidden sm:table-cell">Department</span>,
+    cell: ({ row }) => {
+      const department = row.getValue("department") as User["department"]
+      return (
+        <span className="hidden text-sm sm:table-cell">
+          {department?.name ?? "N/A"}
+        </span>
+      )
     },
   },
   {

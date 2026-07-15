@@ -51,7 +51,9 @@ export default function LoginForm() {
 
       if (result.success) {
         router.push("/dashboard")
-        toast.success("Login successful!")
+        setTimeout(() => {
+          toast.success("Login successful!")
+        }, 150)
       } else {
         toast.error(result.message ?? "Login failed")
       }

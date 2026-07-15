@@ -16,7 +16,11 @@ import { Plus } from "lucide-react"
 import AddUserForm from "./add-user-form"
 import { useState } from "react"
 
-export default function AddUserDialog() {
+export default function AddUserDialog({
+  departments,
+}: {
+  departments: Array<{ id: string; name: string }>
+}) {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleClose = () => {
@@ -40,7 +44,10 @@ export default function AddUserDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <AddUserForm onClose={() => setIsOpen(false)} />
+        <AddUserForm
+          onClose={() => setIsOpen(false)}
+          departments={departments}
+        />
       </DialogContent>
     </Dialog>
   )

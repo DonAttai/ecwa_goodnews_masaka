@@ -1,6 +1,5 @@
 "use server"
 
-import { z } from "zod"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { clearSessionCookie, getSession, requireAdmin } from "@/lib/auth"
@@ -8,15 +7,13 @@ import { clearSessionCookie, getSession, requireAdmin } from "@/lib/auth"
 // logout action
 export async function logout() {
   await clearSessionCookie()
-  redirect("/login")
 }
 
+// get current user
 export async function getCurrentUser() {
   const session = await getSession()
 
-  if (!session) {
-    return null
-  }
+  if (!session) return null
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
@@ -26,6 +23,12 @@ export async function getCurrentUser() {
       email: true,
       role: true,
       isActive: true,
+      department: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
       createdAt: true,
     },
   })
@@ -50,6 +53,12 @@ export async function getAllUsers() {
       role: true,
       isActive: true,
       createdAt: true,
+      department: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

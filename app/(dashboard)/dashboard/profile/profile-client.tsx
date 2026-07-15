@@ -1,8 +1,7 @@
 "use client"
-import { useState, useTransition } from "react"
+import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -11,13 +10,10 @@ import {
   KeyRound,
   Mail,
   User as UserIcon,
-  Calendar,
-  Shield,
   CheckCircle,
   XCircle,
-  Eye,
-  EyeOff,
   Lock,
+  Building2,
 } from "lucide-react"
 import changePassword from "./actions"
 import { toast } from "sonner"
@@ -33,6 +29,10 @@ interface User {
   role: string
   isActive: boolean
   createdAt: Date
+  department: {
+    id: string
+    name: string
+  } | null
 }
 
 const changePasswordSchema = z.object({
@@ -47,6 +47,37 @@ export default function ProfileClient({ user }: { user: User }) {
   const [isLoading, setIsLoading] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+
+  const userData = [
+    { label: "Full Name", value: user.name || "Not provided" },
+
+    {
+      label: "Email Address",
+      value: user.email,
+      icon: Mail,
+    },
+
+    {
+      label: "Department",
+      value: user.department?.name ?? "N/A",
+      icon: Building2,
+    },
+
+    {
+      label: "Role",
+      value: user.role,
+      badge: true,
+    },
+
+    {
+      label: "Added On",
+      value: new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(user.createdAt),
+    },
+  ]
 
   const getInitials = (name: string | null) => {
     if (!name) return "U"
@@ -121,7 +152,7 @@ export default function ProfileClient({ user }: { user: User }) {
         <Card className="overflow-hidden border-border bg-card shadow-2xl">
           {/* Profile Header */}
           <div className="bg-linear-to-r from-primary/20 via-primary/10 to-transparent p-8">
-            <div className="flex flex-wrap items-center gap-6">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               <Avatar className="h-28 w-28 border-4 border-background shadow-xl">
                 <AvatarFallback className="bg-linear-to-br from-primary to-primary/80 text-3xl font-semibold text-primary-foreground">
                   {getInitials(user.name)}
@@ -146,24 +177,8 @@ export default function ProfileClient({ user }: { user: User }) {
                 <UserIcon className="h-5 w-5 text-primary" />
                 Account Information
               </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {[
-                  { label: "Full Name", value: user.name || "Not provided" },
-                  { label: "Email Address", value: user.email, icon: Mail },
-                  {
-                    label: "Role",
-                    value: user.role,
-                    badge: true,
-                  },
-                  {
-                    label: "Added On",
-                    value: new Intl.DateTimeFormat("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }).format(user.createdAt),
-                  },
-                ].map((item, i) => (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {userData.map((item, i) => (
                   <div
                     key={i}
                     className="rounded-2xl border-border bg-muted/30 p-5 transition-all hover:border-primary/30 hover:bg-muted/50"

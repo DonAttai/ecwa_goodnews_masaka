@@ -26,7 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import { Church, User, Users } from "lucide-react"
+import { Building2, Church, User, Users } from "lucide-react"
 
 // Server Actions
 import { updateGeneralSettings } from "../actions/general"
@@ -42,18 +42,21 @@ import { fellowshipSchema, FellowshipType } from "../types/fellowship"
 import { generalSchema, GeneralType } from "../types/general"
 import GeneralSection from "./general-section"
 import MembershipLandingPage from "./membership"
+import DepartmentSection from "./department-section"
 
 interface SettingsPageProps {
   fellowships: FellowshipType[]
+  departments: Array<{ id: string; name: string; description?: string }>
   generalSettings: GeneralType
 }
 
 export default function SettingsPage({
   fellowships,
+  departments,
   generalSettings,
 }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<
-    "general" | "membership" | "fellowships"
+    "general" | "membership" | "fellowships" | "departments"
   >("general")
 
   // Mobile sidebar state
@@ -67,8 +70,6 @@ export default function SettingsPage({
   const [fellowshipToDelete, setFellowshipToDelete] = useState<string | null>(
     null
   )
-  const [isLoadingFellowship, setIsloadingFellowship] = useState(false)
-  const [isLoadingSettings, setIsLoadingSettings] = useState(false)
   // Close mobile sidebar when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
@@ -213,6 +214,7 @@ export default function SettingsPage({
     { id: "general", label: "General", icon: Church },
     { id: "membership", label: "Membership", icon: User },
     { id: "fellowships", label: "Fellowships", icon: Users },
+    { id: "departments", label: "Departments", icon: Building2 },
   ] as const
 
   return (
@@ -391,6 +393,10 @@ export default function SettingsPage({
               onEdit={setEditingFellowship}
               onDelete={handleDeleteClick}
             />
+          )}
+
+          {activeSection === "departments" && (
+            <DepartmentSection departments={departments} />
           )}
         </div>
       </div>

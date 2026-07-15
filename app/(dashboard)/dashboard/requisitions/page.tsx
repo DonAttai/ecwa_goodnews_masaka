@@ -83,10 +83,7 @@ export default async function RequisitionsPage() {
           <p className="text-xl font-semibold">Requisitions</p>
 
           <div className="sm:ml-auto">
-            <RequisitionForm
-              isAdmin={isAdmin}
-              canCreateRequisition={canCreateRequisition}
-            />
+            <RequisitionForm canCreateRequisition={canCreateRequisition} />
           </div>
         </div>
 

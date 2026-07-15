@@ -1,9 +1,9 @@
 import {
   ArrowRight,
+  Building2,
   Church,
   ClipboardList,
   Mail,
-  Sparkles,
   User,
 } from "lucide-react"
 import {
@@ -22,6 +22,10 @@ interface UserDashboardProps {
     email: string
     role: string
     createdAt?: Date
+    department?: {
+      id: string
+      name: string
+    } | null
   }
 }
 
@@ -41,7 +45,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
     })
   }
 
-  const roleLabel = user.role?.toLowerCase().replace(/_/g, " ") || "member"
+  const departmentName = user.department?.name || "N/A"
 
   const quickActions = [
     {
@@ -61,30 +65,27 @@ export default function UserDashboard({ user }: UserDashboardProps) {
   ]
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-[#e2dcd5]/70 bg-gradient-to-br from-[#1a2332] via-[#22304a] to-[#2f4362] p-6 text-white shadow-sm sm:p-8">
+    <div className="mx-auto max-w-6xl space-y-6 pb-6">
+      {/* Hero Section */}
+      <section className="overflow-hidden rounded-3xl border border-[#e2dcd5]/70 bg-linear-to-br from-[#1a2332] via-[#22304a] to-[#2f4362] p-6 text-white shadow-sm sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-sm font-medium tracking-[0.25em] text-[#e8d5a3] uppercase">
-              Member dashboard
+              User dashboard
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
               {greeting}, {user.name}
             </h1>
             <p className="mt-3 max-w-xl text-sm text-slate-200 sm:text-base">
-              Welcome to your church dashboard. You can review your profile,
-              manage requests, and stay connected with your church activities.
+              Welcome to your church dashboard. You can review your profile, and
+              manage requests.
             </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-            <p className="text-sm text-slate-200">Current role</p>
-            <p className="mt-1 text-lg font-semibold capitalize">{roleLabel}</p>
           </div>
         </div>
       </section>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Info Cards - Updated to 4 cards with responsive grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border-[#e2dcd5]/70 bg-white">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -92,24 +93,10 @@ export default function UserDashboard({ user }: UserDashboardProps) {
                 <Church className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Member since</p>
+                <p className="text-sm text-muted-foreground">Added since</p>
                 <p className="text-lg font-semibold">
                   {formatDate(user.createdAt)}
                 </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#e2dcd5]/70 bg-white">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="rounded-lg bg-amber-500/10 p-2">
-                <Sparkles className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Role</p>
-                <p className="text-lg font-semibold capitalize">{roleLabel}</p>
               </div>
             </div>
           </CardContent>
@@ -128,8 +115,24 @@ export default function UserDashboard({ user }: UserDashboardProps) {
             </div>
           </CardContent>
         </Card>
+
+        {/* New Department Card */}
+        <Card className="border-[#e2dcd5]/70 bg-white">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="rounded-lg bg-emerald-500/10 p-2">
+                <Building2 className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-muted-foreground">Department</p>
+                <p className="text-lg font-semibold">{departmentName}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
+      {/* Rest of the dashboard remains unchanged */}
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <Card className="border-[#e2dcd5]/70 bg-white">
           <CardHeader>
@@ -157,9 +160,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
                     >
                       <Icon className="h-4 w-4" />
                     </div>
-
                     <div className="min-w-0 flex-1">
-                      {/* ← This is the key fix */}
                       <span className="block text-sm font-semibold text-[#1a2332]">
                         {action.title}
                       </span>
@@ -167,7 +168,6 @@ export default function UserDashboard({ user }: UserDashboardProps) {
                         {action.description}
                       </span>
                     </div>
-
                     <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
                   </Link>
                 </Button>

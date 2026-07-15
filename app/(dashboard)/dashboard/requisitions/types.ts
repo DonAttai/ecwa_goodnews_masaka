@@ -21,6 +21,10 @@ export interface RequisitionItem {
     name: string
     role: string
   } | null
+  department: {
+    id: string
+    name: string
+  } | null
   rejectionReason: string | null
 }
 
