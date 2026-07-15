@@ -221,14 +221,26 @@ export async function getRequisitions() {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
-  const requisitions = await prisma.requisition.findMany({
-    where: user.role === "WORKER" ? { requestedById: user.id } : undefined,
-    orderBy: { createdAt: "desc" },
+  return prisma.requisition.findMany({
+    where: user.role === "ADMIN" ? {} : { requestedById: user.id },
+    orderBy: {
+      createdAt: "desc",
+    },
     include: {
-      requestedBy: { select: { id: true, name: true, role: true } },
-      approvedBy: { select: { id: true, name: true, role: true } },
+      requestedBy: {
+        select: {
+          id: true,
+          name: true,
+          role: true,
+        },
+      },
+      approvedBy: {
+        select: {
+          id: true,
+          name: true,
+          role: true,
+        },
+      },
     },
   })
-
-  return requisitions
 }

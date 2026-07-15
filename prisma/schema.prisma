@@ -12,7 +12,7 @@ model User {
   name                 String
   email                String               @unique
   password             String?
-  role                 Role
+  role                 Role                 @default(USER)
   isActive             Boolean              @default(false)
   mustChangePassword   Boolean              @default(true)
   resetToken           String?              @unique
@@ -176,6 +176,7 @@ model Notification {
 enum Role {
   ADMIN
   WORKER
+  USER
 }
 
 enum MaritalStatus {

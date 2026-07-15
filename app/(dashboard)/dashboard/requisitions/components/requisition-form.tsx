@@ -91,7 +91,7 @@ export default function RequisitionForm({
         <DialogTrigger asChild>
           <Button className="btn-gold h-9 w-fit rounded-lg text-sm sm:w-auto sm:rounded-xl sm:px-4 md:h-10 md:px-5">
             <Plus />
-            Make a requisition
+            Create Requisition
           </Button>
         </DialogTrigger>
       )}

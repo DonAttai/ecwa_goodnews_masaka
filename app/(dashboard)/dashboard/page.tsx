@@ -5,6 +5,7 @@ import AdminQuickActions from "./components/admin-quick-actions"
 import { DashboardStats } from "./components/dashboard-stats"
 import AnalyticsCard from "./components/analytics-card"
 import RecentActivity from "./components/recent-activity"
+import UserDashboard from "./components/user-dashboard"
 
 export default async function Dashboard() {
   const currentUser = await getCurrentUser()
@@ -34,6 +35,10 @@ export default async function Dashboard() {
     children: "+5%",
   }
 
+  if (currentUser.role === "USER") {
+    return <UserDashboard user={currentUser} />
+  }
+
   return (
     <div className="space-y-6">
       {/* 🔥 KPI GRID - WARM & ELEGANT */}
@@ -45,11 +50,24 @@ export default async function Dashboard() {
       />
 
       {/* BOTTOM SECTION - ANALYTICS & ACTIVITY */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Analytics Card */}
-        <AnalyticsCard />
-        {/* Recent Activity Card */}
-        <RecentActivity activities={activities} />
+      <div
+        className={`grid gap-6 pb-12 ${
+          isAdmin ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1"
+        }`}
+      >
+        {isAdmin ? (
+          <>
+            <div className="lg:col-span-2">
+              <AnalyticsCard />
+            </div>
+
+            <RecentActivity activities={activities} />
+          </>
+        ) : (
+          <div className="mx-auto w-full max-w-3xl">
+            <AnalyticsCard />
+          </div>
+        )}
       </div>
 
       {/* 🔥 QUICK ACTIONS */}

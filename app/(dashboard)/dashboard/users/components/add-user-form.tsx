@@ -36,9 +36,15 @@ export default function AddUserForm({ onClose }: { onClose: () => void }) {
     defaultValues: {
       name: "",
       email: "",
-      role: "WORKER",
+      role: "USER",
     },
   })
+
+  const roleDescriptions = {
+    ADMIN: "Admins have full system access",
+    WORKER: "Workers have limited permissions",
+    USER: "Users have basic access",
+  }
 
   const onSubmit = async (data: CreateUserSchemaType) => {
     try {
@@ -104,9 +110,7 @@ export default function AddUserForm({ onClose }: { onClose: () => void }) {
               <FieldContent>
                 <FieldLabel htmlFor={field.name}>Role</FieldLabel>
                 <FieldDescription>
-                  {field.value === "ADMIN"
-                    ? "Admins have full system access"
-                    : "Workers have limited permissions"}
+                  {roleDescriptions[field.value] ?? "Select a role"}
                 </FieldDescription>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -125,6 +129,7 @@ export default function AddUserForm({ onClose }: { onClose: () => void }) {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent position="item-aligned">
+                  <SelectItem value="USER">User</SelectItem>
                   <SelectItem value="WORKER">Worker</SelectItem>
                   <SelectItem value="ADMIN">Administrator</SelectItem>
                 </SelectContent>

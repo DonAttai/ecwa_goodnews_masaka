@@ -14,7 +14,7 @@ export default async function RequisitionsPage() {
   if (!user) redirect("/login")
 
   const isAdmin = user.role === "ADMIN"
-  const canCreateRequisition = user.role === "WORKER"
+  const canCreateRequisition = user.role === "WORKER" || user.role === "USER"
   const summary = {
     total: requisitions.length,
     pending: requisitions.filter((item) => item.status === "PENDING").length,

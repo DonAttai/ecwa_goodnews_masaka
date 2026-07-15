@@ -1,20 +1,16 @@
-import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { columns, User } from "./columns"
 import { DataTable } from "./data-table"
 import { prisma } from "@/lib/prisma"
 import AddUserDialog from "./components/add-user-dialog"
+import { getCurrentUser } from "@/app/actions/auth"
 
 async function getData(): Promise<User[]> {
-  const session = await getSession()
+  const user = await getCurrentUser()
 
-  if (!session) {
-    redirect("/login")
-  }
+  if (!user) redirect("/login")
 
-  if (session?.role !== "ADMIN") {
-    redirect("/dashboard")
-  }
+  if (user?.role !== "ADMIN") redirect("/dashboard")
 
   const users = await prisma.user.findMany({
     select: {

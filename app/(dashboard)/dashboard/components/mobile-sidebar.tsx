@@ -14,7 +14,7 @@ import { useSidebar } from "./sidebar-context"
 export default function MobileSidebar({
   userRole,
 }: {
-  userRole: "ADMIN" | "WORKER"
+  userRole: "ADMIN" | "WORKER" | "USER"
 }) {
   const { open, setOpen } = useSidebar()
   const pathname = usePathname()

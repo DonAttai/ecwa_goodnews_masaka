@@ -30,7 +30,7 @@ import { toast } from "sonner"
 const updateUserSchema = z.object({
   id: z.string(),
   name: z.string().min(2, "Name must be at least 2 characters"),
-  role: z.enum(["WORKER", "ADMIN"]),
+  role: z.enum(["WORKER", "ADMIN", "USER"]),
   email: z.email(),
   isActive: z.boolean(),
 })
@@ -125,7 +125,9 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
                 <FieldDescription>
                   {role === "ADMIN"
                     ? "Admins have full system access"
-                    : "Workers have limited permissions"}
+                    : role === "USER"
+                      ? "Users have limited access to member-facing features"
+                      : "Workers have limited permissions"}
                 </FieldDescription>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -146,6 +148,7 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
                 <SelectContent position="item-aligned">
                   <SelectItem value="WORKER">Worker</SelectItem>
                   <SelectItem value="ADMIN">Administrator</SelectItem>
+                  <SelectItem value="USER">User</SelectItem>
                 </SelectContent>
               </Select>
             </Field>

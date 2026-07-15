@@ -1,6 +1,6 @@
 "use server"
 
-import { prisma } from "@/lib/prisma"
+import { prisma, Role } from "@/lib/prisma"
 
 import { requireAdmin } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
@@ -18,7 +18,7 @@ export async function createUser(data: CreateUserSchemaType) {
     const admin = await requireAdmin()
 
     // Validate input
-    const validationData = createUserSchema.safeParse({ ...data })
+    const validationData = createUserSchema.safeParse(data)
 
     if (!validationData.success) {
       return {
@@ -41,12 +41,14 @@ export async function createUser(data: CreateUserSchemaType) {
       }
     }
 
+    console.log("DATA: ", validationData.data)
+
     // Create user - for first user, always make them ADMIN
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        role: role as "WORKER" | "ADMIN",
+        role: role as Role,
         password: null,
         mustChangePassword: true,
       },
@@ -98,6 +100,7 @@ export async function createUser(data: CreateUserSchemaType) {
     revalidatePath("/dashboard/users")
     return { success: true, message: "User creation successs" }
   } catch (error) {
+    console.error("Error: ", error)
     return {
       success: false,
       message: "An unexpected error occurred",
