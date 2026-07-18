@@ -3,12 +3,11 @@ import DashboardFooter from "./components/dashboard-footer"
 import DashboardSidebar from "./components/dashboard-sidebar"
 import MobileSidebar from "./components/mobile-sidebar"
 
-import { getSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { prisma } from "@/lib/prisma"
 
 import { SidebarProvider } from "./components/sidebar-context"
 import { getCurrentUser } from "@/app/actions/auth"
+import { Role } from "@/lib/prisma"
 
 export default async function DashboardLayout({
   children,
@@ -18,7 +17,7 @@ export default async function DashboardLayout({
   const curretntUser = await getCurrentUser()
   if (!curretntUser) redirect("/login")
 
-  const userRole = curretntUser?.role || "WORKER"
+  const userRole: Role = curretntUser?.role
 
   return (
     <SidebarProvider>

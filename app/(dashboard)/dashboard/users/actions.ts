@@ -28,8 +28,8 @@ export async function createUser(data: CreateUserSchemaType) {
     }
 
     const { email, name, role, departmentId } = validationData.data
-
-    if ((role === "WORKER" || role === "USER") && !departmentId) {
+    const rolesWithDepartment: Role[] = [Role.FINANCE, Role.WORKER, Role.USER]
+    if (rolesWithDepartment.includes(role) && !departmentId) {
       return {
         success: false,
         message: "Please select a department for this user",

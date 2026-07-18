@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RequisitionItem, Status } from "../types"
 import { RequisitionStatus } from "@/generated/prisma/enums"
-import { Banknote, Check, CircleCheck, X } from "lucide-react"
+import { Banknote, CircleCheck, X } from "lucide-react"
 
-export default function AdminRequisitionActions({
+export default function FinanceRequisitionActions({
   loadingAction,
   handleStatusChange,
   requisition,
@@ -20,8 +20,7 @@ export default function AdminRequisitionActions({
     React.SetStateAction<Record<string, string>>
   >
 }) {
-  const { COMPLETED, REJECTED, APPROVED, PAID } = RequisitionStatus
-  const isApproving = loadingAction === APPROVED
+  const { COMPLETED, REJECTED, PAID } = RequisitionStatus
   const isPaying = loadingAction === PAID
   const isRejecting = loadingAction === REJECTED
   const isCompleting = loadingAction === COMPLETED
@@ -29,15 +28,15 @@ export default function AdminRequisitionActions({
   // Check if requisition is completed
   const isCompleted = requisition.status === COMPLETED
   const isRejected = requisition.status === REJECTED
-  const isApproved = requisition.status === APPROVED
   const isPaid = requisition.status === PAID
 
+  // Also consider disabling for rejected items
   const isLocked = isCompleted || isRejected
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-slate-500">Admin Actions</h4>
+        <h4 className="text-sm font-medium text-slate-500">Finance Actions</h4>
 
         {isLocked && (
           <Badge variant="outline" className="text-xs">
@@ -60,16 +59,6 @@ export default function AdminRequisitionActions({
       )}
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button
-          size="sm"
-          variant="default"
-          onClick={() => handleStatusChange(requisition.id, APPROVED)}
-          disabled={loadingAction !== null || isLocked || isApproved || isPaid}
-          className="min-w-32"
-        >
-          <Check className="h-4 w-4" />
-          {isApproving ? "Processing..." : "Approve"}
-        </Button>
         <Button
           size="sm"
           variant="info"

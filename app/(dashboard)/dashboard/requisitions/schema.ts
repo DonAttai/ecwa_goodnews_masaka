@@ -13,8 +13,8 @@ export const requisitionSchema = z.object({
     .optional(),
   currency: z.string().default("UGX"),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).default("MEDIUM"),
-  status: z.enum(["PENDING", "APPROVED", "REJECTED", "COMPLETED"]).optional(),
-  dueDate: z.string().optional(),
+  status: z.enum(["SUBMITTED", "APPROVED", "REJECTED", "COMPLETED"]).optional(),
+  neededBy: z.string().optional(),
   rejectionReason: z.string().optional(),
 })
 

@@ -1,4 +1,4 @@
-import { RequisitionPriority } from "@/generated/prisma/enums"
+import { RequisitionPriority, Role } from "@/generated/prisma/enums"
 import { RequisitionStatus } from "@/generated/prisma/enums"
 export interface RequisitionItem {
   id: string
@@ -9,7 +9,7 @@ export interface RequisitionItem {
   currency: string
   priority: RequisitionPriority
   status: RequisitionStatus
-  dueDate: Date | null
+  neededBy: Date | null
   createdAt: string | Date
   requestedBy: {
     id: string
@@ -17,6 +17,11 @@ export interface RequisitionItem {
     role: string
   }
   approvedBy: {
+    id: string
+    name: string
+    role: string
+  } | null
+  paidBy: {
     id: string
     name: string
     role: string
@@ -31,3 +36,4 @@ export interface RequisitionItem {
 export type Status = (typeof RequisitionStatus)[keyof typeof RequisitionStatus]
 export type Priority =
   (typeof RequisitionPriority)[keyof typeof RequisitionPriority]
+export type roles = Role

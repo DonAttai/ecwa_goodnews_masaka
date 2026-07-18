@@ -30,7 +30,7 @@ import { toast } from "sonner"
 const updateUserSchema = z.object({
   id: z.string(),
   name: z.string().min(2, "Name must be at least 2 characters"),
-  role: z.enum(["WORKER", "ADMIN", "USER"]),
+  role: z.enum(["USER", "WORKER", "FINANCE", "ADMIN"]),
   email: z.email(),
   isActive: z.boolean(),
 })
@@ -146,9 +146,10 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent position="item-aligned">
-                  <SelectItem value="WORKER">Worker</SelectItem>
-                  <SelectItem value="ADMIN">Administrator</SelectItem>
                   <SelectItem value="USER">User</SelectItem>
+                  <SelectItem value="WORKER">Worker</SelectItem>
+                  <SelectItem value="FINANCE">Finance</SelectItem>
+                  <SelectItem value="ADMIN">Administrator</SelectItem>
                 </SelectContent>
               </Select>
             </Field>

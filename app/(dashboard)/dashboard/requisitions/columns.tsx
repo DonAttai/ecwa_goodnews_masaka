@@ -1,12 +1,12 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { RequisitionItem } from "./types"
+import { RequisitionItem, roles } from "./types"
 import { ValueBadge } from "./components/value-badge"
 import { PRIORITY_CLASSES, STATUS_CLASSES } from "./constants/badge-classes"
 import RequisitionActions from "./components/requisition-actions"
 
-export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
+export function getColumns(role: roles): ColumnDef<RequisitionItem>[] {
   return [
     {
       accessorKey: "title",
@@ -79,15 +79,17 @@ export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
       },
     },
     {
-      accessorKey: "dueDate",
-      header: () => <span className="hidden sm:table-cell">Due Date</span>,
+      accessorKey: "neededBy",
+      header: () => <span className="hidden sm:table-cell">Needed By</span>,
       cell: ({ row }) => {
-        const date = row.getValue<Date | null>("dueDate")
-        const dueDate = date ? new Date(date) : null
+        const date = row.getValue<Date | null>("neededBy")
+        const neededBy = date ? new Date(date) : null
 
         return (
           <div className="hidden font-medium sm:table-cell">
-            {dueDate ? new Intl.DateTimeFormat("en-NG").format(dueDate) : "N/A"}
+            {neededBy
+              ? new Intl.DateTimeFormat("en-NG").format(neededBy)
+              : "N/A"}
           </div>
         )
       },
@@ -95,7 +97,7 @@ export function getColumns(isAdmin: boolean): ColumnDef<RequisitionItem>[] {
     {
       id: "actions",
       cell: ({ row }) => (
-        <RequisitionActions requisition={row.original} isAdmin={isAdmin} />
+        <RequisitionActions requisition={row.original} role={role} />
       ),
     },
   ]

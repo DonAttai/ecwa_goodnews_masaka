@@ -23,6 +23,7 @@ interface DashboardHeaderProps {
   user: {
     name: string
     role: string
+    department: { id: string; name: string } | null
   }
 }
 
@@ -49,6 +50,8 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
     toast.success("You have been logged out.")
     router.push("/login")
   }
+
+  const department = user.department ? user.department.name : null
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[#e2dcd5]/50 bg-white/80 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
@@ -123,7 +126,11 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
                 <p className="text-sm font-medium text-[#1a2332]">
                   {user.name}
                 </p>
-                <p className="text-xs text-[#8a95a8]">Church Administrator</p>
+                {isAdmin ? (
+                  <p className="text-xs text-[#8a95a8]">Church Administrator</p>
+                ) : (
+                  <p className="text-xs text-[#8a95a8]">{department}</p>
+                )}
               </div>
             </Button>
           </DropdownMenuTrigger>

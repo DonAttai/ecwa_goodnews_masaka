@@ -1,9 +1,17 @@
 import { getCurrentUser } from "@/app/actions/auth"
 import { redirect } from "next/navigation"
-import { AlertCircle, CheckCircle2, ClipboardList, Clock3 } from "lucide-react"
+import {
+  AlertCircle,
+  Banknote,
+  CheckCircle2,
+  CircleCheck,
+  ClipboardList,
+  Clock3,
+} from "lucide-react"
 import { getRequisitions } from "./actions"
 import RequisitionForm from "./components/requisition-form"
 import RequisitionTable from "./requisition-table"
+import { RequisitionStatus } from "@/generated/prisma/enums"
 
 export default async function RequisitionsPage() {
   const [user, requisitions] = await Promise.all([
@@ -13,27 +21,43 @@ export default async function RequisitionsPage() {
 
   if (!user) redirect("/login")
 
-  const isAdmin = user.role === "ADMIN"
-  const canCreateRequisition = user.role === "WORKER" || user.role === "USER"
+  const { SUBMITTED, APPROVED, PAID, COMPLETED, REJECTED } = RequisitionStatus
+
+  const formatteRequisitions = requisitions.map((item) => ({
+    ...item,
+    amount: item.amount?.toNumber() ?? null,
+  }))
+
+  const immutableStatuses: RequisitionStatus[] = [
+    RequisitionStatus.APPROVED,
+    RequisitionStatus.COMPLETED,
+  ]
+
   const summary = {
     total: requisitions.length,
-    pending: requisitions.filter((item) => item.status === "PENDING").length,
-    approved: requisitions.filter((item) =>
-      ["APPROVED", "COMPLETED"].includes(item.status)
-    ).length,
-    rejected: requisitions.filter((item) => item.status === "REJECTED").length,
+    financeTotal: requisitions.filter((r) => r.status !== SUBMITTED).length,
+
+    submitted: requisitions.filter((r) => r.status === SUBMITTED).length,
+
+    approved: requisitions.filter((r) => r.status === APPROVED).length,
+
+    paid: requisitions.filter((r) => r.status === PAID).length,
+
+    completed: requisitions.filter((r) => r.status === COMPLETED).length,
+
+    rejected: requisitions.filter((r) => r.status === REJECTED).length,
   }
 
   const summaryCards = [
     {
-      title: "Total requests",
+      title: "Total",
       value: summary.total,
       icon: ClipboardList,
       accent: "from-slate-700 to-slate-900",
     },
     {
-      title: "Pending",
-      value: summary.pending,
+      title: "Submitted",
+      value: summary.submitted,
       icon: Clock3,
       accent: "from-amber-500 to-orange-500",
     },
@@ -42,6 +66,18 @@ export default async function RequisitionsPage() {
       value: summary.approved,
       icon: CheckCircle2,
       accent: "from-emerald-500 to-green-600",
+    },
+    {
+      title: "Paid",
+      value: summary.paid,
+      icon: Banknote,
+      accent: "from-sky-500 to-cyan-600",
+    },
+    {
+      title: "Completed",
+      value: summary.completed,
+      icon: CircleCheck,
+      accent: "from-indigo-500 to-violet-600",
     },
     {
       title: "Rejected",
@@ -83,7 +119,7 @@ export default async function RequisitionsPage() {
           <p className="text-xl font-semibold">Requisitions</p>
 
           <div className="sm:ml-auto">
-            <RequisitionForm canCreateRequisition={canCreateRequisition} />
+            <RequisitionForm />
           </div>
         </div>
 
@@ -91,7 +127,7 @@ export default async function RequisitionsPage() {
 
         <div className="-mx-4 overflow-x-auto sm:mx-0">
           <div className="inline-block min-w-full align-middle">
-            <RequisitionTable data={requisitions} isAdmin={isAdmin} />
+            <RequisitionTable data={formatteRequisitions} role={user.role} />
           </div>
         </div>
       </div>

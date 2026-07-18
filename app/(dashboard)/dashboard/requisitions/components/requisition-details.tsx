@@ -32,9 +32,9 @@ export default function RequisitionDetails({
             {requisition.currency} {requisition.amount.toLocaleString()}
           </InfoItem>
         )}
-        {requisition.dueDate && (
-          <InfoItem icon={CalendarDays} label="Due date">
-            {new Date(requisition.dueDate).toLocaleDateString("en-US", {
+        {requisition.neededBy && (
+          <InfoItem icon={CalendarDays} label="Needed By">
+            {new Date(requisition.neededBy).toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",

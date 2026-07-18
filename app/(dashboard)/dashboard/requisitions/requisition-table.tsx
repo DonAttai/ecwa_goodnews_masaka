@@ -2,13 +2,13 @@
 
 import { DataTable } from "./data-table"
 import { getColumns } from "./columns"
-import { RequisitionItem } from "./types"
+import { RequisitionItem, roles } from "./types"
 
 interface Props {
   data: RequisitionItem[]
-  isAdmin: boolean
+  role: roles
 }
 
-export default function RequisitionTable({ data, isAdmin }: Props) {
-  return <DataTable columns={getColumns(isAdmin)} data={data} />
+export default function RequisitionTable({ data, role }: Props) {
+  return <DataTable columns={getColumns(role)} data={data} />
 }

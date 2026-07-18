@@ -16,9 +16,8 @@ export default async function MembersPage() {
   const [data, user] = await Promise.all([getData(), getCurrentUser()])
 
   if (!user) redirect("/login")
-  const isAuthorised = user.role === "ADMIN" || user.role === "WORKER"
 
-  if (!isAuthorised) redirect("/dashboard")
+  if (user.role === "USER") redirect("/dashboard")
 
   const isAdmin = user.role === "ADMIN"
 

@@ -11,7 +11,7 @@ export type User = {
   id: string
   name: string
   email: string
-  role: "WORKER" | "ADMIN" | "USER"
+  role: "USER" | "WORKER" | "FINANCE" | "ADMIN"
   isActive: boolean
   department?: { id: string; name: string } | null
 }

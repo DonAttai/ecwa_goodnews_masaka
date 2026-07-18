@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation"
 import { columns, User } from "./columns"
 import { DataTable } from "./data-table"
-import { prisma, Role } from "@/lib/prisma"
 import AddUserDialog from "./components/add-user-dialog"
 import { getAllUsers, getCurrentUser } from "@/app/actions/auth"
 import { getDepartments } from "../settings/actions/department"

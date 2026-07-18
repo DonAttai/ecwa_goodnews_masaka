@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { RequisitionItem, Status } from "../types"
+import { RequisitionItem, roles, Status } from "../types"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { updateRequisitionStatus } from "../actions"
@@ -18,24 +18,25 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import AdminRequisitionActions from "./admin-requisition-actions"
 import RequisitionDetails from "./requisition-details"
+import FinanceRequisitionActions from "./finance-requisition-actions"
 
 export default function RequisitionActions({
   requisition,
-  isAdmin,
+  role,
 }: {
   requisition: RequisitionItem
-  isAdmin: boolean
+  role: roles
 }) {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
   const [rejectionReasons, setRejectionReasons] = useState<
     Record<string, string>
   >({})
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [loadingAction, setLoadingAction] = useState<Status | null>(null)
 
   const handleStatusChange = async (id: string, status: Status) => {
     try {
-      setIsLoading(true)
+      setLoadingAction(status)
       const rejectionReason = rejectionReasons[id] ?? undefined
       const result = await updateRequisitionStatus(id, status, rejectionReason)
 
@@ -52,7 +53,7 @@ export default function RequisitionActions({
     } catch (error) {
       toast.error("An unexpected error occurred")
     } finally {
-      setIsLoading(false)
+      setLoadingAction(null)
     }
   }
 
@@ -158,10 +159,20 @@ export default function RequisitionActions({
             <Separator />
 
             {/* Admin Actions */}
-
-            {isAdmin && (
+            {role === "ADMIN" && (
               <AdminRequisitionActions
-                isLoading={isLoading}
+                loadingAction={loadingAction}
+                handleStatusChange={handleStatusChange}
+                requisition={requisition}
+                rejectionReasons={rejectionReasons}
+                setRejectionReasons={setRejectionReasons}
+              />
+            )}
+
+            {/* Finance actions */}
+            {role === "FINANCE" && (
+              <FinanceRequisitionActions
+                loadingAction={loadingAction}
                 handleStatusChange={handleStatusChange}
                 requisition={requisition}
                 rejectionReasons={rejectionReasons}

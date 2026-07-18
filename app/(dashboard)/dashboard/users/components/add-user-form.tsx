@@ -54,9 +54,10 @@ export default function AddUserForm({
   }, [role, form])
 
   const roleDescriptions = {
-    ADMIN: "Admins have full system access",
-    WORKER: "Workers have limited permissions",
     USER: "Users have basic access",
+    WORKER: "Workers have limited permissions",
+    FINANCE: "Finance has limited permissions",
+    ADMIN: "Admins have full system access",
   }
 
   const onSubmit = async (data: CreateUserSchemaType) => {
@@ -76,6 +77,8 @@ export default function AddUserForm({
       setIsLoading(false)
     }
   }
+
+  const rolesWithDepartment = ["FINANCE", "WORKER", "USER"]
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -144,6 +147,7 @@ export default function AddUserForm({
                 <SelectContent position="item-aligned">
                   <SelectItem value="USER">User</SelectItem>
                   <SelectItem value="WORKER">Worker</SelectItem>
+                  <SelectItem value="FINANCE">Finance</SelectItem>
                   <SelectItem value="ADMIN">Administrator</SelectItem>
                 </SelectContent>
               </Select>
@@ -153,7 +157,7 @@ export default function AddUserForm({
       </div>
 
       {/* department */}
-      {(role === "USER" || role === "WORKER") && (
+      {rolesWithDepartment.includes(role) && (
         <Controller
           name="departmentId"
           control={form.control}

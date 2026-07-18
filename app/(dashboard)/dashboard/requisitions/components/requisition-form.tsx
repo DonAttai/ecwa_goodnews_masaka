@@ -27,10 +27,6 @@ import {
 import { RHFSelect } from "./rhf-select"
 import * as z from "zod"
 
-interface RequisitionFormProps {
-  canCreateRequisition: boolean
-}
-
 const defaultValues = {
   title: "",
   description: "",
@@ -38,12 +34,10 @@ const defaultValues = {
   amount: "",
   currency: "NGN",
   priority: "MEDIUM" as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
-  dueDate: "",
+  neededBy: "",
   rejectionReason: "",
 }
-export default function RequisitionForm({
-  canCreateRequisition,
-}: RequisitionFormProps) {
+export default function RequisitionForm() {
   const [open, setOpen] = useState(false)
   const form = useForm<
     z.input<typeof requisitionSchema>,
@@ -59,7 +53,7 @@ export default function RequisitionForm({
     try {
       const result = await createRequisition({
         ...data,
-        dueDate: data.dueDate || undefined,
+        neededBy: data.neededBy || undefined,
       })
 
       if (!result.success) {
@@ -83,14 +77,12 @@ export default function RequisitionForm({
         setOpen(isOpen)
       }}
     >
-      {canCreateRequisition && (
-        <DialogTrigger asChild>
-          <Button className="btn-gold h-9 w-fit rounded-lg text-sm sm:w-auto sm:rounded-xl sm:px-4 md:h-10 md:px-5">
-            <Plus />
-            Create Requisition
-          </Button>
-        </DialogTrigger>
-      )}
+      <DialogTrigger asChild>
+        <Button className="btn-gold h-9 w-fit rounded-lg text-sm sm:w-auto sm:rounded-xl sm:px-4 md:h-10 md:px-5">
+          <Plus />
+          Create Requisition
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-0 sm:max-w-2xl">
         <div className="p-6">
           <DialogHeader className="mb-4">
@@ -230,11 +222,11 @@ export default function RequisitionForm({
               )}
             />
             <Controller
-              name="dueDate"
+              name="neededBy"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Due Date</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Needed By</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}

@@ -18,7 +18,7 @@ import {
 import { SheetClose } from "@/components/ui/sheet"
 
 interface DashboardSidebarProps {
-  userRole: "ADMIN" | "WORKER" | "USER"
+  userRole: "ADMIN" | "WORKER" | "FINANCE" | "USER"
   isMobile?: boolean
 }
 
@@ -34,25 +34,25 @@ export default function DashboardSidebar({
       title: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["ADMIN", "WORKER", "USER"],
+      roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
     },
     {
       title: "Members",
       href: "/dashboard/members",
       icon: Users,
-      roles: ["ADMIN", "WORKER"],
+      roles: ["ADMIN", "WORKER", "FINANCE"],
     },
     {
       title: "Requisitions",
       href: "/dashboard/requisitions",
       icon: ClipboardList,
-      roles: ["ADMIN", "WORKER", "USER"],
+      roles: ["ADMIN", "FINANCE", "WORKER", "USER"],
     },
     {
       title: "Profile",
       href: "/dashboard/profile",
       icon: User,
-      roles: ["ADMIN", "WORKER", "USER"],
+      roles: ["ADMIN", "FINANCE", "WORKER", "USER"],
     },
     {
       title: "Users",

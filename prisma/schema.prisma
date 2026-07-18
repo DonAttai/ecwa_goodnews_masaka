@@ -32,9 +32,10 @@ model User {
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   auditLogs            AuditLog[]
-  PasswordSetupToken   PasswordSetupToken[]
+  passwordSetupToken   PasswordSetupToken[]
   requisitions         Requisition[]        @relation("RequestedRequisitions")
   approvedRequisitions Requisition[]        @relation("ApprovedRequisitions")
+  paidRequisitions     Requisition[]        @relation("PaidRequisitions")
   notifications        Notification[]
 }
 
@@ -42,7 +43,7 @@ model PasswordSetupToken {
   id        String   @id @default(cuid())
   token     String   @unique
   expiresAt DateTime
-  userId    String
+  userId    String    @unique
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -133,27 +134,41 @@ model MemberFellowship {
 }
 
 model Requisition {
-  id              String              @id @default(cuid())
-  title           String
-  description     String?
-  category        String
-  amount          Float?
-  currency        String              @default("NGN")
-  priority        RequisitionPriority @default(MEDIUM)
-  status          RequisitionStatus   @default(PENDING)
-  dueDate         DateTime?
-  requestedById   String
-  requestedBy     User                @relation("RequestedRequisitions", fields: [requestedById], references: [id], onDelete: Restrict)
-  approvedById    String?
-  approvedBy      User?               @relation("ApprovedRequisitions", fields: [approvedById], references: [id], onDelete: SetNull)
-  departmentId    String?
-  department      Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  approvedAt      DateTime?
-  rejectionReason String?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id                String              @id @default(cuid())
+  title             String
+  description       String?
+  category          String              
+  amount            Decimal?            @db.Decimal(18, 2)
+  currency          String              @default("NGN")
+  priority          RequisitionPriority @default(MEDIUM)
+
+  status            RequisitionStatus   @default(SUBMITTED)
+
+  neededBy          DateTime?
+
+  requestedById     String
+  requestedBy       User                @relation("RequestedRequisitions", fields: [requestedById], references: [id], onDelete: Restrict)
+
+  approvedById      String?
+  approvedBy        User?               @relation("ApprovedRequisitions", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  paidById          String?
+  paidBy            User?               @relation("PaidRequisitions", fields: [paidById], references: [id], onDelete: SetNull)
+
+  departmentId      String?
+  department        Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  approvedAt        DateTime?
+  paidAt            DateTime?
+  rejectionReason   String?
+  
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 
   @@index([requestedById, status])
+  @@index([status])
+  @@index([departmentId])
 }
 
 model Settings {
@@ -189,6 +204,7 @@ model Notification {
 
 enum Role {
   ADMIN
+  FINANCE
   WORKER
   USER
 }
@@ -228,9 +244,10 @@ enum EntityType {
 }
 
 enum RequisitionStatus {
-  PENDING
+  SUBMITTED
   APPROVED
   REJECTED
+  PAID
   COMPLETED
 }
 

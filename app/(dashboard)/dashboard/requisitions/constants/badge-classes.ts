@@ -1,8 +1,9 @@
 export const STATUS_CLASSES: Record<string, string> = {
-  PENDING: "border-amber-200 bg-amber-50 text-amber-700",
+  SUBMITTED: "border-amber-200 bg-amber-50 text-amber-700",
   APPROVED: "border-emerald-200 bg-emerald-50 text-emerald-700",
   REJECTED: "border-rose-200 bg-rose-50 text-rose-700",
   COMPLETED: "border-sky-200 bg-sky-50 text-sky-700",
+  PAID: "border-green-200 bg-green-50 text-green-700",
 }
 
 export const PRIORITY_CLASSES: Record<string, string> = {
