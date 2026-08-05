@@ -66,8 +66,9 @@ export default function AddUserForm({
       const result = await createUser(data)
 
       if (result.success) {
-        toast.success(result.message || "User updated successfully")
+        form.reset()
         onClose()
+        toast.success(result.message || "User updated successfully")
       } else {
         toast.error(result.message || "Failed to update user")
       }

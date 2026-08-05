@@ -23,9 +23,6 @@ export default function AddUserDialog({
 }) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleClose = () => {
-    setIsOpen(false)
-  }
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
