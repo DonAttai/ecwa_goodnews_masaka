@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 interface NotificationItem {
   id: string
@@ -21,7 +22,17 @@ interface NotificationItem {
   createdAt: string
 }
 
-export default function NotificationBell() {
+interface NotificationBellProps {
+  collapsed?: boolean
+  iconOnly?: boolean
+  className?: string
+}
+
+export default function NotificationBell({
+  collapsed = false,
+  iconOnly = false,
+  className,
+}: NotificationBellProps) {
   const router = useRouter()
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -61,8 +72,19 @@ export default function NotificationBell() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative rounded-xl p-2.5">
-          <Bell className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          className={cn(
+            "relative flex items-center justify-center rounded-2xl text-[#8a95a8] transition-all duration-200 hover:bg-[#2e3a50] hover:text-white",
+            iconOnly ? "h-12 w-12 p-0" : "gap-4 px-4 py-3 text-sm font-medium",
+            collapsed && "justify-center px-2",
+            className
+          )}
+        >
+          <Bell
+            className={cn("text-inherit", iconOnly ? "h-6 w-6" : "h-6 w-6")}
+          />
+          {!collapsed && !iconOnly && <span>Notifications</span>}
           {unreadCount > 0 && (
             <span className="absolute top-1 right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-[#c9a84c] text-[10px] font-semibold text-white">
               {unreadCount}
