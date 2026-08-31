@@ -12,6 +12,12 @@ import {
   ClipboardList,
 } from "lucide-react"
 import { LayoutUser } from "../types"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface DashboardSidebarProps {
   user: LayoutUser
@@ -69,52 +75,52 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 space-y-1 px-1 py-4">
-        {links.map((link) => {
-          const hasAccess = link.roles.includes(user.role)
-          if (!hasAccess) return null
+      <TooltipProvider delayDuration={200}>
+        <nav className="flex-1 space-y-1 px-1 py-4">
+          {links.map((link) => {
+            const hasAccess = link.roles.includes(user.role)
+            if (!hasAccess) return null
 
-          const isActive =
-            link.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(link.href)
+            const isActive =
+              link.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(link.href)
 
-          const Icon = link.icon
+            const Icon = link.icon
 
-          const linkElement = (
-            <Link
-              href={link.href}
-              prefetch={true}
-              className={clsx(
-                "group relative flex min-h-18 w-10 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center text-[11px] font-medium transition-all duration-200",
-                isActive
-                  ? "bg-[#f5f4f1] border-l-2 border-[#c9a84c] text-[#1a2332]"
-                  : "text-black hover:bg-[#f5f4f1] hover:text-[#1a2332]"
-              )}
-            >
-              <Icon
+            const linkElement = (
+              <Link
+                href={link.href}
+                prefetch={true}
                 className={clsx(
-                  "h-4 w-4 transition-colors",
+                  "group relative flex min-h-18 w-10 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center text-[11px] font-medium transition-all duration-200",
                   isActive
-                    ? "text-[#1a2332]"
-                    : "text-[#1a2332] group-hover:text-[#1a2332]"
+                    ? "bg-[#f5f4f1] border-l-2 border-[#c9a84c] text-[#1a2332]"
+                    : "text-black hover:bg-[#f5f4f1] hover:text-[#1a2332]"
                 )}
-              />
+              >
+                <Icon
+                  className={clsx(
+                    "h-4 w-4 transition-colors",
+                    isActive
+                      ? "text-[#1a2332]"
+                      : "text-[#1a2332] group-hover:text-[#1a2332]"
+                  )}
+                />
+              </Link>
+            )
 
-              <span className={clsx(
-                "absolute left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap",
-                "bg-[#1a2332] text-white text-[11px] font-medium px-2 py-1 rounded",
-                "opacity-0 invisible group-hover:opacity-100 group-hover:visible",
-                "transition-opacity duration-200 z-10"
-              )}>
-                {link.title}
-              </span>
-            </Link>
-          )
-
-          return <div key={link.href}>{linkElement}</div>
-        })}
-      </nav>
+            return (
+              <Tooltip key={link.href}>
+                <TooltipTrigger asChild>{linkElement}</TooltipTrigger>
+                <TooltipContent side="right">
+                  {link.title}
+                </TooltipContent>
+              </Tooltip>
+            )
+          })}
+        </nav>
+      </TooltipProvider>
     </aside>
   )
 }
