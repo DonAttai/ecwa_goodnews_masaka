@@ -86,7 +86,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
               href={link.href}
               prefetch={true}
               className={clsx(
-                "group relative flex min-h-18 w-10 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center text-[10px] font-medium transition-all duration-200",
+                "group relative flex min-h-18 w-10 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center text-[11px] font-medium transition-all duration-200",
                 isActive
                   ? "bg-[#f5f4f1] border-l-2 border-[#c9a84c] text-[#1a2332]"
                   : "text-black hover:bg-[#f5f4f1] hover:text-[#1a2332]"
