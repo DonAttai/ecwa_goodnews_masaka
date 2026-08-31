@@ -26,36 +26,34 @@ export default function Loading() {
         </div>
 
         {/* Table Skeleton */}
-        <div className="-mx-4 overflow-x-auto sm:mx-0">
-          <div className="inline-block min-w-full align-middle">
-            <div className="rounded-lg border border-slate-200 bg-white">
-              {/* Table Header */}
-              <div className="border-b border-slate-200 bg-slate-50/50 px-6 py-3">
-                <div className="grid grid-cols-6 gap-4">
-                  {[...Array(6)].map((_, index) => (
-                    <div
-                      key={index}
-                      className="h-4 animate-pulse rounded bg-slate-200"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Table Rows */}
-              <div className="divide-y divide-slate-100">
-                {[...Array(5)].map((_, index) => (
-                  <div key={index} className="px-6 py-4">
-                    <div className="grid grid-cols-6 gap-4">
-                      {[...Array(6)].map((_, colIndex) => (
-                        <div
-                          key={colIndex}
-                          className="h-4 animate-pulse rounded bg-slate-200"
-                        />
-                      ))}
-                    </div>
-                  </div>
+        <div>
+          <div className="rounded-lg border border-slate-200 bg-white">
+            {/* Table Header */}
+            <div className="border-b border-slate-200 bg-slate-50/50 px-6 py-3">
+              <div className="grid grid-cols-6 gap-4">
+                {[...Array(6)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-4 animate-pulse rounded bg-slate-200"
+                  />
                 ))}
               </div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-slate-100">
+              {[...Array(5)].map((_, index) => (
+                <div key={index} className="px-6 py-4">
+                  <div className="grid grid-cols-6 gap-4">
+                    {[...Array(6)].map((_, colIndex) => (
+                      <div
+                        key={colIndex}
+                        className="h-4 animate-pulse rounded bg-slate-200"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

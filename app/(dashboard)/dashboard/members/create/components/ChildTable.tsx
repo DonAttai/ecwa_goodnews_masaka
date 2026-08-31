@@ -24,35 +24,39 @@ export const ChildTable: React.FC<ChildTableProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2">
+        <table className="w-full table-fixed divide-y divide-slate-200 text-sm">
           <thead>
             <tr className="text-left text-slate-600">
-              <th className="px-3 py-2">Child Name</th>
-              <th className="px-3 py-2">Contact Details</th>
-              <th className="px-3 py-2">Action</th>
+              <th className="w-[45%] px-3 py-2">Child Name</th>
+              <th className="hidden w-[45%] px-3 py-2 sm:table-cell">
+                Contact Details
+              </th>
+              <th className="w-[10%] px-3 py-2">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {childrenList.map((child, idx) => (
               <tr key={`child-${idx}`}>
-                <td className="px-3 py-2">
+                <td className="min-w-0 px-3 py-2">
                   <Input
+                    className="w-full min-w-0"
                     value={child.name}
                     onChange={(event) =>
                       onChildUpdate(idx, "name", event.target.value)
                     }
                   />
                 </td>
-                <td className="px-3 py-2">
+                <td className="hidden min-w-0 px-3 py-2 sm:table-cell">
                   <Input
+                    className="w-full min-w-0"
                     value={child.contact}
                     onChange={(event) =>
                       onChildUpdate(idx, "contact", event.target.value)
                     }
                   />
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-3 py-2 whitespace-nowrap">
                   <Button
                     type="button"
                     variant="ghost"

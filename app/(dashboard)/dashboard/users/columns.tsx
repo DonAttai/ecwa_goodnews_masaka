@@ -30,14 +30,17 @@ export const columns: ColumnDef<User>[] = [
         </Button>
       )
     },
+    cell: ({ row }) => (
+      <span className="block truncate">{row.original.name}</span>
+    ),
   },
   {
     accessorKey: "email",
-    header: () => <span className="hidden sm:table-cell">Email</span>,
+    header: "Email",
+    meta: { responsiveClass: "hidden sm:table-cell" },
     cell: ({ row }) => {
       const email = row.getValue("email") as string
-      // Hide on mobile, show on sm screens and up
-      return <span className="hidden sm:table-cell">{email}</span>
+      return <span className="block max-w-48 truncate">{email}</span>
     },
   },
   {
@@ -50,24 +53,24 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "department",
-    header: () => <span className="hidden sm:table-cell">Department</span>,
+    header: "Department",
+    meta: { responsiveClass: "hidden lg:table-cell" },
     cell: ({ row }) => {
       const department = row.getValue("department") as User["department"]
       return (
-        <span className="hidden text-sm sm:table-cell">
-          {department?.name ?? "N/A"}
-        </span>
+        <span className="truncate text-sm">{department?.name ?? "N/A"}</span>
       )
     },
   },
   {
     accessorKey: "isActive",
-    header: () => <span className="hidden sm:table-cell">Status</span>,
+    header: "Status",
+    meta: { responsiveClass: "" },
     cell: ({ row }) => {
       const isActive = row.getValue("isActive") as boolean
 
       return (
-        <span className="hidden sm:table-cell">
+        <span>
           {isActive ? (
             <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
               ACTIVE
@@ -83,6 +86,7 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: "actions",
+    meta: { responsiveClass: "whitespace-nowrap" },
     cell: ({ row }) => {
       return <UserActions user={row.original} />
     },

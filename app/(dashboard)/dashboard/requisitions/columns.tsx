@@ -11,33 +11,36 @@ export function getColumns(role: roles): ColumnDef<RequisitionItem>[] {
     {
       accessorKey: "title",
       header: "Title",
+      cell: ({ row }) => (
+        <div className="max-w-[9rem] truncate sm:max-w-[12rem] lg:max-w-none">
+          {row.original.title}
+        </div>
+      ),
     },
     {
       accessorKey: "category",
-      header: () => <span className="hidden sm:table-cell">Category</span>,
+      header: "Category",
+      meta: { responsiveClass: "hidden sm:table-cell" },
       cell: ({ row }) => {
         const category = row.getValue("category") as string
-        // Hide on mobile, show on sm screens and up
-        return <span className="hidden sm:table-cell">{category}</span>
+        return <span>{category}</span>
       },
     },
     {
       accessorKey: "department",
-      header: () => <span className="hidden sm:table-cell">Department</span>,
+      header: "Department",
+      meta: { responsiveClass: "hidden lg:table-cell" },
       cell: ({ row }) => {
         const department = row.getValue(
           "department"
         ) as RequisitionItem["department"]
-        return (
-          <span className="hidden sm:table-cell">
-            {department?.name ?? "N/A"}
-          </span>
-        )
+        return <span className="truncate">{department?.name ?? "N/A"}</span>
       },
     },
     {
       accessorKey: "amount",
       header: () => <div>Amount(NGN)</div>,
+      meta: { responsiveClass: "hidden sm:table-cell" },
       cell: ({ row }) => {
         const amount = Number(row.getValue("amount"))
 
@@ -52,10 +55,11 @@ export function getColumns(role: roles): ColumnDef<RequisitionItem>[] {
     },
     {
       accessorKey: "priority",
-      header: () => <span className="hidden sm:table-cell">Priority</span>,
+      header: "Priority",
+      meta: { responsiveClass: "hidden sm:table-cell" },
       cell: ({ row }) => {
         return (
-          <span className="hidden sm:table-cell">
+          <span>
             <ValueBadge
               value={row.getValue("priority")}
               classes={PRIORITY_CLASSES}
@@ -66,10 +70,11 @@ export function getColumns(role: roles): ColumnDef<RequisitionItem>[] {
     },
     {
       accessorKey: "status",
-      header: () => <span className="hidden sm:table-cell">Status</span>,
+      header: "Status",
+      meta: { responsiveClass: "" },
       cell: ({ row }) => {
         return (
-          <span className="hidden sm:table-cell">
+          <span>
             <ValueBadge
               value={row.getValue("status")}
               classes={STATUS_CLASSES}
@@ -80,13 +85,14 @@ export function getColumns(role: roles): ColumnDef<RequisitionItem>[] {
     },
     {
       accessorKey: "neededBy",
-      header: () => <span className="hidden sm:table-cell">Needed By</span>,
+      header: "Needed By",
+      meta: { responsiveClass: "hidden lg:table-cell" },
       cell: ({ row }) => {
         const date = row.getValue<Date | null>("neededBy")
         const neededBy = date ? new Date(date) : null
 
         return (
-          <div className="hidden font-medium sm:table-cell">
+          <div className="font-medium">
             {neededBy
               ? new Intl.DateTimeFormat("en-NG").format(neededBy)
               : "N/A"}
@@ -96,6 +102,7 @@ export function getColumns(role: roles): ColumnDef<RequisitionItem>[] {
     },
     {
       id: "actions",
+      meta: { responsiveClass: "whitespace-nowrap" },
       cell: ({ row }) => (
         <RequisitionActions requisition={row.original} role={role} />
       ),

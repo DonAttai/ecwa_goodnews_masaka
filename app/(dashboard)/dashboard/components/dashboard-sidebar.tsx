@@ -69,7 +69,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-1 py-4">
+      <nav className="flex-1 space-y-1 px-1 py-4">
         {links.map((link) => {
           const hasAccess = link.roles.includes(user.role)
           if (!hasAccess) return null
@@ -86,9 +86,9 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
               href={link.href}
               prefetch={true}
               className={clsx(
-                "group relative flex min-h-18 w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center text-[10px] font-medium transition-all duration-200",
+                "group relative flex min-h-18 w-10 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center text-[10px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-linear-to-r from-[#c9a84c]/40 to-[#c9a84c]/20 text-[#1a2332] shadow-sm"
+                  ? "bg-[#f5f4f1] border-l-2 border-[#c9a84c] text-[#1a2332]"
                   : "text-black hover:bg-[#f5f4f1] hover:text-[#1a2332]"
               )}
             >
@@ -101,7 +101,14 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                 )}
               />
 
-              <span className="leading-tight">{link.title}</span>
+              <span className={clsx(
+                "absolute left-full top-1/2 -translate-y-1/2 ml-3 whitespace-nowrap",
+                "bg-[#1a2332] text-white text-[11px] font-medium px-2 py-1 rounded",
+                "opacity-0 invisible group-hover:opacity-100 group-hover:visible",
+                "transition-opacity duration-200 z-10"
+              )}>
+                {link.title}
+              </span>
             </Link>
           )
 

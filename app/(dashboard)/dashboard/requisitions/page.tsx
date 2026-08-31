@@ -123,13 +123,7 @@ export default async function RequisitionsPage() {
           </div>
         </div>
 
-        {/* Table */}
-
-        <div className="-mx-4 overflow-x-auto sm:mx-0">
-          <div className="inline-block min-w-full align-middle">
-            <RequisitionTable data={formatteRequisitions} role={user.role} />
-          </div>
-        </div>
+        <RequisitionTable data={formatteRequisitions} role={user.role} />
       </div>
     </div>
   )

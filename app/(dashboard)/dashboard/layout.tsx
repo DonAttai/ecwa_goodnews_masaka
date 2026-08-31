@@ -18,7 +18,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8f6f3] text-[#1a2332]">
       {/* DESKTOP SIDEBAR - Sticky */}
-      <div className="hidden md:sticky md:top-0 md:flex md:h-screen">
+      <div className="hidden md:sticky md:top-0 md:z-10 md:flex md:h-screen">
         <DashboardSidebar user={layoutUser} />
       </div>
 

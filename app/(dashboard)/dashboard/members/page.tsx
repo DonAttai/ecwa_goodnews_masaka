@@ -38,12 +38,7 @@ export default async function MembersPage() {
         )}
       </div>
 
-      {/* Add responsive overflow handling for the table */}
-      <div className="-mx-4 overflow-x-auto sm:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <MemberTable isAdmin={isAdmin} data={data} />
-        </div>
-      </div>
+      <MemberTable isAdmin={isAdmin} data={data} />
     </div>
   )
 }
