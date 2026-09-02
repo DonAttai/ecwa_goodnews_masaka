@@ -4,6 +4,7 @@ import {
   Church,
   ClipboardList,
   Mail,
+  ShieldCheck,
   User,
 } from "lucide-react"
 import {
@@ -14,7 +15,12 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { STATUS_CLASSES } from "../requisitions/constants/badge-classes"
+import RelativeTime from "./relative-time"
+import NotificationsSummary from "./notifications-summary"
 
 interface UserDashboardProps {
   user: {
@@ -27,9 +33,18 @@ interface UserDashboardProps {
       name: string
     } | null
   }
+  recentRequisitions?: {
+    id: string
+    title: string
+    status: string
+    createdAt: Date
+  }[]
 }
 
-export default function UserDashboard({ user }: UserDashboardProps) {
+export default function UserDashboard({
+  user,
+  recentRequisitions = [],
+}: UserDashboardProps) {
   const greeting = (() => {
     const hour = new Date().getHours()
     if (hour < 12) return "Good morning"
@@ -46,6 +61,10 @@ export default function UserDashboard({ user }: UserDashboardProps) {
   }
 
   const departmentName = user.department?.name || "N/A"
+  const roleLabel =
+    user.role === "USER"
+      ? "Member"
+      : user.role.charAt(0) + user.role.slice(1).toLowerCase()
 
   const quickActions = [
     {
@@ -84,16 +103,16 @@ export default function UserDashboard({ user }: UserDashboardProps) {
         </div>
       </section>
 
-      {/* Info Cards - Updated to 4 cards with responsive grid */}
+      {/* Info Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-[#e2dcd5]/70 bg-white">
+        <Card className="border-border bg-card">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="rounded-lg bg-primary/10 p-2">
                 <Church className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Added since</p>
+                <p className="text-sm text-muted-foreground">Member since</p>
                 <p className="text-lg font-semibold">
                   {formatDate(user.createdAt)}
                 </p>
@@ -102,7 +121,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-[#e2dcd5]/70 bg-white">
+        <Card className="border-border bg-card">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="rounded-lg bg-purple-500/10 p-2">
@@ -116,8 +135,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
           </CardContent>
         </Card>
 
-        {/* New Department Card */}
-        <Card className="border-[#e2dcd5]/70 bg-white">
+        <Card className="border-border bg-card">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="rounded-lg bg-emerald-500/10 p-2">
@@ -130,11 +148,24 @@ export default function UserDashboard({ user }: UserDashboardProps) {
             </div>
           </CardContent>
         </Card>
+
+        <Card className="border-border bg-card">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="rounded-lg bg-blue-500/10 p-2">
+                <ShieldCheck className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-muted-foreground">Role</p>
+                <p className="text-lg font-semibold">{roleLabel}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Rest of the dashboard remains unchanged */}
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card className="border-[#e2dcd5]/70 bg-white">
+        <Card className="border-border bg-card">
           <CardHeader>
             <CardTitle>Quick actions</CardTitle>
             <CardDescription>
@@ -149,7 +180,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
                   asChild
                   key={action.title}
                   variant="outline"
-                  className="h-auto justify-start rounded-2xl border-[#e2dcd5] p-4 text-left transition-colors hover:bg-muted/50"
+                  className="h-auto justify-start rounded-2xl border-border p-4 text-left transition-colors hover:bg-muted/50"
                 >
                   <Link
                     href={action.href}
@@ -161,7 +192,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-[#1a2332]">
+                      <span className="block text-sm font-semibold text-foreground">
                         {action.title}
                       </span>
                       <span className="mt-1 line-clamp-2 block text-xs text-muted-foreground">
@@ -176,7 +207,7 @@ export default function UserDashboard({ user }: UserDashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-[#e2dcd5]/70 bg-white">
+        <Card className="border-border bg-card">
           <CardHeader>
             <CardTitle>What you can do here</CardTitle>
             <CardDescription>
@@ -191,15 +222,67 @@ export default function UserDashboard({ user }: UserDashboardProps) {
             ].map((item) => (
               <div
                 key={item}
-                className="flex items-start gap-2 rounded-xl bg-[#f8f6f3] p-3 text-sm text-[#4a5568]"
+                className="flex items-start gap-2 rounded-xl bg-muted p-3 text-sm text-foreground/80"
               >
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-[#c9a84c]" />
+                <div className="mt-0.5 h-2 w-2 rounded-full bg-primary" />
                 <span>{item}</span>
               </div>
             ))}
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Requisitions */}
+      <Card className="border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle>Recent Requisitions</CardTitle>
+            <CardDescription>Your latest submissions</CardDescription>
+          </div>
+          <Button asChild variant="ghost" size="sm" className="text-primary">
+            <Link href="/dashboard/requisitions">
+              View all <ArrowRight className="ml-1 h-3 w-3" />
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {recentRequisitions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              You have not submitted any requisitions yet.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {recentRequisitions.map((req) => (
+                <div
+                  key={req.id}
+                  className="flex items-center justify-between gap-4 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {req.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <RelativeTime date={req.createdAt} />
+                    </p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "shrink-0",
+                      STATUS_CLASSES[req.status] ??
+                        "border-gray-200 bg-gray-50 text-gray-700"
+                    )}
+                  >
+                    {req.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <NotificationsSummary />
     </div>
   )
 }

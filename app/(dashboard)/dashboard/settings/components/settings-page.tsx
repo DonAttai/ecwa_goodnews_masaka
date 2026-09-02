@@ -156,7 +156,7 @@ export default function SettingsPage({
       } else {
         toast.error(result.message || "Failed to create fellowship")
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create fellowship")
     }
   }
@@ -181,7 +181,7 @@ export default function SettingsPage({
       } else {
         toast.error(result.message || "Failed to update fellowship")
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update fellowship")
     }
   }
@@ -205,8 +205,10 @@ export default function SettingsPage({
       } else {
         toast.error(result.message || "Failed to delete fellowship")
       }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete fellowship")
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete fellowship"
+      toast.error(message)
     }
   }
 

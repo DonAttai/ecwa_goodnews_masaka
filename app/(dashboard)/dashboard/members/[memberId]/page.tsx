@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import MemberDetails from "./components/member-details"
-import { getCurrentUser, isAdmin } from "@/app/actions/auth"
+import { getCurrentUser } from "@/app/actions/auth"
 import { MemberFormValues } from "../schemas"
 
 type MemberPageProps = {

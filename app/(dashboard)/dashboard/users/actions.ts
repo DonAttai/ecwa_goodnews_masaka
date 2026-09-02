@@ -168,7 +168,7 @@ export async function updateUser(data: UpdateUserSchemaType) {
     // Add audit log
     await prisma.auditLog.create({
       data: {
-        userId: admin?.userId!,
+        userId: admin.userId,
         action: "UPDATE_USER",
         entity: "USER",
         entityId: data.id,

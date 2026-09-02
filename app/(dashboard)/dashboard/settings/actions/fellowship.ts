@@ -36,8 +36,9 @@ export async function createFellowship(formData: FormData) {
 
     revalidatePath("/dashboard/settings")
     return { success: true, message: "Fellowship added successfully" }
-  } catch (error: any) {
-    if (error.code === "P2002") {
+  } catch (error: unknown) {
+    const err = error as { code?: string }
+    if (err.code === "P2002") {
       throw new Error("A fellowship with this name already exists.")
     }
     throw new Error("Failed to create fellowship")
@@ -77,7 +78,7 @@ export async function updateFellowship(id: string, formData: FormData) {
 
     revalidatePath("/dashboard/settings")
     return { success: true, message: "Fellowship updated successfully" }
-  } catch (error) {
+  } catch {
     return { success: false, message: "Failde to update fellowship" }
   }
 }
@@ -88,7 +89,7 @@ export async function deleteFellowship(id: string) {
     await prisma.fellowshipGroup.delete({ where: { id } })
     revalidatePath("/dashboard/settings")
     return { success: true, message: "Fellowship deleted successfully" }
-  } catch (error) {
+  } catch {
     return { success: false, message: "Failde to update fellowship" }
   }
 }

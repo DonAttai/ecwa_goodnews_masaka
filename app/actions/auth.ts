@@ -1,6 +1,5 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { clearSessionCookie, getSession, requireAdmin } from "@/lib/auth"
 

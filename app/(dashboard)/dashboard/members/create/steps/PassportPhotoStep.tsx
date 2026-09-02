@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CloudinaryUploader } from "../components/cloudinary-uploader"
@@ -45,9 +46,11 @@ export default function PassportPhotoStep({
 
         {passportUrl && (
           <div className="mt-4 flex flex-col gap-3 rounded-lg border border-slate-200 p-4">
-            <img
+            <Image
               src={passportUrl}
               alt="Passport upload preview"
+              width={640}
+              height={480}
               className="max-h-48 w-full rounded object-cover"
             />
             <Button type="button" variant="destructive" onClick={onRemove}>

@@ -2,10 +2,30 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 import { revalidatePath } from "next/cache"
 import { NextResponse } from "next/server"
+import { getClientIp, rateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   try {
     const { token, password } = await request.json()
+
+    const clientIp = await getClientIp()
+    const throttled = rateLimit({
+      key: `set-password:${token}:${clientIp}`,
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+    })
+
+    if (!throttled.ok) {
+      return NextResponse.json(
+        {
+          message: "Too many attempts. Try again later.",
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(throttled.retryAfterSec) },
+        }
+      )
+    }
 
     const setupToken = await prisma.passwordSetupToken.findUnique({
       where: {

@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { z } from "zod"
-import { useState, useTransition } from "react"
+import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
@@ -62,7 +62,7 @@ export default function SetPasswordForm({ token }: Props) {
       } else {
         toast.error(data.message || "Failed to set password")
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error. Please try again.")
     } finally {
       setIsLoading(false)

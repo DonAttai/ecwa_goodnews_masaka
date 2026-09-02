@@ -73,8 +73,7 @@ export const FellowshipSelector: React.FC<FellowshipSelectorProps> = ({
               <div onClick={(e) => e.stopPropagation()}>
                 <Checkbox
                   checked={selected}
-                  onCheckedChange={(checked) => {
-                    // 'checked' is the new state (true/false)
+                  onCheckedChange={() => {
                     handleToggle(fellowship.id, !selected)
                   }}
                 />

@@ -1,5 +1,11 @@
 import { z } from "zod"
 
+/**
+ * Optional date field that normalizes empty/absent values to `null`. Keeps
+ * the raw string in the validated output so client forms (typed on the output
+ * shape) remain unaffected; conversion to a `Date` happens in the server
+ * action at the database boundary.
+ */
 export const optionalDate = () =>
   z
     .string()
@@ -9,6 +15,16 @@ export const optionalDate = () =>
       if (!val || val === "") return null
       return val
     })
+
+/**
+ * Normalizes a YES/NO string into the stored enum value. Accepts the raw form
+ * input (e.g. "YES"/"NO") and infers the output type.
+ */
+export const yesNoEnum = () =>
+  z.preprocess(
+    (val) => (val === "YES" || val === true ? "YES" : "NO"),
+    z.enum(["YES", "NO"])
+  )
 
 export const baseMemberFormSchema = z.object({
   // SECTION A: PERSONAL DATA
@@ -55,14 +71,14 @@ export const baseMemberFormSchema = z.object({
   fellowshipGroupIds: z.array(z.string()).default([]),
 
   // SECTION B: SPIRITUAL DATA
-  acceptedChrist: z.enum(["YES", "NO"]),
-  baptized: z.enum(["YES", "NO"]),
+  acceptedChrist: yesNoEnum(),
+  baptized: yesNoEnum(),
   baptismPlace: z.string().optional(),
   baptizedBy: z.string().optional(),
-  communicant: z.enum(["YES", "NO"]),
+  communicant: yesNoEnum(),
 
   // Church Discipline Record
-  beenOnDiscipline: z.enum(["YES", "NO"]),
+  beenOnDiscipline: yesNoEnum(),
   disciplineReason: z.string().optional(),
   disciplineDate: optionalDate(),
   disciplineReliefDate: optionalDate(),
@@ -114,6 +130,24 @@ export const memberFormSchema = baseMemberFormSchema.superRefine(
 )
 
 export type MemberFormValues = z.infer<typeof memberFormSchema> & { id: string }
+
+/**
+ * Raw shape submitted by the client (before coercion). Used as the accepted
+ * input payload for server actions.
+ */
+export type MemberCreateInput = z.input<typeof memberFormSchema>
+
+/**
+ * Validated shape (after coercion) used to write to the database.
+ */
+export type MemberCreateData = z.output<typeof memberFormSchema>
+
+export const memberUpdateSchema = baseMemberFormSchema
+  .partial()
+  .extend({ id: z.string().cuid() })
+
+export type MemberUpdateInput = z.input<typeof memberUpdateSchema>
+export type MemberUpdateData = z.output<typeof memberUpdateSchema>
 
 export const STEPS = [
   "Personal",

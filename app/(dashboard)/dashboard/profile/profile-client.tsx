@@ -108,7 +108,7 @@ export default function ProfileClient({ user }: { user: User }) {
 
       form.reset({ currentPassword: "", newPassword: "" })
       toast.success("Login with your new password")
-    } catch (error) {
+    } catch {
       toast.error("Network error. Please try again.")
     } finally {
       setIsLoading(false)

@@ -72,7 +72,7 @@ export default function AddUserForm({
       } else {
         toast.error(result.message || "Failed to update user")
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred")
     } finally {
       setIsLoading(false)

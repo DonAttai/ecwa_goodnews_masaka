@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 export default function ChurchHomePage() {
   const date = new Date()
   const year = date.getFullYear()
@@ -12,7 +14,15 @@ export default function ChurchHomePage() {
       <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="ECWA Goodnews 1, Masaka logo"
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-full object-contain"
+              priority
+            />
             <span className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
               ECWA Goodnews 1, Masaka.
             </span>

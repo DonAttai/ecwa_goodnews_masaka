@@ -47,7 +47,7 @@ export default function ForgotPasswordForm() {
       } else {
         toast.error(result.message ?? "Failed to send reset link")
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error. Please try again.")
     } finally {
       setIsLoading(false)
@@ -62,7 +62,7 @@ export default function ForgotPasswordForm() {
             ECWA Goodnews 1, Masaka
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground sm:text-base">
-            Enter your email address and we'll send you a link to reset your
+            Enter your email address and we&apos;ll send you a link to reset your
             password
           </CardDescription>
         </CardHeader>

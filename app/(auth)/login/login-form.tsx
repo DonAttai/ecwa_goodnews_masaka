@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -57,7 +58,7 @@ export default function LoginForm() {
       } else {
         toast.error(result.message ?? "Login failed")
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error. Please try again.")
     } finally {
       setIsLoading(false)
@@ -68,6 +69,16 @@ export default function LoginForm() {
     <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
       <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg">
         <CardHeader className="space-y-2 px-4 pt-6 text-center sm:px-6 sm:pt-8">
+          <div className="mb-1 flex justify-center">
+            <Image
+              src="/logo.png"
+              alt="ECWA Goodnews 1, Masaka logo"
+              width={72}
+              height={72}
+              className="h-18 w-18 rounded-full object-contain"
+              priority
+            />
+          </div>
           <CardTitle className="text-gold text-2xl font-bold sm:text-3xl md:text-4xl">
             ECWA Goodnews 1, Masaka
           </CardTitle>

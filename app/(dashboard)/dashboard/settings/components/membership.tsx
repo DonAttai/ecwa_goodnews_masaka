@@ -77,7 +77,7 @@ export default function MembershipLandingPage() {
           <h2 className="text-xl font-semibold">Planned Features</h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            Here's a preview of what you'll soon be able to do.
+            Here&apos;s a preview of what you&apos;ll soon be able to do.
           </p>
         </div>
 

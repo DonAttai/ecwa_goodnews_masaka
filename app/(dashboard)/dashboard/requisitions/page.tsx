@@ -28,11 +28,6 @@ export default async function RequisitionsPage() {
     amount: item.amount?.toNumber() ?? null,
   }))
 
-  const immutableStatuses: RequisitionStatus[] = [
-    RequisitionStatus.APPROVED,
-    RequisitionStatus.COMPLETED,
-  ]
-
   const summary = {
     total: requisitions.length,
     financeTotal: requisitions.filter((r) => r.status !== SUBMITTED).length,

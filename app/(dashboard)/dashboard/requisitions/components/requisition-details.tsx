@@ -1,7 +1,13 @@
-import { CalendarDays, CircleDollarSign, Hash, UserRound } from "lucide-react"
+import { CalendarDays, CircleDollarSign, Hash, UserRound, LucideIcon } from "lucide-react"
 import { RequisitionItem } from "../types"
 
-const InfoItem = ({ icon: Icon, label, children }: any) => (
+type InfoItemProps = {
+  icon: LucideIcon
+  label: string
+  children: React.ReactNode
+}
+
+const InfoItem = ({ icon: Icon, label, children }: InfoItemProps) => (
   <div className="flex flex-col rounded-lg bg-slate-50 px-3 py-2 text-sm">
     <div className="flex items-center gap-2">
       <Icon className="size-4 text-slate-500" />

@@ -1,7 +1,5 @@
 import { UseFormReturn } from "react-hook-form"
 
-import { MemberFormValues } from "@/app/(dashboard)/dashboard/members/schemas"
-
 import { RHFInput } from "../fields/rhf-input"
 import { PartialMemberFormValues } from "../../../[memberId]/edit/components/update-member-form"
 

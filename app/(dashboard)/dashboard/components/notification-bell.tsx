@@ -52,6 +52,7 @@ export default function NotificationBell({
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadNotifications()
 
     const handleFocus = () => {
@@ -64,6 +65,7 @@ export default function NotificationBell({
 
   useEffect(() => {
     if (!open) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadNotifications()
   }, [open])
 

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { FieldPath, Resolver, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -34,15 +34,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Save,
-  Plus,
-  Trash2,
-  X,
   Camera,
   CheckCircle,
 } from "lucide-react"
-import { nigeriaStates, getLgasByState } from "@/lib/nigeria-locations"
+import { getLgasByState } from "@/lib/nigeria-locations"
 import { memberFormSchema, MemberFormValues } from "../schemas"
 import { createMember } from "../actions"
+import { toMemberFormData } from "../serialize"
 import { StepIndicator } from "./components/StepIndicator"
 import { FormProgress } from "./form-progress"
 import PersonalInfoStep from "./steps/PersonalInfoStep"
@@ -112,7 +110,7 @@ const DEFAULT_VALUES: Omit<MemberFormValues, "id"> = {
   email: "",
   previousPlaceOfWorship: "",
   maritalStatus: "SINGLE" as const,
-  gender: null as any,
+  gender: undefined as unknown as "MALE" | "FEMALE",
   spouseName: "",
   homeCell: "",
   zone: "",
@@ -154,7 +152,7 @@ export default function MemberRegistrationForm() {
   )
 
   const form = useForm<MemberFormValues>({
-    resolver: zodResolver(memberFormSchema) as any,
+    resolver: zodResolver(memberFormSchema) as unknown as Resolver<MemberFormValues>,
     defaultValues: DEFAULT_VALUES,
     mode: "onBlur",
   })
@@ -255,8 +253,7 @@ export default function MemberRegistrationForm() {
     // Clear previous errors before validation
     setSubmitError(null)
 
-    const stepFields: Array<keyof MemberFormValues> = []
-
+    const stepFields: FieldPath<MemberFormValues>[] = []
     switch (currentStep) {
       case 0:
         stepFields.push(
@@ -310,7 +307,7 @@ export default function MemberRegistrationForm() {
         return true
     }
 
-    const isStepValid = await form.trigger(stepFields as any)
+    const isStepValid = await form.trigger(stepFields)
 
     if (!isStepValid) {
       setSubmitError("Please fill in all required fields for this step")
@@ -366,21 +363,7 @@ export default function MemberRegistrationForm() {
     setIsSubmitting(true)
 
     try {
-      const formDataToSend = new FormData()
-
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          if (key === "children") {
-            formDataToSend.append(key, JSON.stringify(value))
-          } else if (key === "fellowshipGroupIds") {
-            formDataToSend.append(key, JSON.stringify(value))
-          } else if (typeof value === "string") {
-            formDataToSend.append(key, value)
-          } else if (typeof value === "boolean") {
-            formDataToSend.append(key, value ? "YES" : "NO")
-          }
-        }
-      })
+      const formDataToSend = toMemberFormData(data)
 
       // Only append passportUrl if it exists
       if (passportUrl) {
@@ -400,7 +383,9 @@ export default function MemberRegistrationForm() {
       if (result.fieldErrors) {
         Object.entries(result.fieldErrors).forEach(([field, errors]) => {
           const errorMessage = Array.isArray(errors) ? errors[0] : errors
-          form.setError(field as any, { message: errorMessage })
+          form.setError(field as FieldPath<MemberFormValues>, {
+            message: errorMessage,
+          })
         })
 
         toast.error("Please check the form for errors")

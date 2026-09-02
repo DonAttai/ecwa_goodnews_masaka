@@ -26,8 +26,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   MoreHorizontal,
-  CheckCircle,
-  XCircle,
   SquarePen,
   Trash2,
 } from "lucide-react"
@@ -55,7 +53,7 @@ export function UserActions({ user }: { user: User }) {
       } else {
         toast.error(result.message ?? "Failed to delete user")
       }
-    } catch (error) {
+    } catch {
       // Handle unexpected errors
       setDeleteOpen(false)
       toast.error("An unexpected error occurred. Please try again.")

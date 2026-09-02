@@ -4,6 +4,7 @@ import * as z from "zod"
 import { resetPasswordSchema } from "./schemas"
 import { prisma } from "@/lib/prisma"
 import { hash } from "bcrypt"
+import { getClientIp, rateLimit } from "@/lib/rate-limit"
 
 const schema = resetPasswordSchema.safeExtend({
   token: z.string().min(1, "token is required"),
@@ -21,6 +22,21 @@ export async function resetPassword(data: z.infer<typeof schema>) {
     }
 
     const { email, password, token } = parsedData.data
+
+    const clientIp = await getClientIp()
+    const throttled = rateLimit({
+      key: `reset-password:${token}:${clientIp}`,
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+    })
+
+    if (!throttled.ok) {
+      return {
+        success: false,
+        message:
+          "Too many reset attempts. Please request a new password reset later.",
+      }
+    }
 
     const user = await prisma.user.findFirst({
       where: {
@@ -54,7 +70,7 @@ export async function resetPassword(data: z.infer<typeof schema>) {
       message:
         "Password reset successful! You can now login with your new password.",
     }
-  } catch (error) {
+  } catch {
     return {
       success: true,
       message: "An error occured. Please try again",

@@ -10,9 +10,6 @@ type Props<T extends FieldValues> = {
   label: string
 }
 
-const toBoolean = (value: string) => value === "YES"
-const toYesNo = (value: boolean) => (value ? "YES" : "NO")
-
 export function RHFCheckbox<T extends FieldValues>({
   control,
   name,

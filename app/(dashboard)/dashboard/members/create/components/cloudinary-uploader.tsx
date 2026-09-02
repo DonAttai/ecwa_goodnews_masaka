@@ -58,8 +58,8 @@ export function CloudinaryUploader({
             croppingAspectRatio: 1,
             folder: "members",
           }}
-          onSuccess={(result: any) => {
-            const url = result?.info?.secure_url
+          onSuccess={({ info }) => {
+            const url = typeof info === "string" ? undefined : info?.secure_url
             if (url) {
               onUpload(url)
               toast.success("Upload successful")
@@ -67,7 +67,7 @@ export function CloudinaryUploader({
               toast.error("No image URL returned")
             }
           }}
-          onError={(error: any) => {
+          onError={(error) => {
             console.error("Upload error:", error)
             toast.error("Upload failed. Please try again.")
           }}

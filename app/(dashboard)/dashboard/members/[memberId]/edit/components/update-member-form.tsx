@@ -8,9 +8,10 @@ import { SpiritualStatus } from "../../../components/member-form/sections/spirit
 import { Discipline } from "../../../components/member-form/sections/discipline"
 import { Button } from "@/components/ui/button"
 import { baseMemberFormSchema } from "../../../schemas"
-import { useTransition, useMemo, useState, useEffect } from "react"
+import { useTransition, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { updateMember } from "../../../actions"
+import { toMemberFormData } from "../../../serialize"
 import { toast } from "sonner"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
@@ -26,15 +27,8 @@ type UpdateMemberFormProp = {
 
 export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
   const [isPending, startTransition] = useTransition()
-  const [isFormReady, setIsFormReady] = useState(false)
   const router = useRouter()
   const memberName = `${member.firstName} ${member.surname}`
-
-  useEffect(() => {
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => setIsFormReady(true), 0)
-    return () => clearTimeout(timer)
-  }, [])
 
   // Memoize the default values to prevent unnecessary re-renders
   const defaultValues = useMemo(
@@ -45,7 +39,7 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
       presentAddress: member.presentAddress,
       phoneNumber: member.phoneNumber,
       email: member.email || "",
-      maritalStatus: member.maritalStatus as any,
+      maritalStatus: member.maritalStatus,
       spouseName: member.spouseName || "",
       homeCell: member.homeCell || "",
       zone: member.zone || "",
@@ -85,21 +79,7 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
   })
 
   const onSubmit = async (data: PartialMemberFormValues) => {
-    const formDataToSend = new FormData()
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        if (key === "children") {
-          formDataToSend.append(key, JSON.stringify(value))
-        } else if (key === "fellowshipGroupIds") {
-          formDataToSend.append(key, JSON.stringify(value))
-        } else if (typeof value === "string") {
-          formDataToSend.append(key, value)
-        } else if (typeof value === "boolean") {
-          formDataToSend.append(key, value ? "YES" : "NO")
-        }
-      }
-    })
+    const formDataToSend = toMemberFormData(data)
 
     startTransition(async () => {
       const result = await updateMember(member.id!, formDataToSend)

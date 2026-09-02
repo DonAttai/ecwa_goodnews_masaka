@@ -3,8 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-  Mail,
-  Phone,
   MapPin,
   MapPinned,
   Church,
@@ -121,7 +119,7 @@ export default async function MemberDetailsPage({
                     Suggestions & Notes
                   </h3>
                   <p className="text-muted-foreground italic">
-                    "{member.suggestions}"
+                    &quot;{member.suggestions}&quot;
                   </p>
                 </div>
               </div>

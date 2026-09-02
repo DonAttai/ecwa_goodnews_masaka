@@ -35,8 +35,9 @@ export async function createDepartment(formData: FormData) {
     revalidatePath("/dashboard/settings")
     revalidatePath("/dashboard/users")
     return { success: true, message: "Department created successfully" }
-  } catch (error: any) {
-    if (error?.code === "P2002") {
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string }
+    if (err.code === "P2002") {
       return {
         success: false,
         message: "A department with that name already exists",
@@ -44,7 +45,7 @@ export async function createDepartment(formData: FormData) {
     }
     return {
       success: false,
-      message: error?.message || "Failed to create department",
+      message: err.message || "Failed to create department",
     }
   }
 }

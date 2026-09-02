@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import clsx from "clsx"
 import {
@@ -7,9 +8,8 @@ import {
   Users,
   UserCog,
   Settings,
-  Church,
-  User,
   ClipboardList,
+  User,
 } from "lucide-react"
 import { LayoutUser } from "../types"
 import {
@@ -69,8 +69,15 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
     <aside className="flex h-full w-fit flex-col border-r border-[#e2dcd5] bg-white">
       {/* HEADER */}
       <div className="flex h-20 shrink-0 items-center justify-center px-1">
-        <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-[#c9a84c] to-[#e8d5a3] shadow-lg shadow-[#c9a84c]/20">
-          <Church className="h-4.5 w-4.5 text-[#1a2332]" />
+        <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl shadow-md">
+          <Image
+            src="/logo.png"
+            alt="ECWA Goodnews 1, Masaka logo"
+            fill
+            sizes="44px"
+            className="object-contain"
+            priority
+          />
         </div>
       </div>
 

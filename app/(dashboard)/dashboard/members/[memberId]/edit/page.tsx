@@ -2,13 +2,23 @@ import { prisma } from "@/lib/prisma"
 import { notFound, redirect } from "next/navigation"
 import UpdateMemberForm from "./components/update-member-form"
 import { getCurrentUser } from "@/app/actions/auth"
+import type {
+  Child,
+  Member,
+  MemberFellowship,
+} from "@/generated/prisma/client"
 
 type EditPageProps = {
   params: Promise<{ memberId: string }>
 }
 
+type MemberWithRelations = Member & {
+  children: Child[]
+  fellowshipGroups: MemberFellowship[]
+}
+
 // Helper function to map database member to form values
-function mapMemberToFormValues(member: any) {
+function mapMemberToFormValues(member: MemberWithRelations) {
   const formatDate = (date: Date | null | undefined): string | undefined => {
     if (!date) return undefined
     return date.toISOString().split("T")[0]
@@ -44,8 +54,12 @@ function mapMemberToFormValues(member: any) {
     disciplineReason: member.disciplineReason ?? undefined,
     disciplineDate: formatDate(member.disciplineDate),
     disciplineReliefDate: formatDate(member.disciplineReliefDate),
-    children: member.children ?? [],
-    fellowshipGroupIds: member.fellowshipGroupIds ?? [],
+    children: member.children.map((child) => ({
+      id: child.id,
+      name: child.name,
+      contact: child.contact ?? undefined,
+    })),
+    fellowshipGroupIds: member.fellowshipGroups.map((fg) => fg.fellowshipId),
   }
 }
 
@@ -59,6 +73,10 @@ export default async function EditMemberPage({ params }: EditPageProps) {
   const memberId = (await params).memberId
   const member = await prisma.member.findUnique({
     where: { id: memberId },
+    include: {
+      children: true,
+      fellowshipGroups: true,
+    },
   })
 
   if (!member) {

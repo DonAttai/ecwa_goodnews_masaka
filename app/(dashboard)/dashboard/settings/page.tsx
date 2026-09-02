@@ -3,6 +3,7 @@ import SettingsPage from "./components/settings-page"
 import { prisma } from "@/lib/prisma"
 import { GeneralType } from "./types/general"
 import { getCurrentUser } from "@/app/actions/auth"
+import type { Settings } from "@/generated/prisma/client"
 
 async function getFellowships() {
   return prisma.fellowshipGroup.findMany({
@@ -58,7 +59,7 @@ export default async function Settings() {
     })
   )
 
-  const formatSettings = (settings: any): GeneralType => {
+  const formatSettings = (settings: Settings | null): GeneralType => {
     if (!settings) {
       return {
         churchName: "",

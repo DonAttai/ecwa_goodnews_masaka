@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import * as z from "zod"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -21,7 +20,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field"
-import { Eye, EyeOff, TriangleAlert } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
@@ -62,7 +61,7 @@ export default function ResetPasswordForm() {
       } else {
         toast.error(result.message ?? "Password reset failed")
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error. Please try again.")
     } finally {
       setIsLoading(false)

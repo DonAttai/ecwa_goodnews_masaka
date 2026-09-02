@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth"
 
 import { prisma } from "@/lib/prisma"
+import { getClientIp, rateLimit } from "@/lib/rate-limit"
 
 // Validation schemas
 const loginSchema = z.object({
@@ -22,6 +23,20 @@ export async function login(data: z.infer<typeof loginSchema>) {
       return {
         success: false,
         message: "Invalid form inputs",
+      }
+    }
+
+    const clientIp = await getClientIp()
+    const throttled = rateLimit({
+      key: `login:${data.email.toLowerCase()}:${clientIp}`,
+      limit: 10,
+      windowMs: 60 * 60 * 1000,
+    })
+
+    if (!throttled.ok) {
+      return {
+        success: false,
+        message: "Too many login attempts. Please try again later.",
       }
     }
 
@@ -73,10 +88,11 @@ export async function login(data: z.infer<typeof loginSchema>) {
     })
 
     return { success: true, message: "Login successful" }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
-      message: error.message ?? "An unexpected error occurred",
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     }
   }
 }
