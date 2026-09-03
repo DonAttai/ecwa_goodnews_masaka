@@ -5,7 +5,7 @@ export const generalSchema = z.object({
   churchName: z.string().min(5, "Church name is required"),
   address: z.string().optional(),
   phone: z.string().optional(),
-  email: z.email().optional(),
+  email: z.union([z.email(), z.literal("")]).optional(),
   website: z.string().optional(),
   logoUrl: z.string().optional(),
   welcomeMessage: z.string().optional(),

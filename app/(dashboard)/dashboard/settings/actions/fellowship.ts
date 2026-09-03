@@ -9,7 +9,8 @@ export async function createFellowship(formData: FormData) {
   try {
     await requireAdmin()
     const name = formData.get("name") as string
-    const description = formData.get("description") as string
+    const description =
+      formData.get("description")?.toString().trim() || undefined
 
     const validationData = {
       name,
@@ -49,7 +50,8 @@ export async function updateFellowship(id: string, formData: FormData) {
   try {
     await requireAdmin()
     const name = formData.get("name") as string
-    const description = formData.get("description") as string
+    const description =
+      formData.get("description")?.toString().trim() || undefined
 
     const validationData = {
       name,

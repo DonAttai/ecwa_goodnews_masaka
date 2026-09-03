@@ -8,14 +8,19 @@ import { revalidatePath } from "next/cache"
 export async function updateGeneralSettings(formData: FormData) {
   try {
     await requireAdmin()
-    const churchName = formData.get("churchName") as string
-    const address = formData.get("address") as string
-    const phone = formData.get("phone") as string
-    const email = formData.get("email") as string
-    const website = formData.get("website") as string
-    const welcomeMessage = formData.get("welcomeMessage") as string
 
-    const logoUrl = (formData.get("logoUrl") as string) || null
+    const str = (value: FormDataEntryValue | null | undefined) =>
+      typeof value === "string" && value.trim() !== ""
+        ? value.trim()
+        : undefined
+
+    const churchName = str(formData.get("churchName")) ?? ""
+    const address = str(formData.get("address"))
+    const phone = str(formData.get("phone"))
+    const email = str(formData.get("email"))
+    const website = str(formData.get("website"))
+    const welcomeMessage = str(formData.get("welcomeMessage"))
+    const logoUrl = str(formData.get("logoUrl"))
 
     const validationData = {
       churchName,
@@ -24,7 +29,7 @@ export async function updateGeneralSettings(formData: FormData) {
       email,
       website,
       welcomeMessage,
-      logoUrl: logoUrl || undefined,
+      logoUrl,
     }
 
     const parsed = generalSchema.safeParse(validationData)
@@ -43,12 +48,12 @@ export async function updateGeneralSettings(formData: FormData) {
       await prisma.settings.create({
         data: {
           churchName: validatedData.churchName,
-          address: validatedData.address,
-          phone: validatedData.phone,
-          email: validatedData.email,
-          website: validatedData.website,
-          welcomeMessage: validatedData.welcomeMessage,
-          logoUrl: validatedData.logoUrl,
+          address: validatedData.address ?? null,
+          phone: validatedData.phone ?? null,
+          email: validatedData.email ?? null,
+          website: validatedData.website ?? null,
+          welcomeMessage: validatedData.welcomeMessage ?? null,
+          logoUrl: validatedData.logoUrl ?? null,
         },
       })
     } else {
@@ -56,12 +61,12 @@ export async function updateGeneralSettings(formData: FormData) {
         where: { id: 1 },
         data: {
           churchName: validatedData.churchName,
-          address: validatedData.address,
-          phone: validatedData.phone,
-          email: validatedData.email,
-          website: validatedData.website,
-          welcomeMessage: validatedData.welcomeMessage,
-          logoUrl: validatedData.logoUrl,
+          address: validatedData.address ?? null,
+          phone: validatedData.phone ?? null,
+          email: validatedData.email ?? null,
+          website: validatedData.website ?? null,
+          welcomeMessage: validatedData.welcomeMessage ?? null,
+          logoUrl: validatedData.logoUrl ?? null,
         },
       })
     }

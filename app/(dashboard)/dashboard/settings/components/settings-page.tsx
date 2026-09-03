@@ -114,7 +114,7 @@ export default function SettingsPage({
     const formDataToSend = new FormData()
 
     Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
+      if (value !== undefined && value !== null) {
         if (typeof value === "string") {
           formDataToSend.append(key, value)
         }
@@ -144,7 +144,7 @@ export default function SettingsPage({
       const formDataToSend = new FormData()
 
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
+        if (value !== undefined && value !== null) {
           if (typeof value === "string") {
             formDataToSend.append(key, value)
           }
@@ -170,7 +170,7 @@ export default function SettingsPage({
       const formDataToSend = new FormData()
 
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
+        if (value !== undefined && value !== null) {
           if (typeof value === "string") {
             formDataToSend.append(key, value)
           }
