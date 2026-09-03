@@ -11,37 +11,31 @@ import {
 import { getRequisitions } from "./actions"
 import RequisitionForm from "./components/requisition-form"
 import RequisitionTable from "./requisition-table"
-import { RequisitionStatus } from "@/generated/prisma/enums"
 
-export default async function RequisitionsPage() {
-  const [user, requisitions] = await Promise.all([
-    getCurrentUser(),
-    getRequisitions(),
-  ])
+const PAGE_SIZE = 20
+
+export default async function RequisitionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const [user, params] = await Promise.all([getCurrentUser(), searchParams])
 
   if (!user) redirect("/login")
 
-  const { SUBMITTED, APPROVED, PAID, COMPLETED, REJECTED } = RequisitionStatus
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1)
 
-  const formatteRequisitions = requisitions.map((item) => ({
+  const { items, total, totalPages, summary } = await getRequisitions(
+    page,
+    PAGE_SIZE
+  )
+
+  const currentPage = Math.min(page, totalPages)
+
+  const formatteRequisitions = items.map((item) => ({
     ...item,
     amount: item.amount?.toNumber() ?? null,
   }))
-
-  const summary = {
-    total: requisitions.length,
-    financeTotal: requisitions.filter((r) => r.status !== SUBMITTED).length,
-
-    submitted: requisitions.filter((r) => r.status === SUBMITTED).length,
-
-    approved: requisitions.filter((r) => r.status === APPROVED).length,
-
-    paid: requisitions.filter((r) => r.status === PAID).length,
-
-    completed: requisitions.filter((r) => r.status === COMPLETED).length,
-
-    rejected: requisitions.filter((r) => r.status === REJECTED).length,
-  }
 
   const summaryCards = [
     {
@@ -118,7 +112,13 @@ export default async function RequisitionsPage() {
           </div>
         </div>
 
-        <RequisitionTable data={formatteRequisitions} role={user.role} />
+        <RequisitionTable
+          data={formatteRequisitions}
+          role={user.role}
+          total={total}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
       </div>
     </div>
   )
