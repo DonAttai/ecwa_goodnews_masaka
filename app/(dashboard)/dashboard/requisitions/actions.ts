@@ -236,18 +236,16 @@ export async function updateRequisitionStatus(
     message: `Requisition ${statusLabel} successfully.`,
   }
 }
-// get all requisitions
-export async function getRequisitions() {
-  const user = await getCurrentUser()
-  if (!user) redirect("/login")
-
-  let whereClause: Prisma.RequisitionWhereInput = {}
-
+// role-based visibility filter for requisitions
+function getRequisitionWhere(user: {
+  id: string
+  role: string
+}): Prisma.RequisitionWhereInput {
   switch (user.role) {
     case "ADMIN":
-      break
+      return {}
     case "FINANCE":
-      whereClause = {
+      return {
         OR: [
           { requestedById: user.id },
           { amount: { gt: 0 }, status: RequisitionStatus.APPROVED },
@@ -258,25 +256,68 @@ export async function getRequisitions() {
           },
         ],
       }
-      break
 
     case "WORKER":
     case "USER":
-      whereClause = { requestedById: user.id }
-      break
+      return { requestedById: user.id }
 
     default:
       throw new Error("Unauthorised role")
   }
+}
 
-  return prisma.requisition.findMany({
-    where: whereClause,
-    orderBy: { createdAt: "desc" },
-    include: {
-      requestedBy: { select: { id: true, name: true, role: true } },
-      approvedBy: { select: { id: true, name: true, role: true } },
-      paidBy: { select: { id: true, name: true, role: true } },
-      department: { select: { id: true, name: true } },
-    },
-  })
+export interface RequisitionSummary {
+  total: number
+  submitted: number
+  approved: number
+  paid: number
+  completed: number
+  rejected: number
+}
+
+const REQUISITION_INCLUDE = {
+  requestedBy: { select: { id: true, name: true, role: true } },
+  approvedBy: { select: { id: true, name: true, role: true } },
+  paidBy: { select: { id: true, name: true, role: true } },
+  department: { select: { id: true, name: true } },
+} satisfies Prisma.RequisitionInclude
+
+export async function getRequisitions(page: number, pageSize: number) {
+  const user = await getCurrentUser()
+  if (!user) redirect("/login")
+
+  const where = getRequisitionWhere(user)
+
+  const [total, items, statusGroups] = await Promise.all([
+    prisma.requisition.count({ where }),
+    prisma.requisition.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: REQUISITION_INCLUDE,
+    }),
+    prisma.requisition.groupBy({
+      by: ["status"],
+      where,
+      _count: { _all: true },
+    }),
+  ])
+
+  const byStatus = new Map(
+    statusGroups.map((group) => [group.status, group._count._all])
+  )
+
+  const summary: RequisitionSummary = {
+    total,
+    submitted: byStatus.get(RequisitionStatus.SUBMITTED) ?? 0,
+    approved: byStatus.get(RequisitionStatus.APPROVED) ?? 0,
+    paid: byStatus.get(RequisitionStatus.PAID) ?? 0,
+    completed: byStatus.get(RequisitionStatus.COMPLETED) ?? 0,
+    rejected: byStatus.get(RequisitionStatus.REJECTED) ?? 0,
+  }
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+  return { items, total, totalPages, summary }
 }
