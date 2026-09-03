@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -55,6 +56,7 @@ export default function SettingsPage({
   departments,
   generalSettings,
 }: SettingsPageProps) {
+  const router = useRouter()
   const [activeSection, setActiveSection] = useState<
     "general" | "membership" | "fellowships" | "departments"
   >("general")
@@ -123,6 +125,7 @@ export default function SettingsPage({
 
     if (result.success) {
       toast.success(result.message)
+      router.refresh()
       return
     } else {
       toast.error(result.message || "Failed to create fellowship")
@@ -152,6 +155,7 @@ export default function SettingsPage({
       if (result.success) {
         toast.success(result.message)
         fellowshipForm.reset({ name: "", description: "" })
+        router.refresh()
         return
       } else {
         toast.error(result.message || "Failed to create fellowship")
@@ -177,7 +181,7 @@ export default function SettingsPage({
       if (result.success) {
         toast.success(result.message)
         setEditingFellowship(null)
-        // Refresh fellowships list or update state
+        router.refresh()
       } else {
         toast.error(result.message || "Failed to update fellowship")
       }
@@ -202,6 +206,7 @@ export default function SettingsPage({
         toast.success(result.message)
         setDeleteDialogOpen(false)
         setFellowshipToDelete(null)
+        router.refresh()
       } else {
         toast.error(result.message || "Failed to delete fellowship")
       }
@@ -224,9 +229,6 @@ export default function SettingsPage({
       {/* Mobile Header with Hamburger */}
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card/80 p-4 backdrop-blur-sm md:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
-            <Church className="h-6 w-6 text-primary" />
-          </div>
           <div>
             <h1 className="text-xl font-semibold text-foreground">Settings</h1>
             <p className="text-sm text-muted-foreground capitalize">
@@ -251,12 +253,6 @@ export default function SettingsPage({
 
       {/* Sidebar - Desktop */}
       <div className="hidden w-72 shrink-0 border-r border-border bg-card/80 p-6 backdrop-blur-sm md:block">
-        <div className="mb-10 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
-            <Church className="h-6 w-6 text-primary" />
-          </div>
-        </div>
-
         <nav className="space-y-1">
           {sidebarItems.map((item) => {
             const Icon = item.icon
@@ -298,9 +294,6 @@ export default function SettingsPage({
         >
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
-                <Church className="h-6 w-6 text-primary" />
-              </div>
               <div>
                 <h1 className="text-xl font-semibold text-foreground">
                   Settings

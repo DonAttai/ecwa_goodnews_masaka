@@ -1,14 +1,15 @@
 "use client"
 
+import Link from "next/link"
 import {
   BadgeCheck,
-  CalendarDays,
-  Construction,
+  ListChecks,
   UserPlus,
   Users,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
-const upcomingFeatures = [
+const featureCards = [
   {
     title: "Member Directory",
     description:
@@ -16,16 +17,16 @@ const upcomingFeatures = [
     icon: Users,
   },
   {
-    title: "Visitor & New Member Tracking",
+    title: "Member Onboarding",
     description:
-      "Record first-time visitors and follow up with prospective members.",
+      "Register new members with their personal, family and fellowship details.",
     icon: UserPlus,
   },
   {
-    title: "Attendance Records",
+    title: "Records & History",
     description:
-      "Track attendance for services, fellowships, and special events.",
-    icon: CalendarDays,
+      "Review member details, membership status, and edit records as needed.",
+    icon: ListChecks,
   },
   {
     title: "Membership Status",
@@ -50,39 +51,35 @@ export default function MembershipLandingPage() {
             </h1>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-              Welcome to the Membership module. This section is currently under
-              development and will soon provide everything you need to manage
-              church members, attendance, visitor follow-up, and membership
-              records.
+              Manage church members from the dedicated Members module — register
+              new members, view the directory, track fellowship groups, and
+              keep membership records up to date.
             </p>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col items-center gap-3 rounded-xl border bg-muted/40 p-4 text-center sm:flex-row sm:text-left">
-          <Construction className="h-5 w-5 shrink-0 text-primary" />
-
-          <div>
-            <p className="font-medium">Module Under Development</p>
-
-            <p className="text-sm text-muted-foreground">
-              New features will be added in an upcoming release.
-            </p>
-          </div>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button asChild>
+            <Link href="/dashboard/members">Go to Members</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/members/create">Register a New Member</Link>
+          </Button>
         </div>
       </section>
 
-      {/* Upcoming Features */}
+      {/* Capabilities */}
       <section>
         <div className="mb-6">
-          <h2 className="text-xl font-semibold">Planned Features</h2>
+          <h2 className="text-xl font-semibold">What you can do</h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            Here&apos;s a preview of what you&apos;ll soon be able to do.
+            All membership tools are available now in the Members module.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {upcomingFeatures.map((feature) => {
+          {featureCards.map((feature) => {
             const Icon = feature.icon
 
             return (

@@ -139,18 +139,20 @@ export default function FellowshipSection({
                       </p>
                     )}
                   </div>
-                  <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="flex shrink-0 gap-2 md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => onEdit(f)} // Add this
+                      aria-label={`Edit ${f.name}`}
+                      onClick={() => onEdit(f)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => onDelete(f.id!)} // Add this
+                      aria-label={`Delete ${f.name}`}
+                      onClick={() => onDelete(f.id!)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

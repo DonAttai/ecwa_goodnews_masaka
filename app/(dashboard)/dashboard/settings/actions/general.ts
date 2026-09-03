@@ -67,7 +67,7 @@ export async function updateGeneralSettings(formData: FormData) {
     }
 
     revalidatePath("/dashboard/settings")
-    return { success: true, message: "update was successful" }
+    return { success: true, message: "Settings updated successfully" }
   } catch (error) {
     console.error("ERROR: ", error)
     return { success: false, message: "Settings update failed" }

@@ -1,3 +1,5 @@
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,15 +11,17 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Upload } from "lucide-react"
+import { Upload, Loader2, X } from "lucide-react"
 import { GeneralType } from "../types/general"
-import { Controller, UseFormReturn } from "react-hook-form"
+import { Controller, UseFormReturn, useWatch } from "react-hook-form"
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
 } from "@/components/ui/field"
+import { CldUploadWidget } from "next-cloudinary"
+import { toast } from "sonner"
 
 interface GeneralPropTypes {
   generalSettings: GeneralType | null
@@ -32,6 +36,8 @@ export default function GeneralSection({
   handleUpdateSettings,
   isSubmitting,
 }: GeneralPropTypes) {
+  const logoUrl = useWatch({ control: form.control, name: "logoUrl" })
+
   return (
     <Card>
       <CardHeader>
@@ -41,13 +47,63 @@ export default function GeneralSection({
       <CardContent className="space-y-8">
         <div className="flex items-center gap-6">
           <Avatar className="h-24 w-24 border-4 border-background">
-            <AvatarImage src={generalSettings?.logoUrl} />
+            <AvatarImage src={logoUrl || generalSettings?.logoUrl} />
             <AvatarFallback className="text-4xl">⛪</AvatarFallback>
           </Avatar>
           <div>
-            <Button variant="outline">
-              <Upload className="mr-2 h-4 w-4" /> Upload Logo
-            </Button>
+            <CldUploadWidget
+              signatureEndpoint="/api/cloudinary-sign"
+              options={{
+                maxFiles: 1,
+                maxFileSize: 2097152, // 2MB
+                sources: ["local"],
+                cropping: true,
+                croppingAspectRatio: 1,
+                folder: "branding",
+              }}
+              onSuccess={({ info }) => {
+                const url =
+                  typeof info === "string" ? undefined : info?.secure_url
+                if (url) {
+                  form.setValue("logoUrl", url, { shouldDirty: true })
+                  toast.success("Logo uploaded")
+                } else {
+                  toast.error("No image URL returned")
+                }
+              }}
+              onError={() => toast.error("Upload failed. Please try again.")}
+            >
+              {({ open, isLoading }) => (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isLoading}
+                  onClick={() => open()}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" /> Upload Logo
+                    </>
+                  )}
+                </Button>
+              )}
+            </CldUploadWidget>
+            {(logoUrl || generalSettings?.logoUrl) && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="ml-2 text-destructive"
+                onClick={() => form.setValue("logoUrl", "", { shouldDirty: true })}
+              >
+                <X className="mr-1 h-4 w-4" /> Remove
+              </Button>
+            )}
             <p className="mt-2 text-xs text-muted-foreground">
               Recommended: 512×512 PNG. Max 2MB.
             </p>
@@ -116,7 +172,7 @@ export default function GeneralSection({
                   aria-invalid={fieldState.invalid}
                   className="min-h-30"
                 />
-                <FieldDescription>Give a welcome message</FieldDescription>
+                <FieldDescription>Church address</FieldDescription>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}

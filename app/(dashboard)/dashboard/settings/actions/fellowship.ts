@@ -79,7 +79,7 @@ export async function updateFellowship(id: string, formData: FormData) {
     revalidatePath("/dashboard/settings")
     return { success: true, message: "Fellowship updated successfully" }
   } catch {
-    return { success: false, message: "Failde to update fellowship" }
+    return { success: false, message: "Failed to update fellowship" }
   }
 }
 
@@ -90,6 +90,6 @@ export async function deleteFellowship(id: string) {
     revalidatePath("/dashboard/settings")
     return { success: true, message: "Fellowship deleted successfully" }
   } catch {
-    return { success: false, message: "Failde to update fellowship" }
+    return { success: false, message: "Failed to delete fellowship" }
   }
 }
