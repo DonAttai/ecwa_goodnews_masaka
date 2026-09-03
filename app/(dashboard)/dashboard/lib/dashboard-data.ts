@@ -72,7 +72,7 @@ export async function getDashboardAnalytics(
 
   // ---- Admin-only data ----
   const isAdminQueries = isAdmin
-    ? prisma.$transaction([
+    ? Promise.all([
         prisma.member.count({ where: { gender: "MALE" } }),
         prisma.member.count({ where: { gender: "FEMALE" } }),
         prisma.child.count(),

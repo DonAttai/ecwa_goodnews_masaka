@@ -8,7 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
   PieChart,
   Pie,
   Legend,
@@ -28,6 +27,18 @@ export function MembershipChart({ data, genderData }: MembershipChartProps) {
     "var(--chart-4)",
     "var(--chart-5)",
   ]
+
+  const coloredGenderData = genderData.map((entry, index) => ({
+    ...entry,
+    fill:
+      entry.color || chartColors[index % chartColors.length],
+  }))
+
+  // Filter out 0-value entries so a single-gender dataset (e.g. Female 100%)
+  // doesn't render a 0° slice with a misleading label
+  const filteredGenderData = coloredGenderData.filter((d) => d.value > 0)
+  const pieData =
+    filteredGenderData.length > 0 ? filteredGenderData : coloredGenderData
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -109,34 +120,26 @@ export function MembershipChart({ data, genderData }: MembershipChartProps) {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex h-64 flex-col items-center">
+          <div className="flex h-64 flex-col items-center overflow-visible">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ left: 40, right: 24, top: 8, bottom: 8 }}>
                 <Pie
-                  data={genderData}
-                  cx="50%"
+                  data={pieData}
+                  cx="52%"
                   cy="50%"
                   innerRadius={60}
-                  outerRadius={80}
+                  outerRadius={75}
                   paddingAngle={2}
                   dataKey="value"
                   nameKey="label"
-                  label={({ name, percent }) =>
-                    `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                  label={({ payload, percent }) =>
+                    `${payload?.label ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
                   }
                   labelLine={false}
-                >
-                  {genderData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={chartColors[index % chartColors.length]}
-                    />
-                  ))}
-                </Pie>
+                />
                 <Legend
                   layout="vertical"
-                  align="right"
-                  verticalAlign="middle"
+                  position="right"
                   iconType="circle"
                   iconSize={8}
                   formatter={(value) => value}
