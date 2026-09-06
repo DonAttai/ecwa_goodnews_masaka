@@ -1,4 +1,5 @@
 import Image from "next/image"
+import { ModeToggle } from "@/components/mode-toggle"
 
 export default function ChurchHomePage() {
   const date = new Date()
@@ -28,13 +29,16 @@ export default function ChurchHomePage() {
             </span>
           </div>
 
-          {/* Only Login */}
-          <a
-            href="/login"
-            className="rounded-lg border border-border bg-muted/30 px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted/50 sm:px-5 sm:py-2 sm:text-sm"
-          >
-            Login
-          </a>
+          {/* Theme + Login */}
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+            <a
+              href="/login"
+              className="rounded-lg border border-border bg-muted/30 px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted/50 sm:px-5 sm:py-2 sm:text-sm"
+            >
+              Login
+            </a>
+          </div>
         </div>
       </header>
 

@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import SetPasswordForm from "./set-password-form"
+import { AuthThemeCorner } from "../../components/auth-theme-corner"
 
 export default async function Page({
   params,
@@ -15,7 +16,8 @@ export default async function Page({
   const { token } = await params
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="relative flex min-h-screen items-center justify-center bg-background px-4">
+      <AuthThemeCorner />
       <Card className="w-full max-w-md border-border bg-card shadow-2xl">
         <CardHeader className="space-y-3 text-center">
           <CardTitle className="text-gold text-2xl font-bold tracking-tight sm:text-3xl">

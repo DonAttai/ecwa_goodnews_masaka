@@ -116,7 +116,7 @@ export default function StaffFinanceDashboard({
               {urgentItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white/70 p-3"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/60 p-3"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">

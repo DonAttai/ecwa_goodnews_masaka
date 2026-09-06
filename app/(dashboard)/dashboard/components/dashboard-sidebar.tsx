@@ -66,7 +66,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   ]
 
   return (
-    <aside className="flex h-full w-fit flex-col border-r border-[#e2dcd5] bg-white">
+    <aside className="flex h-full w-fit flex-col border-r border-border bg-card">
       {/* HEADER */}
       <div className="flex h-20 shrink-0 items-center justify-center px-1">
         <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl shadow-md">
@@ -102,16 +102,16 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                 className={clsx(
                   "group relative flex min-h-18 w-10 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-center text-[11px] font-medium transition-all duration-200",
                   isActive
-                    ? "bg-[#f5f4f1] border-l-2 border-[#c9a84c] text-[#1a2332]"
-                    : "text-black hover:bg-[#f5f4f1] hover:text-[#1a2332]"
+                    ? "border-l-2 border-primary bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <Icon
                   className={clsx(
                     "h-4 w-4 transition-colors",
                     isActive
-                      ? "text-[#1a2332]"
-                      : "text-[#1a2332] group-hover:text-[#1a2332]"
+                      ? "text-foreground"
+                      : "text-muted-foreground group-hover:text-foreground"
                   )}
                 />
               </Link>

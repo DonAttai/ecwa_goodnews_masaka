@@ -58,14 +58,14 @@ export const FellowshipSelector: React.FC<FellowshipSelectorProps> = ({
               "cursor-pointer rounded-lg border p-4 text-left transition",
               selected
                 ? "border-primary bg-primary/10"
-                : "border-slate-200 bg-white hover:border-slate-300"
+                : "border-border bg-card hover:border-muted-foreground/40"
             )}
           >
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-semibold">{fellowship.name}</p>
                 {fellowship.description && (
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {fellowship.description}
                   </p>
                 )}

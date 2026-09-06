@@ -28,7 +28,7 @@ export function RHFCheckbox<T extends FieldValues>({
               onCheckedChange={(checked) => {
                 field.onChange(checked ? "YES" : "NO")
               }}
-              className="h-5 w-5 rounded-sm border-2 border-black bg-white transition-all duration-150 focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 data-[state=checked]:border-black data-[state=checked]:bg-black data-[state=checked]:text-white"
+              className="h-5 w-5 rounded-sm transition-all duration-150"
             />
 
             <FieldContent>

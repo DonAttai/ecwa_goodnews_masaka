@@ -27,6 +27,7 @@ import { ArrowLeft } from "lucide-react"
 import { resetPassword } from "../actions"
 import { resetPasswordSchema, ResetPasswordSchemaType } from "../schemas"
 import InvalidResetLink from "./invalid-reset-link"
+import { AuthThemeCorner } from "../../components/auth-theme-corner"
 
 export default function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -71,7 +72,8 @@ export default function ResetPasswordForm() {
   if (!token) return <InvalidResetLink />
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
+    <div className="relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
+      <AuthThemeCorner />
       <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg">
         <CardHeader className="space-y-2 px-4 pt-6 text-center sm:px-6 sm:pt-8">
           <CardTitle className="text-gold text-2xl font-bold sm:text-3xl md:text-4xl">

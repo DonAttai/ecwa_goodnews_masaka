@@ -88,11 +88,11 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
   return (
     <footer className="shrink-0">
       {/* DESKTOP FOOTER */}
-      <div className="hidden border-t border-[#e2dcd5]/30 bg-white/80 px-8 py-3 backdrop-blur-xl md:flex md:items-center md:justify-between md:gap-2 md:text-sm">
-        <p className="text-[#8a95a8]">
+      <div className="hidden border-t border-border/30 bg-card/80 px-8 py-3 backdrop-blur-xl md:flex md:items-center md:justify-between md:gap-2 md:text-sm">
+        <p className="text-muted-foreground">
           © {new Date().getFullYear()} ECWA GOODNEWS 1, MASAKA
         </p>
-        <p className="flex items-center gap-1.5 text-[#8a95a8]">
+        <p className="flex items-center gap-1.5 text-muted-foreground">
           Built with
           <Heart className="inline h-3 w-3 text-[#c9a84c]" />
           for the church
@@ -101,7 +101,7 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
       </div>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="sticky bottom-0 z-30 border-t border-[#e2dcd5]/40 bg-white/90 px-1 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur-xl md:hidden">
+      <nav className="sticky bottom-0 z-30 border-t border-border/40 bg-card/90 px-1 pt-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
         <div className="flex gap-1">
           {visiblePrimary.map((link) => {
             const Icon = link.icon
@@ -113,8 +113,8 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
                 className={clsx(
                   "group flex h-14 w-full flex-1 flex-col items-center justify-center rounded-xl px-1 py-1 text-xs font-medium transition-all duration-200",
                   active
-                    ? "bg-[#f7f3e6] text-[#1a2332] shadow-sm"
-                    : "text-gray-600 hover:bg-[#f5f4f1] hover:text-[#1a2332]"
+                    ? "bg-muted text-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -130,7 +130,7 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-14 w-full flex-1 flex-col items-center justify-center rounded-xl px-1 py-1 text-xs font-medium text-gray-600 transition-all duration-200 hover:bg-[#f5f4f1] hover:text-[#1a2332]"
+                  className="flex h-14 w-full flex-1 flex-col items-center justify-center rounded-xl px-1 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
                 >
                   <MoreHorizontal className="h-5 w-5" />
                   <span className="mt-1 text-[10px] leading-none">More</span>
@@ -140,14 +140,14 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
                 align="end"
                 side="top"
                 sideOffset={8}
-                className="mr-1 w-48 rounded-2xl border border-[#e2dcd5] bg-white p-2 shadow-lg"
+                className="mr-1 w-48 rounded-2xl border border-border bg-popover p-2 shadow-lg"
               >
                 {visibleMore.map((link) => {
                   const Icon = link.icon
                   return (
                     <DropdownMenuItem
                       key={link.href}
-                      className="cursor-pointer rounded-xl px-2 py-2 text-sm text-black"
+                      className="cursor-pointer rounded-xl px-2 py-2 text-sm"
                       onSelect={() => router.push(link.href)}
                     >
                       <Icon className="mr-2 h-4 w-4" />
@@ -155,7 +155,7 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
                     </DropdownMenuItem>
                   )
                 })}
-                <DropdownMenuSeparator className="bg-[#e8e3dc]" />
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   variant="destructive"
                   className="cursor-pointer rounded-xl px-2 py-2 text-sm"

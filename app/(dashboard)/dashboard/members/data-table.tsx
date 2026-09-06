@@ -104,7 +104,7 @@ export function DataTable<TData, TValue>({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="ml-auto text-black dark:text-white"
+              className="ml-auto"
             >
               Columns
             </Button>
@@ -208,7 +208,6 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => router.push(buildUrl(currentPage - 1, query))}
             disabled={currentPage <= 1}
-            className="text-black dark:text-white"
           >
             Previous
           </Button>
@@ -217,7 +216,6 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => router.push(buildUrl(currentPage + 1, query))}
             disabled={currentPage >= totalPages}
-            className="text-black dark:text-white"
           >
             Next
           </Button>
