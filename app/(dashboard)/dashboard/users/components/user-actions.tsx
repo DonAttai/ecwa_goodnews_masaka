@@ -99,7 +99,7 @@ export function UserActions({ user }: { user: User }) {
 
       {/* Update Dialog */}
       <Dialog open={updateOpen} onOpenChange={setUpdateOpen}>
-        <DialogContent>
+        <DialogContent className="border border-border bg-background text-foreground sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
