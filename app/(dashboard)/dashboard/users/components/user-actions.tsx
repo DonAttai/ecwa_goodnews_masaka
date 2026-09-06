@@ -76,7 +76,9 @@ export function UserActions({ user }: { user: User }) {
             onSelect={(e) => {
               e.preventDefault()
               setMenuOpen(false)
-              setUpdateOpen(true)
+              // Defer the dialog mount to the next frame so the menu-close
+              // paint and the dialog mount don't pile into one long task.
+              requestAnimationFrame(() => setUpdateOpen(true))
             }}
           >
             <SquarePen className="mr-1 h-4 w-4" />
@@ -87,7 +89,9 @@ export function UserActions({ user }: { user: User }) {
             onSelect={(e) => {
               e.preventDefault()
               setMenuOpen(false)
-              setDeleteOpen(true)
+              // Same deferral as above: keep menu-close and dialog mount
+              // in separate frames to avoid blocking UI updates.
+              requestAnimationFrame(() => setDeleteOpen(true))
             }}
             className="text-destructive"
           >
