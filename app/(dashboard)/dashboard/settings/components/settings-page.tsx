@@ -399,7 +399,9 @@ export default function SettingsPage({
       {/* Edit Fellowship Dialog */}
       <Dialog
         open={!!editingFellowship}
-        onOpenChange={() => setEditingFellowship(null)}
+        onOpenChange={(open) => {
+          if (!open) setEditingFellowship(null)
+        }}
       >
         <DialogContent className="mx-4 border-border bg-card text-foreground sm:mx-auto">
           <DialogHeader>

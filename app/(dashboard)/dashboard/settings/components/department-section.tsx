@@ -231,7 +231,12 @@ export default function DepartmentSection({
       </Card>
 
       {/* Edit Department Dialog */}
-      <Dialog open={!!editingDepartment} onOpenChange={() => setEditingDepartment(null)}>
+      <Dialog
+        open={!!editingDepartment}
+        onOpenChange={(open) => {
+          if (!open) setEditingDepartment(null)
+        }}
+      >
         <DialogContent className="mx-4 border-border bg-card text-foreground sm:mx-auto">
           <DialogHeader>
             <DialogTitle className="text-foreground">

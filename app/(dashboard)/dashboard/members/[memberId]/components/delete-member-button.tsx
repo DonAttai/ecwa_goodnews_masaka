@@ -22,15 +22,19 @@ export function DeleteButton({ memberId, memberName }: DeleteButtonProps) {
     startTransition(async () => {
       const result = await deleteMember(memberId)
 
+      // Close the dialog first so the exit animation can play,
+      // then navigate away once it has finished.
+      setIsDeleteModalOpen(false)
+
       if (result.success) {
         toast.success(result.message)
-        router.push("/dashboard/members")
-        router.refresh()
+        setTimeout(() => {
+          router.push("/dashboard/members")
+          router.refresh()
+        }, 200)
       } else {
         toast.error(result.message)
       }
-
-      setIsDeleteModalOpen(false)
     })
   }
 

@@ -129,11 +129,11 @@ export default function RequisitionActions({
             {/* Rejection Reason */}
             {requisition.rejectionReason && (
               <div className="space-y-3">
-                <h4 className="flex items-center gap-2 text-sm font-semibold text-rose-600">
+                <h4 className="flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400">
                   <AlertCircle className="size-4" />
                   REJECTION REASON
                 </h4>
-                <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-6 text-[15px] leading-relaxed text-rose-700">
+                <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-6 text-[15px] leading-relaxed text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">
                   {requisition.rejectionReason}
                 </div>
               </div>
@@ -141,14 +141,14 @@ export default function RequisitionActions({
 
             {/* Approval Info */}
             {requisition.approvedBy && (
-              <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-                <div className="rounded-full bg-emerald-100 p-2">
-                  <ShieldCheck className="size-5 text-emerald-600" />
+              <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-800 dark:bg-emerald-950/40">
+                <div className="rounded-full bg-emerald-100 p-2 dark:bg-emerald-900/60">
+                  <ShieldCheck className="size-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-emerald-700">
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
                     Approved by{" "}
-                    <span className="font-semibold text-emerald-800">
+                    <span className="font-semibold text-emerald-800 dark:text-emerald-200">
                       {requisition.approvedBy.name}
                     </span>
                   </p>
