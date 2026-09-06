@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 
 import AddUserForm from "./add-user-form"
+import { UserFormSkeleton } from "./user-form-skeleton"
 import { useState } from "react"
 
 export default function AddUserDialog({
@@ -22,9 +23,26 @@ export default function AddUserDialog({
   departments: Array<{ id: string; name: string }>
 }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [formReady, setFormReady] = useState(false)
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (open) {
+      // Mount the heavy form on the next frame so this click's task ends
+      // at the lightweight shell paint instead of after the full form mount.
+      requestAnimationFrame(() => setFormReady(true))
+    } else {
+      setFormReady(false)
+    }
+  }
+
+  const handleClose = () => {
+    setFormReady(false)
+    setIsOpen(false)
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="btn-gold h-11 rounded-xl px-5">
           <Plus className="mr-2 h-4 w-4" />
@@ -41,10 +59,11 @@ export default function AddUserDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <AddUserForm
-          onClose={() => setIsOpen(false)}
-          departments={departments}
-        />
+        {formReady ? (
+          <AddUserForm onClose={handleClose} departments={departments} />
+        ) : (
+          <UserFormSkeleton />
+        )}
       </DialogContent>
     </Dialog>
   )

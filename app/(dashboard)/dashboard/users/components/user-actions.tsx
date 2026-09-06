@@ -24,24 +24,36 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  MoreHorizontal,
-  SquarePen,
-  Trash2,
-} from "lucide-react"
+import { MoreHorizontal, SquarePen, Trash2 } from "lucide-react"
 import { useCallback, useState } from "react"
 import { User } from "../columns"
 import UpdateUserForm from "./update-user-form"
+import { UserFormSkeleton } from "./user-form-skeleton"
 import { deleteUser } from "../actions"
 import { toast } from "sonner"
 
 export function UserActions({ user }: { user: User }) {
   const [updateOpen, setUpdateOpen] = useState(false)
+  const [updateFormReady, setUpdateFormReady] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
   // Stable identity so the memoized form isn't re-rendered by parent updates.
-  const handleCloseUpdate = useCallback(() => setUpdateOpen(false), [])
+  const handleCloseUpdate = useCallback(() => {
+    setUpdateFormReady(false)
+    setUpdateOpen(false)
+  }, [])
+
+  // Mount the heavy form on the next frame so the opening click's task ends
+  // at the lightweight shell paint instead of after the full form mount.
+  const handleUpdateOpenChange = (open: boolean) => {
+    setUpdateOpen(open)
+    if (open) {
+      requestAnimationFrame(() => setUpdateFormReady(true))
+    } else {
+      setUpdateFormReady(false)
+    }
+  }
 
   const handleDelete = async () => {
     try {
@@ -105,13 +117,17 @@ export function UserActions({ user }: { user: User }) {
       </DropdownMenu>
 
       {/* Update Dialog */}
-      <Dialog open={updateOpen} onOpenChange={setUpdateOpen}>
+      <Dialog open={updateOpen} onOpenChange={handleUpdateOpenChange}>
         <DialogContent className="border border-border bg-background text-foreground sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
 
-          <UpdateUserForm user={user} onClose={handleCloseUpdate} />
+          {updateFormReady ? (
+            <UpdateUserForm user={user} onClose={handleCloseUpdate} />
+          ) : (
+            <UserFormSkeleton />
+          )}
         </DialogContent>
       </Dialog>
 
