@@ -21,10 +21,10 @@ function StatCardSkeleton() {
     <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5 shadow-sm">
       <div className="absolute top-0 left-0 h-1 w-12 bg-slate-200" />
       <div className="flex items-center justify-between">
-        <div className="h-4 w-24 animate-pulse rounded bg-[#e5e0d8]" />
-        <div className="h-9 w-9 animate-pulse rounded-xl bg-[#e5e0d8]" />
+        <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+        <div className="h-9 w-9 animate-pulse rounded-xl bg-muted" />
       </div>
-      <div className="mt-4 h-8 w-28 animate-pulse rounded-xl bg-[#e5e0d8]" />
+      <div className="mt-4 h-8 w-28 animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }
@@ -43,13 +43,13 @@ function CardListSkeleton({ rows = 4 }: { rows?: number }) {
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm">
       <div className="border-b border-border p-5">
-        <div className="h-5 w-48 animate-pulse rounded bg-[#e5e0d8]" />
+        <div className="h-5 w-48 animate-pulse rounded bg-muted" />
       </div>
       <div className="space-y-4 p-5">
         {Array.from({ length: rows }).map((_, i) => (
           <div key={i} className="space-y-2">
-            <div className="h-4 w-2/3 animate-pulse rounded bg-[#e5e0d8]" />
-            <div className="h-3 w-1/3 animate-pulse rounded bg-[#e5e0d8]" />
+            <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-1/3 animate-pulse rounded bg-muted" />
           </div>
         ))}
       </div>
@@ -85,15 +85,15 @@ function AdminSkeleton() {
         <div className="space-y-6">
           <div className="rounded-xl border border-border bg-card shadow-sm">
             <div className="border-b border-border p-5">
-              <div className="h-5 w-40 animate-pulse rounded bg-[#e5e0d8]" />
+              <div className="h-5 w-40 animate-pulse rounded bg-muted" />
             </div>
             <div className="space-y-4 p-5">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="h-8 w-8 animate-pulse rounded-full bg-[#e5e0d8]" />
+                  <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-3 w-3/4 animate-pulse rounded bg-[#e5e0d8]" />
-                    <div className="h-3 w-1/2 animate-pulse rounded bg-[#e5e0d8]" />
+                    <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
+                    <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
                   </div>
                 </div>
               ))}
@@ -127,10 +127,10 @@ function WorkerSkeleton() {
         <div className="space-y-6">
           <CardListSkeleton rows={3} />
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div className="mb-4 h-5 w-32 animate-pulse rounded bg-[#e5e0d8]" />
+            <div className="mb-4 h-5 w-32 animate-pulse rounded bg-muted" />
             <div className="space-y-3">
-              <div className="h-10 w-full animate-pulse rounded-lg bg-[#e5e0d8]" />
-              <div className="h-10 w-full animate-pulse rounded-lg bg-[#e5e0d8]" />
+              <div className="h-10 w-full animate-pulse rounded-lg bg-muted" />
+              <div className="h-10 w-full animate-pulse rounded-lg bg-muted" />
             </div>
           </div>
         </div>
@@ -164,17 +164,17 @@ function FinanceSkeleton() {
         </div>
         <div className="space-y-6">
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div className="mb-4 h-5 w-40 animate-pulse rounded bg-[#e5e0d8]" />
+            <div className="mb-4 h-5 w-40 animate-pulse rounded bg-muted" />
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i}>
-                  <div className="mb-1 h-3 w-3/4 animate-pulse rounded bg-[#e5e0d8]" />
-                  <div className="h-2 w-full animate-pulse rounded-full bg-[#e5e0d8]" />
+                  <div className="mb-1 h-3 w-3/4 animate-pulse rounded bg-muted" />
+                  <div className="h-2 w-full animate-pulse rounded-full bg-muted" />
                 </div>
               ))}
             </div>
           </div>
-          <div className="h-10 w-full animate-pulse rounded-lg bg-[#e5e0d8]" />
+          <div className="h-10 w-full animate-pulse rounded-lg bg-muted" />
         </div>
       </div>
     </div>
@@ -197,10 +197,10 @@ function UserSkeleton() {
             className="rounded-xl border border-border bg-card p-5 shadow-sm"
           >
             <div className="flex items-center gap-4">
-              <div className="h-9 w-9 animate-pulse rounded-lg bg-[#e5e0d8]" />
+              <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
               <div className="flex-1 space-y-2">
-                <div className="h-3 w-20 animate-pulse rounded bg-[#e5e0d8]" />
-                <div className="h-5 w-24 animate-pulse rounded bg-[#e5e0d8]" />
+                <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+                <div className="h-5 w-24 animate-pulse rounded bg-muted" />
               </div>
             </div>
           </div>
@@ -210,11 +210,11 @@ function UserSkeleton() {
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <CardListSkeleton rows={3} />
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <div className="mb-4 h-5 w-44 animate-pulse rounded bg-[#e5e0d8]" />
+          <div className="mb-4 h-5 w-44 animate-pulse rounded bg-muted" />
           <div className="space-y-3">
-            <div className="h-12 w-full animate-pulse rounded-lg bg-[#e5e0d8]" />
-            <div className="h-12 w-full animate-pulse rounded-lg bg-[#e5e0d8]" />
-            <div className="h-12 w-full animate-pulse rounded-lg bg-[#e5e0d8]" />
+            <div className="h-12 w-full animate-pulse rounded-lg bg-muted" />
+            <div className="h-12 w-full animate-pulse rounded-lg bg-muted" />
+            <div className="h-12 w-full animate-pulse rounded-lg bg-muted" />
           </div>
         </div>
       </div>

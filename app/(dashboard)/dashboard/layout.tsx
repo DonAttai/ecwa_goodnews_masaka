@@ -16,7 +16,7 @@ export default async function DashboardLayout({
 
   const layoutUser = currentUser as LayoutUser
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f8f6f3] text-[#1a2332]">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* DESKTOP SIDEBAR - Sticky */}
       <div className="hidden md:sticky md:top-0 md:z-10 md:flex md:h-screen">
         <DashboardSidebar user={layoutUser} />
@@ -27,7 +27,7 @@ export default async function DashboardLayout({
         <DashboardHeader title="Dashboard" user={currentUser} />
 
         {/* Only the main content scrolls, header and footer are fixed */}
-        <main className="flex-1 overflow-y-auto bg-[#f8f6f3]">
+        <main className="flex-1 overflow-y-auto bg-background">
           <div className="h-full w-full p-4 sm:p-6">{children}</div>
         </main>
 

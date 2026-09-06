@@ -77,7 +77,7 @@ export default function NotificationBell({
         <Button
           variant="ghost"
           className={cn(
-            "relative flex items-center justify-center rounded-2xl text-[#8a95a8] transition-all duration-200 hover:bg-[#2e3a50] hover:text-white",
+            "relative flex items-center justify-center rounded-2xl text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground",
             iconOnly ? "h-12 w-12 p-0" : "gap-4 px-4 py-3 text-sm font-medium",
             collapsed && "justify-center px-2",
             className
@@ -98,9 +98,9 @@ export default function NotificationBell({
         <div className="px-2 py-1.5 text-sm font-semibold">Notifications</div>
         <DropdownMenuSeparator />
         {loading ? (
-          <div className="px-2 py-3 text-sm text-slate-500">Loading...</div>
+          <div className="px-2 py-3 text-sm text-muted-foreground">Loading...</div>
         ) : notifications.length === 0 ? (
-          <div className="px-2 py-3 text-sm text-slate-500">
+          <div className="px-2 py-3 text-sm text-muted-foreground">
             No notifications yet.
           </div>
         ) : (
@@ -115,8 +115,8 @@ export default function NotificationBell({
                 key={item.id}
                 className={`cursor-pointer rounded-xl px-2 py-3 ${
                   item.read
-                    ? "bg-white text-slate-600"
-                    : "bg-[#fffaf0] text-slate-900"
+                    ? "bg-card text-muted-foreground"
+                    : "bg-muted text-foreground"
                 }`}
                 onSelect={async () => {
                   if (item.link) {
@@ -139,7 +139,7 @@ export default function NotificationBell({
                       <span className="h-2 w-2 rounded-full bg-[#c9a84c]" />
                     )}
                   </div>
-                  <p className="text-xs text-slate-500">{item.message}</p>
+                  <p className="text-xs text-muted-foreground">{item.message}</p>
                 </div>
               </DropdownMenuItem>
             ))}

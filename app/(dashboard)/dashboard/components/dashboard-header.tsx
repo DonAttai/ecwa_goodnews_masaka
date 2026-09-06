@@ -13,6 +13,7 @@ import { LogOut, Settings, UserCog } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { logout } from "@/app/actions/auth"
 import NotificationBell from "./notification-bell"
+import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
 import { getInitials } from "../utils"
 
@@ -41,11 +42,11 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[#e2dcd5]/50 bg-white/80 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-border/50 bg-card/80 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
       {/* LEFT */}
       <div className="flex items-center">
         <div>
-          <h1 className="text-xl font-bold text-[#1a2332] sm:text-2xl">
+          <h1 className="text-xl font-bold text-foreground sm:text-2xl">
             {title}
           </h1>
           {getBreadcrumb() && (
@@ -57,6 +58,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
+        <ModeToggle />
         <NotificationBell iconOnly className="h-10 w-10" />
         <Badge className="hidden border-[#c9a84c]/30 bg-[#c9a84c]/10 px-3 py-1 text-xs font-medium text-[#c9a84c] sm:flex">
           {user.role}
@@ -75,17 +77,17 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
               </span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="mr-4 w-56 rounded-2xl border border-[#e2dcd5] bg-white p-2 shadow-lg">
+          <DropdownMenuContent className="mr-4 w-56 rounded-2xl border border-border bg-popover p-2 shadow-lg">
             <DropdownMenuLabel className="text-sm text-muted-foreground">
               Signed in as
             </DropdownMenuLabel>
-            <p className="px-2 text-sm wrap-break-word text-black">
+            <p className="px-2 text-sm wrap-break-word text-foreground">
               {user.email}
             </p>
-            <DropdownMenuSeparator className="bg-[#e8e3dc]" />
+            <DropdownMenuSeparator />
             {isAdmin && (
               <DropdownMenuItem
-                className="cursor-pointer rounded-xl px-2 py-2 text-black"
+                className="cursor-pointer rounded-xl px-2 py-2"
                 onSelect={() => router.push("/dashboard/users")}
               >
                 <UserCog className="mr-1 h-4 w-4" />
@@ -94,7 +96,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
             )}
             {isAdmin && (
               <DropdownMenuItem
-                className="cursor-pointer rounded-xl px-2 py-2 text-black"
+                className="cursor-pointer rounded-xl px-2 py-2"
                 onSelect={() => router.push("/dashboard/settings")}
               >
                 <Settings className="mr-1 h-4 w-4" />

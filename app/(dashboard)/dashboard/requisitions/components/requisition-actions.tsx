@@ -68,10 +68,10 @@ export default function RequisitionActions({
 
       <DialogContent className="max-h-[92vh] w-[95vw] max-w-[95vw] overflow-hidden border p-0 shadow-2xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl 2xl:max-w-5xl">
         {/* Header */}
-        <DialogHeader className="border-b bg-white px-8 py-6">
+        <DialogHeader className="border-b bg-card px-8 py-6">
           <div className="flex flex-col gap-4">
             {/* Title - Top */}
-            <DialogTitle className="text-2xl leading-tight font-semibold tracking-tight text-slate-900">
+            <DialogTitle className="text-2xl leading-tight font-semibold tracking-tight text-foreground">
               {requisition.title}
             </DialogTitle>
 
@@ -79,7 +79,7 @@ export default function RequisitionActions({
             <div className="flex gap-6">
               {/* Status */}
               <div>
-                <p className="mb-1.5 text-[10px] font-medium tracking-widest text-slate-500 uppercase">
+                <p className="mb-1.5 text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
                   STATUS
                 </p>
                 <Badge

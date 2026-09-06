@@ -78,22 +78,22 @@ export default async function RequisitionsPage({
 
   return (
     <div className="container mx-auto space-y-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-      <div className="rounded-2xl border border-slate-200 bg-linear-to-br from-slate-50 via-white to-slate-50 p-4 shadow-sm sm:p-6">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {summaryCards.map((card) => {
             const Icon = card.icon
             return (
               <div
                 key={card.title}
-                className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm"
+                className="rounded-xl border border-border bg-card p-4 shadow-sm"
               >
                 <div
                   className={`inline-flex rounded-lg bg-linear-to-r ${card.accent} p-2 text-white`}
                 >
                   <Icon className="size-4" />
                 </div>
-                <p className="mt-3 text-sm text-slate-500">{card.title}</p>
-                <p className="text-2xl font-semibold text-slate-900">
+                <p className="mt-3 text-sm text-muted-foreground">{card.title}</p>
+                <p className="text-2xl font-semibold text-foreground">
                   {card.value}
                 </p>
               </div>

@@ -29,7 +29,7 @@ export function InfoCard({
           <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
             {label}
           </p>
-          <p className="text-sm leading-tight font-semibold wrap-break-word text-black dark:text-white">
+          <p className="text-sm leading-tight font-semibold wrap-break-word text-foreground">
             {displayValue}
           </p>
         </div>

@@ -14,12 +14,12 @@ export default function UsersLoading() {
       </div>
 
       {/* Table */}
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="space-y-4 rounded-lg border border-border bg-card p-4">
         {/* Search input */}
         <Skeleton className="h-9 w-64 max-w-full rounded-md" />
 
         {/* Table header */}
-        <div className="border-b border-slate-200 bg-slate-50/50 px-4 py-3">
+        <div className="border-b border-border bg-muted/50 px-4 py-3">
           <div className="grid grid-cols-5 gap-4">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-4 rounded" />
@@ -28,7 +28,7 @@ export default function UsersLoading() {
         </div>
 
         {/* Table rows */}
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="px-4 py-4">
               <div className="grid grid-cols-5 gap-4">

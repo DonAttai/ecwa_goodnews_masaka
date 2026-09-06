@@ -12,6 +12,20 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+import type { Metadata, Viewport } from "next"
+
+export const metadata: Metadata = {
+  title: "ECWA Goodnews 1, Masaka",
+  description: "Church membership management system",
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8f6f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a2332" },
+  ],
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
