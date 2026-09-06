@@ -113,7 +113,7 @@ export default async function MemberDetailsPage({
           <Card className="overflow-hidden border-0 bg-linear-to-r from-amber-50 to-yellow-50 shadow-lg dark:from-amber-950/30 dark:to-yellow-950/30">
             <CardContent className="p-6">
               <div className="flex items-start gap-3">
-                <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
                 <div>
                   <h3 className="mb-2 font-semibold text-amber-800 dark:text-amber-300">
                     Suggestions & Notes
@@ -151,7 +151,7 @@ export default async function MemberDetailsPage({
             <Card className="overflow-hidden border-0 shadow-lg">
               <CardHeader className="bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
                 <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                  <Cross className="h-5 w-5 text-purple-600" />
+                  <Cross className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   Spiritual Journey
                 </CardTitle>
               </CardHeader>
@@ -213,7 +213,7 @@ export default async function MemberDetailsPage({
                 <Card className="overflow-hidden border-0 shadow-lg">
                   <CardHeader className="bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30">
                     <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                      <Users className="h-5 w-5 text-emerald-600" />
+                      <Users className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                       Fellowship Groups ({member.fellowshipGroupIds.length})
                     </CardTitle>
                   </CardHeader>
@@ -235,7 +235,7 @@ export default async function MemberDetailsPage({
             <Card className="overflow-hidden border-0 shadow-lg">
               <CardHeader className="bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
                 <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                  <Scale className="h-5 w-5 text-amber-600" />
+                  <Scale className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                   Discipline Record
                 </CardTitle>
               </CardHeader>
@@ -346,7 +346,7 @@ export default async function MemberDetailsPage({
           <Card className="overflow-hidden border-0 shadow-lg">
             <CardHeader className="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Heart className="h-5 w-5 text-blue-600" />
+                <Heart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 Children ({member.children.length})
               </CardTitle>
             </CardHeader>

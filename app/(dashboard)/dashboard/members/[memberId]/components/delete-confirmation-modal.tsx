@@ -27,7 +27,12 @@ export function DeleteConfirmationModal({
   isDeleting = false,
 }: DeleteConfirmationModalProps) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -42,7 +47,7 @@ export function DeleteConfirmationModal({
           <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-rose-600 hover:bg-rose-700"
+            className="bg-rose-600 text-white hover:bg-rose-700"
             disabled={isDeleting}
           >
             {isDeleting ? "Deleting..." : "Delete"}

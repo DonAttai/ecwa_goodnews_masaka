@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-const DEFAULT_BADGE_CLASS = "border-gray-200 bg-gray-50 text-gray-700"
+const DEFAULT_BADGE_CLASS =
+  "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300"
 
 type ValueBadgeProps = {
   value: string

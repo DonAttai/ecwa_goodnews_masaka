@@ -11,8 +11,8 @@ export function StatusBadge({ label, showIcon = false }: StatusBadgeProps) {
     <Badge
       className={`${
         isYes
-          ? "bg-emerald-500 hover:bg-emerald-600"
-          : "bg-rose-500 hover:bg-rose-600"
+          ? "bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+          : "bg-rose-500 text-white hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500"
       } transition-all duration-200`}
     >
       {showIcon && (isYes ? "✓" : "✗")} {label}

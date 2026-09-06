@@ -47,13 +47,13 @@ export default function FinanceRequisitionActions({
 
       {/* Show lock message if completed */}
       {isCompleted && (
-        <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-700">
+        <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
           This requisition has been completed and cannot be modified.
         </div>
       )}
 
       {isRejected && (
-        <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-700">
+        <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
           This requisition has been rejected and cannot be modified.
         </div>
       )}
