@@ -18,9 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch, type Control } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { memo } from "react"
 import { User } from "../columns"
 import { DialogClose } from "@/components/ui/dialog"
 import { updateUser } from "../actions"
@@ -42,7 +43,37 @@ type UpdateUserFormProps = {
   onClose: () => void
 }
 
-export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
+// Leaf subscriptions so role/status text updates don't re-render the whole
+// form (keeps open/close animation frames cheap).
+function RoleDescription({ control }: { control: Control<UpdateUserFormValues> }) {
+  const role = useWatch({ control, name: "role" })
+  return (
+    <FieldDescription>
+      {role === "ADMIN"
+        ? "Admins have full system access"
+        : role === "USER"
+          ? "Users have limited access to member-facing features"
+          : "Workers have limited permissions"}
+    </FieldDescription>
+  )
+}
+
+function StatusDescription({
+  control,
+}: {
+  control: Control<UpdateUserFormValues>
+}) {
+  const isActive = useWatch({ control, name: "isActive" })
+  return (
+    <FieldDescription>
+      {isActive
+        ? "User can access the system and perform actions"
+        : "User is disabled and cannot access the system"}
+    </FieldDescription>
+  )
+}
+
+function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
   const form = useForm<UpdateUserFormValues>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
@@ -53,9 +84,6 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
       isActive: user.isActive,
     },
   })
-
-  const isActive = form.watch("isActive")
-  const role = form.watch("role")
 
   const onSubmit = async (data: UpdateUserFormValues) => {
     try {
@@ -122,13 +150,7 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
             <Field orientation="responsive" data-invalid={fieldState.invalid}>
               <FieldContent>
                 <FieldLabel htmlFor={field.name}>Role</FieldLabel>
-                <FieldDescription>
-                  {role === "ADMIN"
-                    ? "Admins have full system access"
-                    : role === "USER"
-                      ? "Users have limited access to member-facing features"
-                      : "Workers have limited permissions"}
-                </FieldDescription>
+                <RoleDescription control={form.control} />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -165,11 +187,7 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
             <Field orientation="horizontal" data-invalid={fieldState.invalid}>
               <FieldContent>
                 <FieldLabel htmlFor={field.name}>Account Status</FieldLabel>
-                <FieldDescription>
-                  {isActive
-                    ? "User can access the system and perform actions"
-                    : "User is disabled and cannot access the system"}
-                </FieldDescription>
+                <StatusDescription control={form.control} />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -204,3 +222,5 @@ export default function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
     </form>
   )
 }
+
+export default memo(UpdateUserForm)
