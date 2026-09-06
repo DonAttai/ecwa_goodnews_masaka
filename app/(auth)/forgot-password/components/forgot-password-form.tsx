@@ -24,6 +24,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { forgotPassword } from "../actions"
 import { forgotPasswordSchema, ForgotPasswordSchemaType } from "../schemas"
+import { AuthThemeCorner } from "../../components/auth-theme-corner"
 
 export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -55,7 +56,8 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
+    <div className="relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
+      <AuthThemeCorner />
       <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg">
         <CardHeader className="space-y-2 px-4 pt-6 text-center sm:px-6 sm:pt-8">
           <CardTitle className="text-gold text-2xl font-bold sm:text-3xl md:text-4xl">

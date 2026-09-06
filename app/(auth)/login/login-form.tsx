@@ -26,6 +26,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { login } from "./actions"
+import { AuthThemeCorner } from "../components/auth-theme-corner"
 
 const formSchema = z.object({
   email: z.email({ message: "Invalid email address" }),
@@ -66,7 +67,8 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
+    <div className="relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
+      <AuthThemeCorner />
       <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg">
         <CardHeader className="space-y-2 px-4 pt-6 text-center sm:px-6 sm:pt-8">
           <div className="mb-1 flex justify-center">

@@ -10,10 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { AuthThemeCorner } from "../../components/auth-theme-corner"
 
 export default function InvalidResetLink() {
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4 py-8 sm:px-6">
+    <div className="relative flex min-h-[70vh] items-center justify-center px-4 py-8 sm:px-6">
+      <AuthThemeCorner />
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-4 text-center">
           <TriangleAlert className="mx-auto h-12 w-12 text-amber-500" />
