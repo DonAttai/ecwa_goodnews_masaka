@@ -29,7 +29,7 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { User } from "../columns"
 import UpdateUserForm from "./update-user-form"
 import { deleteUser } from "../actions"
@@ -39,6 +39,9 @@ export function UserActions({ user }: { user: User }) {
   const [updateOpen, setUpdateOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // Stable identity so the memoized form isn't re-rendered by parent updates.
+  const handleCloseUpdate = useCallback(() => setUpdateOpen(false), [])
 
   const handleDelete = async () => {
     try {
@@ -108,7 +111,7 @@ export function UserActions({ user }: { user: User }) {
             <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
 
-          <UpdateUserForm user={user} onClose={() => setUpdateOpen(false)} />
+          <UpdateUserForm user={user} onClose={handleCloseUpdate} />
         </DialogContent>
       </Dialog>
 
