@@ -69,7 +69,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
             <Button
               variant="ghost"
               size="icon-lg"
-              className="size-11 rounded-full bg-[#c9a84c]/15 font-semibold text-[#1a2332] hover:bg-[#c9a84c]/25"
+              className="size-11 rounded-full bg-[#c9a84c]/15 font-semibold text-[#1a2332] hover:bg-[#c9a84c]/25 dark:text-white"
               aria-label="Profile actions"
             >
               <span className="text-base font-semibold tracking-tight">
