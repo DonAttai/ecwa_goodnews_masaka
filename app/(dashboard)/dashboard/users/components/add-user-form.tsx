@@ -15,10 +15,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch, type Control } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createUserSchema, CreateUserSchemaType } from "../schemas"
 import { toast } from "sonner"
+import { memo } from "react"
 import {
   Field,
   FieldContent,
@@ -28,6 +29,37 @@ import {
 } from "@/components/ui/field"
 
 export default function AddUserForm({
+  onClose,
+  departments,
+}: {
+  onClose: () => void
+  departments: Array<{ id: string; name: string }>
+}) {
+  return <AddUserFormInner onClose={onClose} departments={departments} />
+}
+
+const roleDescriptions: Record<CreateUserSchemaType["role"], string> = {
+  USER: "Users have basic access",
+  WORKER: "Workers have limited permissions",
+  FINANCE: "Finance has limited permissions",
+  ADMIN: "Admins have full system access",
+}
+
+// Leaf subscription so role text updates don't re-render the whole form.
+function RoleDescription({
+  control,
+}: {
+  control: Control<CreateUserSchemaType>
+}) {
+  const role = useWatch({ control, name: "role" })
+  return (
+    <FieldDescription>
+      {roleDescriptions[role] ?? "Select a role"}
+    </FieldDescription>
+  )
+}
+
+const AddUserFormInner = memo(function AddUserFormInner({
   onClose,
   departments,
 }: {
@@ -46,19 +78,12 @@ export default function AddUserForm({
     },
   })
 
-  const role = form.watch("role")
+  const role = useWatch({ control: form.control, name: "role" })
   useEffect(() => {
     if (role === "ADMIN") {
       form.setValue("departmentId", undefined)
     }
   }, [role, form])
-
-  const roleDescriptions = {
-    USER: "Users have basic access",
-    WORKER: "Workers have limited permissions",
-    FINANCE: "Finance has limited permissions",
-    ADMIN: "Admins have full system access",
-  }
 
   const onSubmit = async (data: CreateUserSchemaType) => {
     try {
@@ -94,6 +119,7 @@ export default function AddUserForm({
               {...field}
               id={field.name}
               aria-invalid={fieldState.invalid}
+              autoFocus
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
@@ -126,9 +152,7 @@ export default function AddUserForm({
             <Field orientation="responsive" data-invalid={fieldState.invalid}>
               <FieldContent>
                 <FieldLabel htmlFor={field.name}>Role</FieldLabel>
-                <FieldDescription>
-                  {roleDescriptions[field.value] ?? "Select a role"}
-                </FieldDescription>
+                <RoleDescription control={form.control} />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -213,4 +237,4 @@ export default function AddUserForm({
       </Button>
     </form>
   )
-}
+})
