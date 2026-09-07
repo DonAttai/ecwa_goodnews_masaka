@@ -15,7 +15,7 @@ import { Plus } from "lucide-react"
 
 import AddUserForm from "./add-user-form"
 import { UserFormSkeleton } from "./user-form-skeleton"
-import { useDialogFormReady } from "./use-dialog-form-ready"
+import { useDialogFormReady } from "@/hooks/use-dialog-form-ready"
 
 export default function AddUserDialog({
   departments,

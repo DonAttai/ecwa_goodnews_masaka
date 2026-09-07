@@ -100,8 +100,13 @@ export default function ProfileClient({ user }: { user: User }) {
   ): Promise<void> => {
     try {
       setIsLoading(true)
+      // Close optimistically: success redirects to /login (full navigation),
+      // so start the exit animation now instead of snapping mid-dialog.
+      setIsOpen(false)
       const result = await changePassword(data)
       if (!result.success) {
+        // Reopen so the user can correct and retry.
+        setIsOpen(true)
         toast.error(result.message ?? "Request to change password failed")
         return
       }
@@ -109,6 +114,8 @@ export default function ProfileClient({ user }: { user: User }) {
       form.reset({ currentPassword: "", newPassword: "" })
       toast.success("Login with your new password")
     } catch {
+      // Reopen so the user can retry.
+      setIsOpen(true)
       toast.error("Network error. Please try again.")
     } finally {
       setIsLoading(false)

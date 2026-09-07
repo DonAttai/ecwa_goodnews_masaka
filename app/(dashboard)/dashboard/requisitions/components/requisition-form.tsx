@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -26,6 +25,8 @@ import {
 } from "@/components/ui/field"
 import { RHFSelect } from "./rhf-select"
 import * as z from "zod"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useDialogFormReady } from "@/hooks/use-dialog-form-ready"
 
 const defaultValues = {
   title: "",
@@ -37,8 +38,26 @@ const defaultValues = {
   neededBy: "",
   rejectionReason: "",
 }
+
+// Lightweight placeholder shown for a single frame while the dialog shell
+// paints, so the heavy form can mount on the next frame without blocking
+// the opening interaction (INP).
+function RequisitionFormSkeleton() {
+  return (
+    <div className="space-y-4" aria-hidden="true">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-9 w-full" />
+        </div>
+      ))}
+      <Skeleton className="h-10 w-full" />
+    </div>
+  )
+}
 export default function RequisitionForm() {
-  const [open, setOpen] = useState(false)
+  const { open, formReady, handleOpenChange, handleClose } =
+    useDialogFormReady()
   const form = useForm<
     z.input<typeof requisitionSchema>,
     unknown,
@@ -61,7 +80,7 @@ export default function RequisitionForm() {
         return
       }
 
-      setOpen(false)
+      handleClose()
       toast.success(result.message || "Requisition submitted")
     } catch (error) {
       console.error(error)
@@ -74,7 +93,7 @@ export default function RequisitionForm() {
       open={open}
       onOpenChange={(isOpen) => {
         if (isOpen) form.reset(defaultValues)
-        setOpen(isOpen)
+        handleOpenChange(isOpen)
       }}
     >
       <DialogTrigger asChild>
@@ -92,165 +111,169 @@ export default function RequisitionForm() {
             </DialogDescription>
           </DialogHeader>
 
-          <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-            <Controller
-              name="title"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Title</FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="e.g. Church van fuel"
-                    autoComplete="off"
-                  />
-                  <FieldDescription>
-                    Provide a concise title for your requisition.
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="category"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Category</FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Transport, equipment, welfare..."
-                    autoComplete="off"
-                  />
-                  <FieldDescription>
-                    Provide a category for your requisition.
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="amount"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Amount</FieldLabel>
-
-                  <Input
-                    {...field}
-                    id={field.name}
-                    type="number"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="0.00"
-                    autoComplete="off"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) =>
-                      field.onChange(e.target.valueAsNumber || undefined)
-                    }
-                  />
-
-                  <FieldDescription>
-                    Provide the amount for your requisition.
-                  </FieldDescription>
-
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <RHFSelect
+          {formReady ? (
+            <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+              <Controller
+                name="title"
                 control={form.control}
-                name="currency"
-                label="Currency"
-                placeholder="Select"
-                className="min-w-120px"
-                options={[
-                  { label: "NGN", value: "NGN" },
-                  { label: "USD", value: "USD" },
-                ]}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="e.g. Church van fuel"
+                      autoComplete="off"
+                    />
+                    <FieldDescription>
+                      Provide a concise title for your requisition.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
 
-              <RHFSelect
+              <Controller
+                name="category"
                 control={form.control}
-                name="priority"
-                label="Priority"
-                placeholder="Select"
-                className="min-w-120px"
-                options={[
-                  { label: "Low", value: "LOW" },
-                  { label: "Medium", value: "MEDIUM" },
-                  { label: "High", value: "HIGH" },
-                  { label: "Urgent", value: "URGENT" },
-                ]}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Category</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Transport, equipment, welfare..."
+                      autoComplete="off"
+                    />
+                    <FieldDescription>
+                      Provide a category for your requisition.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
-            </div>
 
-            <Controller
-              name="description"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-textarea-about">
-                    More about the requisition
-                  </FieldLabel>
-                  <Textarea
-                    {...field}
-                    id="form-rhf-textarea-about"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Money to fuel the church vehicle..."
-                    className="min-h-30"
-                  />
-                  <FieldDescription>
-                    Describe the request and why it is needed
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="neededBy"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Needed By</FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    type="date"
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                  />
+              <Controller
+                name="amount"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Amount</FieldLabel>
 
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="w-full"
-            >
-              {form.formState.isSubmitting
-                ? "Submitting..."
-                : "Submit requisition"}
-            </Button>
-          </form>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type="number"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="0.00"
+                      autoComplete="off"
+                      value={typeof field.value === "number" ? field.value : ""}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || undefined)
+                      }
+                    />
+
+                    <FieldDescription>
+                      Provide the amount for your requisition.
+                    </FieldDescription>
+
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <RHFSelect
+                  control={form.control}
+                  name="currency"
+                  label="Currency"
+                  placeholder="Select"
+                  className="min-w-120px"
+                  options={[
+                    { label: "NGN", value: "NGN" },
+                    { label: "USD", value: "USD" },
+                  ]}
+                />
+
+                <RHFSelect
+                  control={form.control}
+                  name="priority"
+                  label="Priority"
+                  placeholder="Select"
+                  className="min-w-120px"
+                  options={[
+                    { label: "Low", value: "LOW" },
+                    { label: "Medium", value: "MEDIUM" },
+                    { label: "High", value: "HIGH" },
+                    { label: "Urgent", value: "URGENT" },
+                  ]}
+                />
+              </div>
+
+              <Controller
+                name="description"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="form-rhf-textarea-about">
+                      More about the requisition
+                    </FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="form-rhf-textarea-about"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Money to fuel the church vehicle..."
+                      className="min-h-30"
+                    />
+                    <FieldDescription>
+                      Describe the request and why it is needed
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="neededBy"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Needed By</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type="date"
+                      aria-invalid={fieldState.invalid}
+                      autoComplete="off"
+                    />
+
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                className="w-full"
+              >
+                {form.formState.isSubmitting
+                  ? "Submitting..."
+                  : "Submit requisition"}
+              </Button>
+            </form>
+          ) : (
+            <RequisitionFormSkeleton />
+          )}
         </div>
       </DialogContent>
     </Dialog>
