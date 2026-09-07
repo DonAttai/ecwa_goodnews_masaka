@@ -112,7 +112,9 @@ export function UserActions({ user }: { user: User }) {
           </DialogHeader>
 
           {updateContentReady ? (
-            <UpdateUserForm user={user} onClose={handleCloseUpdate} />
+            <div className="animate-in fade-in-0">
+              <UpdateUserForm user={user} onClose={handleCloseUpdate} />
+            </div>
           ) : (
             <UserFormSkeleton />
           )}
