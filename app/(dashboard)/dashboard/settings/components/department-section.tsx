@@ -123,7 +123,10 @@ export default function DepartmentSection({
       toast.success(result.message)
       setDeleteDialogOpen(false)
       setDepartmentToDelete(null)
-      router.refresh()
+      // Let the exit animation finish before the list refresh re-renders.
+      setTimeout(() => {
+        router.refresh()
+      }, 200)
     } else {
       toast.error(result.message)
       setDeleteDialogOpen(false)
@@ -318,7 +321,7 @@ export default function DepartmentSection({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90 sm:w-auto"
+              className="text-destructive-foreground w-full bg-destructive hover:bg-destructive/90 sm:w-auto"
             >
               Delete
             </AlertDialogAction>

@@ -206,7 +206,10 @@ export default function SettingsPage({
         toast.success(result.message)
         setDeleteDialogOpen(false)
         setFellowshipToDelete(null)
-        router.refresh()
+        // Let the exit animation finish before the list refresh re-renders.
+        setTimeout(() => {
+          router.refresh()
+        }, 200)
       } else {
         toast.error(result.message || "Failed to delete fellowship")
       }

@@ -152,7 +152,9 @@ export default function MemberRegistrationForm() {
   )
 
   const form = useForm<MemberFormValues>({
-    resolver: zodResolver(memberFormSchema) as unknown as Resolver<MemberFormValues>,
+    resolver: zodResolver(
+      memberFormSchema
+    ) as unknown as Resolver<MemberFormValues>,
     defaultValues: DEFAULT_VALUES,
     mode: "onBlur",
   })
@@ -566,7 +568,7 @@ export default function MemberRegistrationForm() {
           <div className="flex justify-center gap-2 pt-4">
             <AlertDialogAction
               onClick={() => setShowSuccessModal(false)}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 text-white hover:bg-green-700"
             >
               OK
             </AlertDialogAction>

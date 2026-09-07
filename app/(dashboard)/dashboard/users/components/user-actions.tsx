@@ -29,7 +29,7 @@ import { useState } from "react"
 import { User } from "../columns"
 import UpdateUserForm from "./update-user-form"
 import { UserFormSkeleton } from "./user-form-skeleton"
-import { useDialogFormReady } from "./use-dialog-form-ready"
+import { useDialogFormReady } from "@/hooks/use-dialog-form-ready"
 import { deleteUser } from "../actions"
 import { toast } from "sonner"
 
