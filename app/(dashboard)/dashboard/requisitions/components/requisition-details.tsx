@@ -1,4 +1,10 @@
-import { CalendarDays, CircleDollarSign, Hash, UserRound, LucideIcon } from "lucide-react"
+import {
+  CalendarDays,
+  CircleDollarSign,
+  Hash,
+  UserRound,
+  LucideIcon,
+} from "lucide-react"
 import { RequisitionItem } from "../types"
 
 type InfoItemProps = {
@@ -8,12 +14,12 @@ type InfoItemProps = {
 }
 
 const InfoItem = ({ icon: Icon, label, children }: InfoItemProps) => (
-  <div className="flex flex-col rounded-lg bg-slate-50 px-3 py-2 text-sm">
+  <div className="flex flex-col rounded-lg bg-muted/60 px-3 py-2 text-sm">
     <div className="flex items-center gap-2">
-      <Icon className="size-4 text-slate-500" />
-      <p className="text-slate-600">{label}</p>
+      <Icon className="size-4 text-muted-foreground" />
+      <p className="text-muted-foreground">{label}</p>
     </div>
-    <div className="mt-1 pl-6 font-medium text-slate-900">{children}</div>
+    <div className="mt-1 pl-6 font-medium text-foreground">{children}</div>
   </div>
 )
 export default function RequisitionDetails({
@@ -23,7 +29,7 @@ export default function RequisitionDetails({
 }) {
   return (
     <div className="space-y-3">
-      <h4 className="text-sm font-medium text-slate-500">
+      <h4 className="text-sm font-medium text-muted-foreground">
         Requisition Details
       </h4>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

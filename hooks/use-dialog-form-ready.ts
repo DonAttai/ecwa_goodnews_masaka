@@ -6,13 +6,13 @@ import { useCallback, useEffect, useRef, useState } from "react"
 const EXIT_MS = 200
 
 // Two-phase dialog mount for INP: the opening click paints the lightweight
-// shell first, and the heavy form mounts on the next frame. On close, the
-// form stays mounted through the exit animation and only swaps back to the
+// shell first, and the heavy content mounts on the next frame. On close, the
+// content stays mounted through the exit animation and only swaps back to the
 // placeholder once the dialog has finished closing — otherwise the exiting
-// dialog visibly snaps from form to placeholder (close jitter).
+// dialog visibly snaps from content to placeholder (close jitter).
 export function useDialogFormReady() {
   const [open, setOpen] = useState(false)
-  const [formReady, setFormReady] = useState(false)
+  const [contentReady, setContentReady] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearTimer = useCallback(() => {
@@ -33,11 +33,11 @@ export function useDialogFormReady() {
       setOpen(next)
       if (next) {
         clearTimer()
-        requestAnimationFrame(() => setFormReady(true))
+        requestAnimationFrame(() => setContentReady(true))
       } else {
         timer.current = setTimeout(() => {
           timer.current = null
-          setFormReady(false)
+          setContentReady(false)
         }, EXIT_MS)
       }
     },
@@ -49,5 +49,5 @@ export function useDialogFormReady() {
     [handleOpenChange]
   )
 
-  return { open, formReady, handleOpenChange, handleClose }
+  return { open, contentReady, handleOpenChange, handleClose }
 }

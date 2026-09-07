@@ -36,7 +36,7 @@ import { toast } from "sonner"
 export function UserActions({ user }: { user: User }) {
   const {
     open: updateOpen,
-    formReady: updateFormReady,
+    contentReady: updateContentReady,
     handleOpenChange: handleUpdateOpenChange,
     handleClose: handleCloseUpdate,
   } = useDialogFormReady()
@@ -111,7 +111,7 @@ export function UserActions({ user }: { user: User }) {
             <DialogTitle>Edit User</DialogTitle>
           </DialogHeader>
 
-          {updateFormReady ? (
+          {updateContentReady ? (
             <UpdateUserForm user={user} onClose={handleCloseUpdate} />
           ) : (
             <UserFormSkeleton />

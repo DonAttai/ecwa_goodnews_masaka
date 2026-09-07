@@ -19,6 +19,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import AdminRequisitionActions from "./admin-requisition-actions"
 import RequisitionDetails from "./requisition-details"
 import FinanceRequisitionActions from "./finance-requisition-actions"
+import { RequisitionDetailsSkeleton } from "./requisition-details-skeleton"
+import { useDialogFormReady } from "@/hooks/use-dialog-form-ready"
 
 export default function RequisitionActions({
   requisition,
@@ -28,10 +30,11 @@ export default function RequisitionActions({
   role: roles
 }) {
   const router = useRouter()
+  const { open, contentReady, handleOpenChange, handleClose } =
+    useDialogFormReady()
   const [rejectionReasons, setRejectionReasons] = useState<
     Record<string, string>
   >({})
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [loadingAction, setLoadingAction] = useState<Status | null>(null)
 
   const handleStatusChange = async (id: string, status: Status) => {
@@ -42,7 +45,7 @@ export default function RequisitionActions({
 
       if (result.success) {
         toast.success(result.message)
-        setIsDialogOpen(false)
+        handleClose()
 
         setTimeout(() => {
           router.refresh()
@@ -58,7 +61,7 @@ export default function RequisitionActions({
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <FileText className="mr-2 size-4" />
@@ -91,7 +94,7 @@ export default function RequisitionActions({
 
               {/* Priority */}
               <div>
-                <p className="mb-1.5 text-[10px] font-medium tracking-widest text-slate-500 uppercase">
+                <p className="mb-1.5 text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
                   PRIORITY
                 </p>
                 <Badge
@@ -106,81 +109,85 @@ export default function RequisitionActions({
         </DialogHeader>
 
         {/* Scrollable Content */}
-        <ScrollArea className="max-h-[calc(92vh-220px)]">
-          <div className="space-y-8 p-8">
-            {/* Core Details */}
-            <RequisitionDetails requisition={requisition} />
+        {contentReady ? (
+          <ScrollArea className="max-h-[calc(92vh-220px)]">
+            <div className="space-y-8 p-8">
+              {/* Core Details */}
+              <RequisitionDetails requisition={requisition} />
 
-            <Separator />
+              <Separator />
 
-            {/* Description */}
-            {requisition.description && (
-              <div className="space-y-3">
-                <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                  <FileText className="size-4" />
-                  DESCRIPTION
-                </h4>
-                <div className="rounded-xl border border-slate-100 bg-slate-50 p-6 text-[15px] leading-relaxed text-slate-700">
-                  {requisition.description}
+              {/* Description */}
+              {requisition.description && (
+                <div className="space-y-3">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                    <FileText className="size-4" />
+                    DESCRIPTION
+                  </h4>
+                  <div className="rounded-xl border border-border bg-muted/40 p-6 text-[15px] leading-relaxed text-foreground">
+                    {requisition.description}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Rejection Reason */}
-            {requisition.rejectionReason && (
-              <div className="space-y-3">
-                <h4 className="flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400">
-                  <AlertCircle className="size-4" />
-                  REJECTION REASON
-                </h4>
-                <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-6 text-[15px] leading-relaxed text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">
-                  {requisition.rejectionReason}
+              {/* Rejection Reason */}
+              {requisition.rejectionReason && (
+                <div className="space-y-3">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold text-rose-600 dark:text-rose-400">
+                    <AlertCircle className="size-4" />
+                    REJECTION REASON
+                  </h4>
+                  <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-6 text-[15px] leading-relaxed text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">
+                    {requisition.rejectionReason}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Approval Info */}
-            {requisition.approvedBy && (
-              <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-800 dark:bg-emerald-950/40">
-                <div className="rounded-full bg-emerald-100 p-2 dark:bg-emerald-900/60">
-                  <ShieldCheck className="size-5 text-emerald-600 dark:text-emerald-400" />
+              {/* Approval Info */}
+              {requisition.approvedBy && (
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-800 dark:bg-emerald-950/40">
+                  <div className="rounded-full bg-emerald-100 p-2 dark:bg-emerald-900/60">
+                    <ShieldCheck className="size-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                      Approved by{" "}
+                      <span className="font-semibold text-emerald-800 dark:text-emerald-200">
+                        {requisition.approvedBy.name}
+                      </span>
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                    Approved by{" "}
-                    <span className="font-semibold text-emerald-800 dark:text-emerald-200">
-                      {requisition.approvedBy.name}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            )}
+              )}
 
-            <Separator />
+              <Separator />
 
-            {/* Admin Actions */}
-            {role === "ADMIN" && (
-              <AdminRequisitionActions
-                loadingAction={loadingAction}
-                handleStatusChange={handleStatusChange}
-                requisition={requisition}
-                rejectionReasons={rejectionReasons}
-                setRejectionReasons={setRejectionReasons}
-              />
-            )}
+              {/* Admin Actions */}
+              {role === "ADMIN" && (
+                <AdminRequisitionActions
+                  loadingAction={loadingAction}
+                  handleStatusChange={handleStatusChange}
+                  requisition={requisition}
+                  rejectionReasons={rejectionReasons}
+                  setRejectionReasons={setRejectionReasons}
+                />
+              )}
 
-            {/* Finance actions */}
-            {role === "FINANCE" && (
-              <FinanceRequisitionActions
-                loadingAction={loadingAction}
-                handleStatusChange={handleStatusChange}
-                requisition={requisition}
-                rejectionReasons={rejectionReasons}
-                setRejectionReasons={setRejectionReasons}
-              />
-            )}
-          </div>
-        </ScrollArea>
+              {/* Finance actions */}
+              {role === "FINANCE" && (
+                <FinanceRequisitionActions
+                  loadingAction={loadingAction}
+                  handleStatusChange={handleStatusChange}
+                  requisition={requisition}
+                  rejectionReasons={rejectionReasons}
+                  setRejectionReasons={setRejectionReasons}
+                />
+              )}
+            </div>
+          </ScrollArea>
+        ) : (
+          <RequisitionDetailsSkeleton />
+        )}
 
         {/* Footer */}
       </DialogContent>

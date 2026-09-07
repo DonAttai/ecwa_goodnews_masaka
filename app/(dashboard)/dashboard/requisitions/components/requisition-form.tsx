@@ -56,7 +56,7 @@ function RequisitionFormSkeleton() {
   )
 }
 export default function RequisitionForm() {
-  const { open, formReady, handleOpenChange, handleClose } =
+  const { open, contentReady, handleOpenChange, handleClose } =
     useDialogFormReady()
   const form = useForm<
     z.input<typeof requisitionSchema>,
@@ -111,7 +111,7 @@ export default function RequisitionForm() {
             </DialogDescription>
           </DialogHeader>
 
-          {formReady ? (
+          {contentReady ? (
             <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
               <Controller
                 name="title"
