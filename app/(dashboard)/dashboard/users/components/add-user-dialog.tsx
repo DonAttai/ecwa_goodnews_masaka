@@ -22,7 +22,7 @@ export default function AddUserDialog({
 }: {
   departments: Array<{ id: string; name: string }>
 }) {
-  const { open, formReady, handleOpenChange, handleClose } =
+  const { open, contentReady, handleOpenChange, handleClose } =
     useDialogFormReady()
 
   return (
@@ -43,7 +43,7 @@ export default function AddUserDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {formReady ? (
+        {contentReady ? (
           <AddUserForm onClose={handleClose} departments={departments} />
         ) : (
           <UserFormSkeleton />

@@ -36,7 +36,9 @@ export default function FinanceRequisitionActions({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-slate-500">Finance Actions</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">
+          Finance Actions
+        </h4>
 
         {isLocked && (
           <Badge variant="outline" className="text-xs">
@@ -92,7 +94,7 @@ export default function FinanceRequisitionActions({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-slate-500">
+        <label className="text-xs font-medium text-muted-foreground">
           Rejection note
         </label>
         <Input
