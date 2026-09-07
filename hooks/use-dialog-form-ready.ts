@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
-// Matches duration-200 on the dialog/alert-dialog exit animation.
-const EXIT_MS = 200
+// Matches duration-200 on the dialog/alert-dialog entrance animation. The
+// heavy content swaps in only once the entrance has finished — swapping
+// mid-animation resizes the centered box and causes visible jitter.
+const OPEN_MS = 200
 
-// Two-phase dialog mount for INP: the opening click paints the lightweight
-// shell first, and the heavy content mounts on the next frame. On close, the
-// content stays mounted through the exit animation and only swaps back to the
-// placeholder once the dialog has finished closing — otherwise the exiting
-// dialog visibly snaps from content to placeholder (close jitter).
+// Two-phase dialog mount for INP with jitter-free animation: the opening
+// click paints the lightweight shell (skeleton) immediately, and the heavy
+// content mounts only after the entrance animation has completed. On close,
+// nothing swaps — Radix keeps the real content mounted through the exit
+// animation and unmounts it when the animation ends.
 export function useDialogFormReady() {
   const [open, setOpen] = useState(false)
   const [contentReady, setContentReady] = useState(false)
@@ -30,15 +32,17 @@ export function useDialogFormReady() {
 
   const handleOpenChange = useCallback(
     (next: boolean) => {
+      clearTimer()
       setOpen(next)
       if (next) {
-        clearTimer()
-        requestAnimationFrame(() => setContentReady(true))
-      } else {
+        // Fresh shell for every open; the content swaps in after the
+        // entrance animation completes, so the box never re-centers
+        // mid-animation (open jitter).
+        setContentReady(false)
         timer.current = setTimeout(() => {
           timer.current = null
-          setContentReady(false)
-        }, EXIT_MS)
+          setContentReady(true)
+        }, OPEN_MS)
       }
     },
     [clearTimer]

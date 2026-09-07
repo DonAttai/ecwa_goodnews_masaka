@@ -44,7 +44,9 @@ export default function AddUserDialog({
         </DialogHeader>
 
         {contentReady ? (
-          <AddUserForm onClose={handleClose} departments={departments} />
+          <div className="animate-in fade-in-0">
+            <AddUserForm onClose={handleClose} departments={departments} />
+          </div>
         ) : (
           <UserFormSkeleton />
         )}
