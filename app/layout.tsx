@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import RegisterSW from "@/components/register-sw"
 import { cn } from "@/lib/utils"
 import { Toaster } from "sonner"
 
@@ -17,6 +18,16 @@ import type { Metadata, Viewport } from "next"
 export const metadata: Metadata = {
   title: "ECWA Goodnews 1, Masaka",
   description: "Church membership management system",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "ECWA Goodnews",
+  },
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
 }
 
 export const viewport: Viewport = {
@@ -44,6 +55,7 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <RegisterSW />
         <CustomToaster />
       </body>
     </html>

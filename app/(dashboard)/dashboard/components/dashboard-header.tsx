@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Settings, UserCog } from "lucide-react"
+import { LogOut, Settings, UserCog, ExternalLink, Globe } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { logout } from "@/app/actions/auth"
 import NotificationBell from "./notification-bell"
@@ -60,6 +60,17 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
       <div className="flex items-center gap-3 sm:gap-4">
         <ModeToggle />
         <NotificationBell iconOnly className="h-10 w-10" />
+        <a
+          href="/"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="View website"
+          className="hidden h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground sm:inline-flex"
+        >
+          <Globe className="h-4 w-4" />
+          View website
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
         <Badge className="hidden border-[#c9a84c]/30 bg-[#c9a84c]/10 px-3 py-1 text-xs font-medium text-[#c9a84c] sm:flex">
           {user.role}
         </Badge>
@@ -103,6 +114,13 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
                 Settings
               </DropdownMenuItem>
             )}
+            <DropdownMenuItem
+              className="cursor-pointer rounded-xl px-2 py-2"
+              onSelect={() => window.open("/", "_blank", "noreferrer")}
+            >
+              <Globe className="mr-1 h-4 w-4" />
+              View website
+            </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
               className="cursor-pointer rounded-xl px-2 py-2"
