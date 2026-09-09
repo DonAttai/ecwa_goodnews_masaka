@@ -1,5 +1,5 @@
 /* ECWA Goodnews PWA service worker. Bump VERSION to force client updates. */
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL_CACHE = `shell-${VERSION}`;
 const PAGES_CACHE = `pages-${VERSION}`;
 const IMAGES_CACHE = `images-${VERSION}`;
@@ -103,5 +103,43 @@ self.addEventListener("fetch", (event) => {
         .catch(() => (request.mode === "navigate" ? offlineFallback() : hit));
       return hit ?? network;
     })
+  );
+});
+
+// Web push: show the notification…
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = data.title ?? "ECWA Goodnews";
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: data.body ?? "You have a new update.",
+      icon: data.icon ?? "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: data.tag,
+      data: { url: data.url ?? "/dashboard" },
+    })
+  );
+});
+
+// …and deep-link on tap.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/dashboard";
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windows) => {
+        for (const w of windows) {
+          if (new URL(w.url).pathname === new URL(url, self.location.origin).pathname) {
+            return w.focus();
+          }
+        }
+        return self.clients.openWindow(url);
+      })
   );
 });

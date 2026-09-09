@@ -11,6 +11,7 @@ import {
   sendNewRequisitionEmail,
   sendRequisitionStatusEmail,
 } from "@/lib/email/send-requisition-status-email"
+import { sendPushToUser } from "@/lib/push/send-push"
 import { Prisma } from "@/generated/prisma/client"
 import { requisitionStatusPermissions } from "./permissions"
 
@@ -102,6 +103,7 @@ export async function createRequisition(input: RequisitionType) {
           select: { name: true },
         })
       : null
+    const amountLabel = formatAmount(requisition.amount, requisition.currency)
     await Promise.allSettled(
       admins.map((admin) =>
         sendNewRequisitionEmail({
@@ -109,11 +111,20 @@ export async function createRequisition(input: RequisitionType) {
           name: admin.name,
           requesterName: user.name,
           title: requisition.title,
-          amount: formatAmount(
-            requisition.amount,
-            requisition.currency
-          ),
+          amount: amountLabel,
           department: department?.name,
+        })
+      )
+    )
+
+    // Best-effort push to admins.
+    await Promise.allSettled(
+      admins.map((admin) =>
+        sendPushToUser(admin.id, {
+          title: "New requisition request",
+          body: `${user.name}: ${requisition.title}${amountLabel ? ` (${amountLabel})` : ""}`,
+          url: "/dashboard/requisitions",
+          tag: `requisition-new-${requisition.id}`,
         })
       )
     )
@@ -288,6 +299,12 @@ export async function updateRequisitionStatus(
             ? rejectionReason?.trim()
             : undefined,
         amount: formatAmount(requisition.amount, requisition.currency),
+      }),
+      sendPushToUser(requisition.requestedById, {
+        title: notificationTitle,
+        body: notificationMessage,
+        url: "/dashboard/requisitions",
+        tag: `requisition-${requisition.id}-${statusLabel}`,
       }),
     ])
   }

@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { sendPushToUser } from "@/lib/push/send-push"
 
 export async function submitContactMessage(formData: FormData) {
   const name = String(formData.get("name") || "").trim()
@@ -32,6 +33,16 @@ export async function submitContactMessage(formData: FormData) {
             link: "/dashboard/settings?tab=website",
           })),
         })
+        await Promise.allSettled(
+          admins.map((a) =>
+            sendPushToUser(a.id, {
+              title: "New website message",
+              body: `${name}: ${subject}`,
+              url: "/dashboard/settings?tab=website",
+              tag: `contact-${Date.now()}`,
+            })
+          )
+        )
       }
     } catch {
       // ignore notification failures

@@ -14,6 +14,7 @@ import {
   XCircle,
   Lock,
   Building2,
+  BellRing,
 } from "lucide-react"
 import changePassword from "./actions"
 import { toast } from "sonner"
@@ -21,6 +22,7 @@ import * as z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import ChangePasswordDialog from "./components/change-password-dialog"
+import PushToggle from "./components/push-toggle"
 
 interface User {
   id: string
@@ -244,6 +246,19 @@ export default function ProfileClient({ user }: { user: User }) {
                     handleChangePassword={handleChangePassword}
                   />
                 </div>
+              </div>
+            </div>
+
+            <Separator className="my-8 bg-border" />
+
+            {/* Notifications Section */}
+            <div>
+              <h3 className="mb-5 flex items-center gap-2 text-lg font-semibold text-foreground">
+                <BellRing className="h-5 w-5 text-primary" />
+                Notifications
+              </h3>
+              <div className="rounded-2xl border-border bg-muted/30 p-7">
+                <PushToggle />
               </div>
             </div>
           </CardContent>

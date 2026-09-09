@@ -13,6 +13,7 @@ import {
   Settings,
   MoreHorizontal,
   LogOut,
+  Globe,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -156,6 +157,13 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
                   )
                 })}
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-xl px-2 py-2 text-sm"
+                  onSelect={() => window.open("/", "_blank", "noreferrer")}
+                >
+                  <Globe className="mr-2 h-4 w-4" />
+                  View website
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   variant="destructive"
                   className="cursor-pointer rounded-xl px-2 py-2 text-sm"

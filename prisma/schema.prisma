@@ -37,6 +37,7 @@ model User {
   approvedRequisitions Requisition[]        @relation("ApprovedRequisitions")
   paidRequisitions     Requisition[]        @relation("PaidRequisitions")
   notifications        Notification[]
+  pushSubscriptions  PushSubscription[]
 }
 
 model PasswordSetupToken {
@@ -214,6 +215,20 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Announcement {
