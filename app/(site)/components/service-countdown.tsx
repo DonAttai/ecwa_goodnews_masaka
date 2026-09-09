@@ -4,15 +4,16 @@ import { useEffect, useState } from "react"
 
 const LAGOS_OFFSET_MIN = 60 // Africa/Lagos is UTC+1, no DST
 
-/** Next Sunday 08:00 (WAT) as a UTC timestamp. */
-function nextServiceTimestamp(nowUtc: number): number {
+/** Next Sunday 08:00 (WAT, UTC+1) as a UTC timestamp. */
+export function nextServiceTimestamp(nowUtc: number): number {
+  // Shift so UTC getters read Lagos (WAT) wall time, regardless of viewer TZ.
   const lagosNow = new Date(nowUtc + LAGOS_OFFSET_MIN * 60_000)
   const d = new Date(lagosNow)
-  d.setHours(8, 0, 0, 0)
+  d.setUTCHours(8, 0, 0, 0)
   // Days until Sunday (0). If today is Sunday but past 08:00, jump a week.
-  let add = (7 - d.getDay()) % 7
+  let add = (7 - d.getUTCDay()) % 7
   if (add === 0 && lagosNow.getTime() >= d.getTime()) add = 7
-  d.setDate(d.getDate() + add)
+  d.setUTCDate(d.getUTCDate() + add)
   return d.getTime() - LAGOS_OFFSET_MIN * 60_000
 }
 
