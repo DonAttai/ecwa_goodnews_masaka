@@ -112,72 +112,73 @@ export default function DashboardFooter({ user }: DashboardFooterProps) {
                 key={link.href}
                 href={link.href}
                 className={clsx(
-                  "group flex h-14 w-full flex-1 flex-col items-center justify-center rounded-xl px-1 py-1 text-xs font-medium transition-all duration-200",
+                  "group flex h-14 w-full min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-1 py-1 text-xs font-medium transition-all duration-200",
                   active
                     ? "bg-muted text-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <Icon className="h-5 w-5" />
-                <span className="mt-1 text-[10px] leading-none">
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="mt-1 truncate text-[10px] leading-none">
                   {link.title}
                 </span>
               </Link>
             )
           })}
 
-          {visibleMore.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="flex h-14 w-full flex-1 flex-col items-center justify-center rounded-xl px-1 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
-                >
-                  <MoreHorizontal className="h-5 w-5" />
-                  <span className="mt-1 text-[10px] leading-none">More</span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                side="top"
-                sideOffset={8}
-                className="mr-1 w-48 rounded-2xl border border-border bg-popover p-2 shadow-lg"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label="More options"
+                className="flex h-14 w-full min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-1 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
               >
-                {visibleMore.map((link) => {
-                  const Icon = link.icon
-                  return (
-                    <DropdownMenuItem
-                      key={link.href}
-                      className="cursor-pointer rounded-xl px-2 py-2 text-sm"
-                      onSelect={() => router.push(link.href)}
-                    >
-                      <Icon className="mr-2 h-4 w-4" />
-                      {link.title}
-                    </DropdownMenuItem>
-                  )
-                })}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="cursor-pointer rounded-xl px-2 py-2 text-sm"
-                  onSelect={() => window.open("/", "_blank", "noreferrer")}
-                >
-                  <Globe className="mr-2 h-4 w-4" />
-                  View website
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  variant="destructive"
-                  className="cursor-pointer rounded-xl px-2 py-2 text-sm"
-                  onSelect={async () => {
-                    await logout()
-                    router.push("/login")
-                  }}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                <MoreHorizontal className="h-5 w-5 shrink-0" />
+                <span className="mt-1 truncate text-[10px] leading-none">
+                  More
+                </span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              side="top"
+              sideOffset={8}
+              className="mr-1 w-48 rounded-2xl border border-border bg-popover p-2 shadow-lg"
+            >
+              {visibleMore.map((link) => {
+                const Icon = link.icon
+                return (
+                  <DropdownMenuItem
+                    key={link.href}
+                    className="cursor-pointer rounded-xl px-2 py-2 text-sm"
+                    onSelect={() => router.push(link.href)}
+                  >
+                    <Icon className="mr-2 h-4 w-4" />
+                    {link.title}
+                  </DropdownMenuItem>
+                )
+              })}
+              {visibleMore.length > 0 && <DropdownMenuSeparator />}
+              <DropdownMenuItem
+                className="cursor-pointer rounded-xl px-2 py-2 text-sm"
+                onSelect={() => window.open("/", "_blank", "noreferrer")}
+              >
+                <Globe className="mr-2 h-4 w-4" />
+                View website
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer rounded-xl px-2 py-2 text-sm"
+                onSelect={async () => {
+                  await logout()
+                  router.push("/login")
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </nav>
     </footer>

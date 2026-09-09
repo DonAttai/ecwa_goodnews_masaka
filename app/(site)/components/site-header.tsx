@@ -31,14 +31,18 @@ export default function SiteHeader({
     <header className="sticky top-0 z-50">
       {/* Utility bar */}
       <div className="bg-[#141c2b] text-white/75">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 text-[11px] tracking-wide sm:px-6 sm:text-xs">
-          <p className="flex items-center gap-1.5">
-            <MapPin className="h-3 w-3 text-[#c9a84c]" />
-            <span className="truncate">
-              Sundays 8 AM • Tuesdays 5 PM{address ? ` • ${address}` : " • Masaka"}
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-1.5 text-[11px] tracking-wide sm:px-6 sm:text-xs">
+          <p className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+            <MapPin className="h-3 w-3 shrink-0 text-[#c9a84c]" />
+            <span className="truncate whitespace-nowrap sm:hidden">
+              Sundays 8 AM • Tuesdays 5 PM
+            </span>
+            <span className="hidden truncate whitespace-nowrap sm:inline">
+              Sundays 8 AM • Tuesdays 5 PM
+              {address ? ` • ${address}` : " • Masaka"}
             </span>
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3 whitespace-nowrap">
             <Link href="/give" className="hidden hover:text-white sm:inline">
               Give
             </Link>
@@ -129,6 +133,25 @@ export default function SiteHeader({
                   className={cn(
                     "rounded-lg px-3 py-2.5 text-sm font-medium",
                     pathname === item.href
+                      ? "bg-primary/15 text-foreground"
+                      : "text-muted-foreground hover:bg-muted/60"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {[
+                { href: "/give", label: "Give" },
+                { href: "/gallery", label: "Gallery" },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "rounded-lg px-3 py-2.5 text-sm font-medium sm:hidden",
+                    pathname === item.href ||
+                      pathname.startsWith(`${item.href}/`)
                       ? "bg-primary/15 text-foreground"
                       : "text-muted-foreground hover:bg-muted/60"
                   )}
