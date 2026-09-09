@@ -1,5 +1,5 @@
 /* ECWA Goodnews PWA service worker. Bump VERSION to force client updates. */
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL_CACHE = `shell-${VERSION}`;
 const PAGES_CACHE = `pages-${VERSION}`;
 const IMAGES_CACHE = `images-${VERSION}`;
