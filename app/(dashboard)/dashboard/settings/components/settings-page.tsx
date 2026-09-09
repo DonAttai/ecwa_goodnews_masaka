@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import { Building2, Church, User, Users } from "lucide-react"
+import { Building2, Church, User, Users, Globe } from "lucide-react"
 
 // Server Actions
 import { updateGeneralSettings } from "../actions/general"
@@ -44,22 +44,27 @@ import { generalSchema, GeneralType } from "../types/general"
 import GeneralSection from "./general-section"
 import MembershipLandingPage from "./membership"
 import DepartmentSection from "./department-section"
+import WebsiteSection, { WebsiteData } from "./website-section"
 
 interface SettingsPageProps {
   fellowships: FellowshipType[]
   departments: Array<{ id: string; name: string; description?: string }>
   generalSettings: GeneralType
+  website: WebsiteData
+  initialTab?: "general" | "membership" | "fellowships" | "departments" | "website"
 }
 
 export default function SettingsPage({
   fellowships,
   departments,
   generalSettings,
+  website,
+  initialTab = "general",
 }: SettingsPageProps) {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState<
-    "general" | "membership" | "fellowships" | "departments"
-  >("general")
+    "general" | "membership" | "fellowships" | "departments" | "website"
+  >(initialTab)
 
   // Mobile sidebar state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
@@ -222,6 +227,7 @@ export default function SettingsPage({
 
   const sidebarItems = [
     { id: "general", label: "General", icon: Church },
+    { id: "website", label: "Website", icon: Globe },
     { id: "membership", label: "Membership", icon: User },
     { id: "fellowships", label: "Fellowships", icon: Users },
     { id: "departments", label: "Departments", icon: Building2 },
@@ -376,6 +382,8 @@ export default function SettingsPage({
               handleUpdateSettings={handleUpdateSettings}
             />
           )}
+
+          {activeSection === "website" && <WebsiteSection data={website} />}
 
           {/* MEMBERSHIP */}
 

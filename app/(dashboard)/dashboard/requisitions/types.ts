@@ -9,8 +9,11 @@ export interface RequisitionItem {
   currency: string
   priority: RequisitionPriority
   status: RequisitionStatus
-  neededBy: Date | null
-  createdAt: string | Date
+  neededBy: string | null
+  createdAt: string
+  updatedAt: string
+  approvedAt: string | null
+  paidAt: string | null
   requestedBy: {
     id: string
     name: string
@@ -31,6 +34,7 @@ export interface RequisitionItem {
     name: string
   } | null
   rejectionReason: string | null
+  receiptUrl: string | null
 }
 
 export type Status = (typeof RequisitionStatus)[keyof typeof RequisitionStatus]

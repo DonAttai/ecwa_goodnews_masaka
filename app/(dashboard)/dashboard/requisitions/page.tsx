@@ -35,6 +35,11 @@ export default async function RequisitionsPage({
   const formatteRequisitions = items.map((item) => ({
     ...item,
     amount: item.amount?.toNumber() ?? null,
+    neededBy: item.neededBy?.toISOString() ?? null,
+    createdAt: item.createdAt.toISOString(),
+    updatedAt: item.updatedAt.toISOString(),
+    approvedAt: item.approvedAt?.toISOString() ?? null,
+    paidAt: item.paidAt?.toISOString() ?? null,
   }))
 
   const summaryCards = [

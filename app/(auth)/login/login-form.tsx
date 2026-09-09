@@ -22,7 +22,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { login } from "./actions"
@@ -85,7 +85,7 @@ export default function LoginForm() {
             ECWA Goodnews 1, Masaka
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground sm:text-base">
-            Church Membership Management System - Login to your account
+            Login to your account
           </CardDescription>
         </CardHeader>
 
@@ -185,6 +185,14 @@ export default function LoginForm() {
           >
             {isLoading ? "Please wait..." : "Login"}
           </Button>
+
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            Back to website
+          </Link>
         </CardFooter>
       </Card>
     </div>

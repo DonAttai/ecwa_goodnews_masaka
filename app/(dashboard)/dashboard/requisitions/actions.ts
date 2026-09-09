@@ -7,8 +7,21 @@ import { redirect } from "next/navigation"
 import { requisitionSchema, RequisitionType } from "./schema"
 import { RequisitionStatus, Role } from "@/generated/prisma/enums"
 import { createNotification } from "@/lib/notifications"
+import {
+  sendNewRequisitionEmail,
+  sendRequisitionStatusEmail,
+} from "@/lib/email/send-requisition-status-email"
 import { Prisma } from "@/generated/prisma/client"
 import { requisitionStatusPermissions } from "./permissions"
+
+function formatAmount(
+  amount: Prisma.Decimal | number | null | undefined,
+  currency?: string | null
+) {
+  if (amount == null) return undefined
+  const n = typeof amount === "number" ? amount : amount.toNumber()
+  return `${currency ?? "NGN"} ${n.toLocaleString("en-NG")}`
+}
 
 // create requisition
 export async function createRequisition(input: RequisitionType) {
@@ -60,12 +73,13 @@ export async function createRequisition(input: RequisitionType) {
       neededBy: data.neededBy ? new Date(data.neededBy) : null,
       requestedById: user.id,
       departmentId: departmentId ?? null,
+      receiptUrl: data.receiptUrl || null,
     },
   })
 
   const admins = await prisma.user.findMany({
     where: { role: "ADMIN" },
-    select: { id: true },
+    select: { id: true, name: true, email: true },
   })
 
   if (admins.length > 0) {
@@ -77,6 +91,29 @@ export async function createRequisition(input: RequisitionType) {
           message: `${user.name} submitted a new requisition: ${requisition.title}`,
           type: "INFO",
           link: "/dashboard/requisitions",
+        })
+      )
+    )
+
+    // Best-effort email to admins — must never fail the submission.
+    const department = departmentId
+      ? await prisma.department.findUnique({
+          where: { id: departmentId },
+          select: { name: true },
+        })
+      : null
+    await Promise.allSettled(
+      admins.map((admin) =>
+        sendNewRequisitionEmail({
+          email: admin.email,
+          name: admin.name,
+          requesterName: user.name,
+          title: requisition.title,
+          amount: formatAmount(
+            requisition.amount,
+            requisition.currency
+          ),
+          department: department?.name,
         })
       )
     )
@@ -102,7 +139,10 @@ export async function updateRequisitionStatus(
       id: true,
       title: true,
       status: true,
+      amount: true,
+      currency: true,
       requestedById: true,
+      requestedBy: { select: { name: true, email: true } },
     },
   })
 
@@ -228,6 +268,29 @@ export async function updateRequisitionStatus(
           : "INFO",
     link: "/dashboard/requisitions",
   })
+
+  // Best-effort status email to the requester — never fails the update.
+  if (
+    newStatus === RequisitionStatus.APPROVED ||
+    newStatus === RequisitionStatus.REJECTED ||
+    newStatus === RequisitionStatus.PAID ||
+    newStatus === RequisitionStatus.COMPLETED
+  ) {
+    await Promise.allSettled([
+      sendRequisitionStatusEmail({
+        email: requisition.requestedBy.email,
+        name: requisition.requestedBy.name,
+        title: requisition.title,
+        status: newStatus,
+        actorName: user.name,
+        rejectionReason:
+          newStatus === RequisitionStatus.REJECTED
+            ? rejectionReason?.trim()
+            : undefined,
+        amount: formatAmount(requisition.amount, requisition.currency),
+      }),
+    ])
+  }
 
   revalidatePath("/dashboard/requisitions")
 

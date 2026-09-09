@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus } from "lucide-react"
+import { Plus, Upload, X, Receipt } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +27,7 @@ import { RHFSelect } from "./rhf-select"
 import * as z from "zod"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDialogFormReady } from "@/hooks/use-dialog-form-ready"
+import { CldUploadWidget } from "next-cloudinary"
 
 const defaultValues = {
   title: "",
@@ -37,6 +38,7 @@ const defaultValues = {
   priority: "MEDIUM" as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
   neededBy: "",
   rejectionReason: "",
+  receiptUrl: "",
 }
 
 // Lightweight placeholder shown for a single frame while the dialog shell
@@ -97,15 +99,17 @@ export default function RequisitionForm() {
       }}
     >
       <DialogTrigger asChild>
-        <Button className="btn-gold h-9 w-fit rounded-lg text-sm sm:w-auto sm:rounded-xl sm:px-4 md:h-10 md:px-5">
+        <Button className="btn-gold h-10 w-fit rounded-xl text-sm font-semibold sm:rounded-xl sm:px-4 md:h-11 md:px-5 md:text-base">
           <Plus />
           Create Requisition
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-0 sm:max-w-2xl">
-        <div className="p-6">
-          <DialogHeader className="mb-4">
-            <DialogTitle>New requisition request</DialogTitle>
+      <DialogContent className="max-h-[92dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-2xl p-0 sm:max-w-2xl">
+        <div className="p-5 sm:p-6">
+          <DialogHeader className="mb-4 text-left">
+            <DialogTitle className="text-lg sm:text-xl">
+              New requisition request
+            </DialogTitle>
             <DialogDescription>
               Fill in the details below to submit a request for approval.
             </DialogDescription>
@@ -129,6 +133,7 @@ export default function RequisitionForm() {
                         aria-invalid={fieldState.invalid}
                         placeholder="e.g. Church van fuel"
                         autoComplete="off"
+                        className="h-12 text-base"
                       />
                       <FieldDescription>
                         Provide a concise title for your requisition.
@@ -152,6 +157,7 @@ export default function RequisitionForm() {
                         aria-invalid={fieldState.invalid}
                         placeholder="Transport, equipment, welfare..."
                         autoComplete="off"
+                        className="h-12 text-base"
                       />
                       <FieldDescription>
                         Provide a category for your requisition.
@@ -174,9 +180,11 @@ export default function RequisitionForm() {
                         {...field}
                         id={field.name}
                         type="number"
+                        inputMode="decimal"
                         aria-invalid={fieldState.invalid}
                         placeholder="0.00"
                         autoComplete="off"
+                        className="h-12 text-base"
                         value={
                           typeof field.value === "number" ? field.value : ""
                         }
@@ -236,7 +244,7 @@ export default function RequisitionForm() {
                         id="form-rhf-textarea-about"
                         aria-invalid={fieldState.invalid}
                         placeholder="Money to fuel the church vehicle..."
-                        className="min-h-30"
+                        className="min-h-30 text-base"
                       />
                       <FieldDescription>
                         Describe the request and why it is needed
@@ -259,6 +267,7 @@ export default function RequisitionForm() {
                         type="date"
                         aria-invalid={fieldState.invalid}
                         autoComplete="off"
+                        className="h-12 text-base"
                       />
 
                       {fieldState.invalid && (
@@ -267,15 +276,91 @@ export default function RequisitionForm() {
                     </Field>
                   )}
                 />
-                <Button
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                  className="w-full"
-                >
-                  {form.formState.isSubmitting
-                    ? "Submitting..."
-                    : "Submit requisition"}
-                </Button>
+                <Controller
+                  name="receiptUrl"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel>Receipt / supporting doc (optional)</FieldLabel>
+                      {field.value ? (
+                        <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-4 py-3">
+                          <Receipt className="size-4 shrink-0 text-primary" />
+                          <a
+                            href={field.value}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="min-w-0 flex-1 truncate text-sm font-medium text-primary hover:underline"
+                          >
+                            View uploaded file
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("")}
+                            className="shrink-0 text-muted-foreground hover:text-destructive"
+                            aria-label="Remove receipt"
+                          >
+                            <X className="size-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <CldUploadWidget
+                          signatureEndpoint="/api/cloudinary-sign"
+                          options={{
+                            maxFiles: 1,
+                            maxFileSize: 5242880, // 5MB
+                            sources: ["local", "camera"],
+                            folder: "requisitions",
+                          }}
+                          onSuccess={({ info }) => {
+                            const url =
+                              typeof info === "string"
+                                ? undefined
+                                : info?.secure_url
+                            if (url) {
+                              field.onChange(url)
+                              toast.success("Receipt uploaded")
+                            } else {
+                              toast.error("No file URL returned")
+                            }
+                          }}
+                          onError={() =>
+                            toast.error("Upload failed. Please try again.")
+                          }
+                        >
+                          {({ open, isLoading }) => (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={isLoading}
+                              onClick={() => open()}
+                              className="h-12 w-full text-base"
+                            >
+                              <Upload className="mr-2 size-4" />
+                              {isLoading ? "Uploading..." : "Upload receipt"}
+                            </Button>
+                          )}
+                        </CldUploadWidget>
+                      )}
+                      <FieldDescription>
+                        Photo or PDF of a quote, invoice, or receipt.
+                      </FieldDescription>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+                <div className="sticky bottom-0 -mx-1 bg-gradient-to-t from-card via-card to-transparent pt-4 pb-1">
+                  <Button
+                    type="submit"
+                    disabled={form.formState.isSubmitting}
+                    className="h-12 w-full text-base font-semibold"
+                  >
+                    {form.formState.isSubmitting
+                      ? "Submitting..."
+                      : "Submit requisition"}
+                  </Button>
+                </div>
               </form>
             </div>
           ) : (

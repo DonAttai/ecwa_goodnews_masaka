@@ -6,7 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { z } from "zod"
 import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
+import Link from "next/link"
+import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -150,6 +151,14 @@ export default function SetPasswordForm({ token }: Props) {
       >
         {isLoading ? "Creating Password..." : "Create Password"}
       </Button>
+
+      <Link
+        href="/"
+        className="flex items-center justify-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft size={16} />
+        Back to website
+      </Link>
     </form>
   )
 }

@@ -15,9 +15,9 @@ import { PRIORITY_CLASSES, STATUS_CLASSES } from "../constants/badge-classes"
 import { Badge } from "@/components/ui/badge"
 import { ShieldCheck, FileText, AlertCircle } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import AdminRequisitionActions from "./admin-requisition-actions"
 import RequisitionDetails from "./requisition-details"
+import RequisitionTimeline from "./requisition-timeline"
 import FinanceRequisitionActions from "./finance-requisition-actions"
 import { RequisitionDetailsSkeleton } from "./requisition-details-skeleton"
 import { useDialogFormReady } from "@/hooks/use-dialog-form-ready"
@@ -111,10 +111,15 @@ export default function RequisitionActions({
         {/* Scrollable Content */}
         {contentReady ? (
           <div className="animate-in fade-in-0">
-            <ScrollArea className="max-h-[calc(92vh-220px)]">
-              <div className="space-y-8 p-8">
+            <div className="max-h-[calc(92dvh-220px)] overflow-y-auto overscroll-contain">
+              <div className="space-y-8 p-8 pb-12">
                 {/* Core Details */}
                 <RequisitionDetails requisition={requisition} />
+
+                <Separator />
+
+                {/* Status journey */}
+                <RequisitionTimeline requisition={requisition} />
 
                 <Separator />
 
@@ -185,7 +190,7 @@ export default function RequisitionActions({
                   />
                 )}
               </div>
-            </ScrollArea>
+            </div>
           </div>
         ) : (
           <RequisitionDetailsSkeleton />

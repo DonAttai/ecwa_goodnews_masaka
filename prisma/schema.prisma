@@ -161,6 +161,7 @@ model Requisition {
   approvedAt        DateTime?
   paidAt            DateTime?
   rejectionReason   String?
+  receiptUrl        String?
   
 
   createdAt         DateTime            @default(now())
@@ -180,6 +181,19 @@ model Settings {
   website        String?
   logoUrl        String?
   welcomeMessage String?
+  bankName          String?
+  bankAccountName   String?
+  bankAccountNumber String?
+  financePhone      String?
+  heroImageUrl    String?
+  heroVerse       String?
+  pastorName      String?
+  pastorPhotoUrl  String?
+  pastorMessage   String?
+  livestreamUrl   String?
+  facebookUrl     String?
+  instagramUrl    String?
+  youtubeUrl      String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -200,6 +214,83 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+model Announcement {
+  id        String    @id @default(cuid())
+  title     String
+  body      String
+  pinned    Boolean   @default(false)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  published Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  venue       String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  flyerUrl    String?
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([published, startsAt])
+}
+
+model Sermon {
+  id         String   @id @default(cuid())
+  title      String
+  preacher   String
+  passage    String?
+  sermonDate DateTime
+  youtubeUrl String?
+  audioUrl   String?
+  notesUrl   String?
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([published, sermonDate])
+}
+
+model Ministry {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  leaderName  String?
+  imageUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  subject   String   @default("General enquiry")
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read, createdAt])
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  caption   String?
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([published, order])
 }
 
 enum Role {

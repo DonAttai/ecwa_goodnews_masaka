@@ -2,6 +2,7 @@ import {
   CalendarDays,
   CircleDollarSign,
   Hash,
+  Receipt,
   UserRound,
   LucideIcon,
 } from "lucide-react"
@@ -51,6 +52,18 @@ export default function RequisitionDetails({
               month: "short",
               day: "numeric",
             })}
+          </InfoItem>
+        )}
+        {requisition.receiptUrl && (
+          <InfoItem icon={Receipt} label="Receipt">
+            <a
+              href={requisition.receiptUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              View attached file
+            </a>
           </InfoItem>
         )}
       </div>

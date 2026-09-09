@@ -2,7 +2,17 @@ import { NextRequest, NextResponse } from "next/server"
 import { verifyToken } from "@/lib/auth-edge"
 
 const COOKIE_NAME = process.env.COOKIE_NAME || "session"
-const PUBLIC_PATHS = ["/login", "/register"]
+// Public website (site) + auth entry points. Everything else under /dashboard stays protected.
+const PUBLIC_PATHS = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/set-password",
+  "/staff",
+  "/api/public",
+  "/api/cloudinary-sign",
+]
 const PROTECTED_PATHS = ["/dashboard"]
 
 export async function proxy(request: NextRequest) {
