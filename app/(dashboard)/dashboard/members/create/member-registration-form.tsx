@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FieldPath, Resolver, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -150,6 +151,10 @@ export default function MemberRegistrationForm() {
   const [successMessage, setSuccessMessage] = React.useState<string | null>(
     null
   )
+  const [createdMember, setCreatedMember] = React.useState<{
+    id: string
+    name: string
+  } | null>(null)
 
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(
@@ -212,6 +217,7 @@ export default function MemberRegistrationForm() {
     setPassportUrl(null)
     setCurrentStep(0)
     setSubmitError(null)
+    setCreatedMember(null)
   }
 
   const addChild = () => {
@@ -376,9 +382,15 @@ export default function MemberRegistrationForm() {
 
       if (result.success) {
         const message = result.message || "Member registered successfully!"
-        setSuccessMessage(message)
-        setShowSuccessModal(true)
+        const newMember = {
+          id: result.data?.memberId ?? "",
+          name: `${data.firstName} ${data.surname}`,
+        }
         resetForm()
+        // set after reset since resetForm clears created-member state
+        setSuccessMessage(message)
+        setCreatedMember(newMember)
+        setShowSuccessModal(true)
         return
       }
 
@@ -554,7 +566,7 @@ export default function MemberRegistrationForm() {
 
       <AlertDialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
         <AlertDialogContent>
-          <AlertDialogHeader className="items-center text-center">
+          <AlertDialogHeader className="items-center text-center sm:group-data-[size=default]/alert-dialog-content:place-items-center sm:group-data-[size=default]/alert-dialog-content:text-center">
             <div className="mb-2 flex justify-center">
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
@@ -563,9 +575,21 @@ export default function MemberRegistrationForm() {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               {successMessage}
+              {createdMember && (
+                <span className="mt-1 block font-semibold text-foreground">
+                  {createdMember.name} has been added to the membership.
+                </span>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-center gap-2 pt-4">
+            {createdMember?.id && (
+              <Button asChild variant="outline">
+                <Link href={`/dashboard/members/${createdMember.id}`}>
+                  View member
+                </Link>
+              </Button>
+            )}
             <AlertDialogAction
               onClick={() => setShowSuccessModal(false)}
               className="bg-green-600 text-white hover:bg-green-700"
