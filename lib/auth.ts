@@ -2,8 +2,8 @@ import { compare } from "bcrypt"
 import { sign, verify, SignOptions } from "jsonwebtoken"
 import { cookies } from "next/headers"
 import { prisma } from "./prisma"
+import { getJwtSecret } from "./env"
 
-const JWT_SECRET = process.env.JWT_SECRET!
 const JWT_EXPIRES_IN =
   (process.env.JWT_EXPIRES_IN as SignOptions["expiresIn"]) || "7d"
 const COOKIE_NAME = process.env.COOKIE_NAME || "session"
@@ -59,14 +59,14 @@ export async function verifyUserCredentials(email: string, password: string) {
 }
 
 export function generateToken(payload: JWTPayload): string {
-  return sign(payload, JWT_SECRET, {
+  return sign(payload, getJwtSecret(), {
     expiresIn: JWT_EXPIRES_IN,
   })
 }
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    const decoded = verify(token, JWT_SECRET) as JWTPayload
+    const decoded = verify(token, getJwtSecret()) as JWTPayload
     return decoded
   } catch {
     return null

@@ -3,6 +3,8 @@ import { verifyToken } from "@/lib/auth-edge"
 
 const COOKIE_NAME = process.env.COOKIE_NAME || "session"
 // Public website (site) + auth entry points. Everything else under /dashboard stays protected.
+// NOTE: /api/cloudinary-sign is intentionally NOT public — the route handler
+// enforces session + role + rate-limit itself ($0, no Redis).
 const PUBLIC_PATHS = [
   "/login",
   "/register",
@@ -11,7 +13,7 @@ const PUBLIC_PATHS = [
   "/set-password",
   "/staff",
   "/api/public",
-  "/api/cloudinary-sign",
+  "/api/health",
 ]
 const PROTECTED_PATHS = ["/dashboard"]
 

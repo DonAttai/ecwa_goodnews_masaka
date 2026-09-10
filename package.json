@@ -11,7 +11,8 @@
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "hash": "pnpm dlx tsx scripts/hash-password.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
