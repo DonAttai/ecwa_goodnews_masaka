@@ -5,6 +5,16 @@ import { useRef, useState, type RefObject } from "react"
 import { useFormStatus } from "react-dom"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -90,6 +100,11 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
   >("sermons")
 
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<{
+    kind: "sermon" | "event" | "announcement" | "ministry" | "photo"
+    id: string
+    label: string
+  } | null>(null)
   const sermonFormRef = useRef<HTMLFormElement>(null)
   const eventFormRef = useRef<HTMLFormElement>(null)
   const noticeFormRef = useRef<HTMLFormElement>(null)
@@ -112,6 +127,19 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
     } finally {
       if (key) setBusyId(null)
     }
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    const { kind, id } = pendingDelete
+    const key = `del-${kind}-${id}`
+    if (kind === "sermon") await wrap(() => deleteSermon(id), key)
+    else if (kind === "event") await wrap(() => deleteEvent(id), key)
+    else if (kind === "announcement")
+      await wrap(() => deleteAnnouncement(id), key)
+    else if (kind === "ministry") await wrap(() => deleteMinistry(id), key)
+    else await wrap(() => deleteGalleryImage(id), key)
+    setPendingDelete(null)
   }
 
   return (
@@ -191,12 +219,15 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={busyId === `del-sermon-${s.id}`}
                   onClick={() =>
-                    wrap(() => deleteSermon(s.id), `del-sermon-${s.id}`)
+                    setPendingDelete({
+                      kind: "sermon",
+                      id: s.id,
+                      label: `${s.title} • ${s.preacher}`,
+                    })
                   }
                 >
-                  {busyId === `del-sermon-${s.id}` ? "Deleting…" : "Delete"}
+                  Delete
                 </Button>
               </div>
             ))}
@@ -254,12 +285,15 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={busyId === `del-event-${e.id}`}
                   onClick={() =>
-                    wrap(() => deleteEvent(e.id), `del-event-${e.id}`)
+                    setPendingDelete({
+                      kind: "event",
+                      id: e.id,
+                      label: e.title,
+                    })
                   }
                 >
-                  {busyId === `del-event-${e.id}` ? "Deleting…" : "Delete"}
+                  Delete
                 </Button>
               </div>
             ))}
@@ -309,12 +343,15 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={busyId === `del-notice-${a.id}`}
                   onClick={() =>
-                    wrap(() => deleteAnnouncement(a.id), `del-notice-${a.id}`)
+                    setPendingDelete({
+                      kind: "announcement",
+                      id: a.id,
+                      label: a.title,
+                    })
                   }
                 >
-                  {busyId === `del-notice-${a.id}` ? "Deleting…" : "Delete"}
+                  Delete
                 </Button>
               </div>
             ))}
@@ -368,12 +405,15 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={busyId === `del-ministry-${m.id}`}
                   onClick={() =>
-                    wrap(() => deleteMinistry(m.id), `del-ministry-${m.id}`)
+                    setPendingDelete({
+                      kind: "ministry",
+                      id: m.id,
+                      label: m.name,
+                    })
                   }
                 >
-                  {busyId === `del-ministry-${m.id}` ? "Deleting…" : "Delete"}
+                  Delete
                 </Button>
               </div>
             ))}
@@ -436,12 +476,15 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    disabled={busyId === `del-photo-${g.id}`}
                     onClick={() =>
-                      wrap(() => deleteGalleryImage(g.id), `del-photo-${g.id}`)
+                      setPendingDelete({
+                        kind: "photo",
+                        id: g.id,
+                        label: g.caption ?? "Untitled photo",
+                      })
                     }
                   >
-                    {busyId === `del-photo-${g.id}` ? "Deleting…" : "Delete"}
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -632,6 +675,55 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
           )}
         </div>
       )}
+
+      {/* Shared delete confirmation — one dialog for all website items */}
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete && (
+                <>
+                  <span className="block font-medium text-foreground">
+                    {pendingDelete.label}
+                  </span>
+                  This will remove it from the website immediately. This
+                  action cannot be undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setPendingDelete(null)}
+              disabled={
+                !!pendingDelete &&
+                busyId === `del-${pendingDelete.kind}-${pendingDelete.id}`
+              }
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={
+                !!pendingDelete &&
+                busyId === `del-${pendingDelete.kind}-${pendingDelete.id}`
+              }
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {pendingDelete &&
+              busyId === `del-${pendingDelete.kind}-${pendingDelete.id}`
+                ? "Deleting…"
+                : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
