@@ -52,6 +52,8 @@ interface SettingsPageProps {
   generalSettings: GeneralType
   website: WebsiteData
   initialTab?: "general" | "membership" | "fellowships" | "departments" | "website"
+  // EDITOR role: locks the page to the website section with a tab subset.
+  editorMode?: boolean
 }
 
 export default function SettingsPage({
@@ -60,6 +62,7 @@ export default function SettingsPage({
   generalSettings,
   website,
   initialTab = "general",
+  editorMode = false,
 }: SettingsPageProps) {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState<
@@ -231,7 +234,11 @@ export default function SettingsPage({
     { id: "membership", label: "Membership", icon: User },
     { id: "fellowships", label: "Fellowships", icon: Users },
     { id: "departments", label: "Departments", icon: Building2 },
-  ] as const
+  ].filter((item) => !editorMode || item.id === "website") as Array<{
+    id: "general" | "website" | "membership" | "fellowships" | "departments"
+    label: string
+    icon: typeof Church
+  }>
 
   return (
     <div className="min-h-screen bg-background md:flex">
@@ -383,7 +390,16 @@ export default function SettingsPage({
             />
           )}
 
-          {activeSection === "website" && <WebsiteSection data={website} />}
+          {activeSection === "website" && (
+            <WebsiteSection
+              data={website}
+              allowedTabs={
+                editorMode
+                  ? (["sermons", "events", "notices", "gallery", "identity"] as const)
+                  : undefined
+              }
+            />
+          )}
 
           {/* MEMBERSHIP */}
 

@@ -28,7 +28,12 @@ export async function createUser(data: CreateUserSchemaType) {
     }
 
     const { email, name, role, departmentId } = validationData.data
-    const rolesWithDepartment: Role[] = [Role.FINANCE, Role.WORKER, Role.USER]
+    const rolesWithDepartment: Role[] = [
+      Role.FINANCE,
+      Role.WORKER,
+      Role.USER,
+      Role.EDITOR,
+    ]
     if (rolesWithDepartment.includes(role) && !departmentId) {
       return {
         success: false,

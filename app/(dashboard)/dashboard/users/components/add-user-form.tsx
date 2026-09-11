@@ -42,6 +42,7 @@ const roleDescriptions: Record<CreateUserSchemaType["role"], string> = {
   USER: "Users have basic access",
   WORKER: "Workers have limited permissions",
   FINANCE: "Finance has limited permissions",
+  EDITOR: "Editors manage website content and member registration only",
   ADMIN: "Admins have full system access",
 }
 
@@ -104,7 +105,7 @@ const AddUserFormInner = memo(function AddUserFormInner({
     }
   }
 
-  const rolesWithDepartment = ["FINANCE", "WORKER", "USER"]
+  const rolesWithDepartment = ["FINANCE", "WORKER", "USER", "EDITOR"]
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -173,6 +174,7 @@ const AddUserFormInner = memo(function AddUserFormInner({
                   <SelectItem value="USER">User</SelectItem>
                   <SelectItem value="WORKER">Worker</SelectItem>
                   <SelectItem value="FINANCE">Finance</SelectItem>
+                  <SelectItem value="EDITOR">Editor</SelectItem>
                   <SelectItem value="ADMIN">Administrator</SelectItem>
                 </SelectContent>
               </Select>

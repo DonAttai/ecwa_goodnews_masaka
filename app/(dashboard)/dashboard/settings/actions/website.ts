@@ -1,6 +1,6 @@
 "use server"
 
-import { requireAdmin } from "@/lib/auth"
+import { requireAdmin, requireEditor } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 
@@ -22,7 +22,7 @@ function date(v: FormDataEntryValue | null | undefined) {
 // ---- Sermons ----
 export async function createSermon(formData: FormData) {
   try {
-    await requireAdmin()
+    await requireEditor()
     const title = str(formData.get("title"))
     const preacher = str(formData.get("preacher"))
     const sermonDate = date(formData.get("sermonDate"))
@@ -52,7 +52,7 @@ export async function createSermon(formData: FormData) {
 
 export async function deleteSermon(id: string) {
   try {
-    await requireAdmin()
+    await requireEditor()
     await prisma.sermon.delete({ where: { id } })
     revalidatePath("/sermons")
     revalidatePath("/")
@@ -67,7 +67,7 @@ export async function deleteSermon(id: string) {
 // ---- Events ----
 export async function createEvent(formData: FormData) {
   try {
-    await requireAdmin()
+    await requireEditor()
     const title = str(formData.get("title"))
     const startsAt = date(formData.get("startsAt"))
     if (!title || !startsAt)
@@ -95,7 +95,7 @@ export async function createEvent(formData: FormData) {
 
 export async function deleteEvent(id: string) {
   try {
-    await requireAdmin()
+    await requireEditor()
     await prisma.event.delete({ where: { id } })
     revalidatePath("/events")
     revalidatePath("/")
@@ -110,7 +110,7 @@ export async function deleteEvent(id: string) {
 // ---- Announcements ----
 export async function createAnnouncement(formData: FormData) {
   try {
-    await requireAdmin()
+    await requireEditor()
     const title = str(formData.get("title"))
     const body = str(formData.get("body"))
     if (!title || !body)
@@ -136,7 +136,7 @@ export async function createAnnouncement(formData: FormData) {
 
 export async function deleteAnnouncement(id: string) {
   try {
-    await requireAdmin()
+    await requireEditor()
     await prisma.announcement.delete({ where: { id } })
     revalidatePath("/")
     revalidatePath("/dashboard/settings")
@@ -188,7 +188,7 @@ export async function deleteMinistry(id: string) {
 // ---- Site identity (hero, pastor, livestream, socials) ----
 export async function updateSiteIdentity(formData: FormData) {
   try {
-    await requireAdmin()
+    await requireEditor()
     const data = {
       heroImageUrl: str(formData.get("heroImageUrl")) ?? null,
       heroVerse: str(formData.get("heroVerse")) ?? null,
@@ -248,7 +248,7 @@ export async function updateGiveDetails(formData: FormData) {
 // ---- Gallery ----
 export async function createGalleryImage(formData: FormData) {
   try {
-    await requireAdmin()
+    await requireEditor()
     const imageUrl = str(formData.get("imageUrl"))
     if (!imageUrl) return { success: false, message: "Image URL required" }
     await prisma.galleryImage.create({
@@ -269,7 +269,7 @@ export async function createGalleryImage(formData: FormData) {
 
 export async function deleteGalleryImage(id: string) {
   try {
-    await requireAdmin()
+    await requireEditor()
     await prisma.galleryImage.delete({ where: { id } })
     revalidatePath("/gallery")
     revalidatePath("/dashboard/settings")

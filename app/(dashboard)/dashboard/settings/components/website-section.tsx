@@ -86,18 +86,41 @@ function SaveButton({
   )
 }
 
-export default function WebsiteSection({ data }: { data: WebsiteData }) {
+type WebsiteTab =
+  | "sermons"
+  | "events"
+  | "notices"
+  | "ministries"
+  | "gallery"
+  | "giving"
+  | "identity"
+  | "inbox"
+
+const ALL_TABS = [
+  ["sermons", "Sermons"],
+  ["events", "Events"],
+  ["notices", "Announcements"],
+  ["ministries", "Ministries"],
+  ["gallery", "Gallery"],
+  ["giving", "Giving"],
+  ["identity", "Identity"],
+] as const
+
+export default function WebsiteSection({
+  data,
+  allowedTabs,
+}: {
+  data: WebsiteData
+  // EDITOR role: subset of tabs. Ministries, giving, and inbox stay admin-only.
+  allowedTabs?: readonly WebsiteTab[]
+}) {
   const router = useRouter()
-  const [tab, setTab] = useState<
-    | "sermons"
-    | "events"
-    | "notices"
-    | "ministries"
-    | "gallery"
-    | "giving"
-    | "identity"
-    | "inbox"
-  >("sermons")
+  const visibleTabs = ALL_TABS.filter(
+    ([id]) => !allowedTabs || (allowedTabs as readonly string[]).includes(id)
+  )
+  const [tab, setTab] = useState<WebsiteTab>(
+    allowedTabs && allowedTabs.length > 0 ? allowedTabs[0] : "sermons"
+  )
 
   const [busyId, setBusyId] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<{
@@ -145,18 +168,7 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
-        {(
-          [
-            ["sermons", "Sermons"],
-            ["events", "Events"],
-            ["notices", "Announcements"],
-            ["ministries", "Ministries"],
-            ["gallery", "Gallery"],
-            ["giving", "Giving"],
-            ["identity", "Identity"],
-            ["inbox", `Inbox (${data.messages.filter((m) => !m.read).length})`],
-          ] as const
-        ).map(([id, label]) => (
+        {visibleTabs.map(([id, label]) => (
           <Button
             key={id}
             variant={tab === id ? "default" : "outline"}
@@ -166,6 +178,16 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
             {label}
           </Button>
         ))}
+        {(!allowedTabs || allowedTabs.includes("inbox")) && (
+          <Button
+            key="inbox"
+            variant={tab === "inbox" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setTab("inbox")}
+          >
+            {`Inbox (${data.messages.filter((m) => !m.read).length})`}
+          </Button>
+        )}
       </div>
 
       {tab === "sermons" && (

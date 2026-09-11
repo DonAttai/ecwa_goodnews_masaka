@@ -29,7 +29,14 @@ export async function createRequisition(input: RequisitionType) {
   const user = await getCurrentUser()
   if (user === null) redirect("/login")
 
-  const allowedRoles: Role[] = Object.values(Role)
+  // EDITOR has no requisition access — explicit allow-list (do not use
+  // Object.values(Role) here, it would auto-include future roles).
+  const allowedRoles: Role[] = [
+    Role.ADMIN,
+    Role.FINANCE,
+    Role.WORKER,
+    Role.USER,
+  ]
 
   if (!allowedRoles.includes(user.role)) {
     return {
@@ -340,6 +347,9 @@ function getRequisitionWhere(user: {
     case "WORKER":
     case "USER":
       return { requestedById: user.id }
+
+    case "EDITOR":
+      throw new Error("Editors cannot access requisitions")
 
     default:
       throw new Error("Unauthorised role")

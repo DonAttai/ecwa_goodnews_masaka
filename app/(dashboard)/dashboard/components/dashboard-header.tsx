@@ -31,6 +31,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
   const isAdmin = user.role === "ADMIN"
+  const canManageSite = isAdmin || user.role === "EDITOR"
   // Generate breadcrumb from pathname
   const getBreadcrumb = () => {
     const segments = pathname.split("/").filter(Boolean)
@@ -105,7 +106,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
                 Users
               </DropdownMenuItem>
             )}
-            {isAdmin && (
+            {canManageSite && (
               <DropdownMenuItem
                 className="cursor-pointer rounded-xl px-2 py-2"
                 onSelect={() => router.push("/dashboard/settings")}

@@ -23,6 +23,9 @@ export default async function RequisitionsPage({
 
   if (!user) redirect("/login")
 
+  // EDITOR has no requisition access at all
+  if (user.role === "EDITOR") redirect("/dashboard")
+
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1)
 
   const { items, total, totalPages, summary } = await getRequisitions(

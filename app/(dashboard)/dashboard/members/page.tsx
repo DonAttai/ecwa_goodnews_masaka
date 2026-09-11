@@ -19,6 +19,7 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
   if (user.role === "USER") redirect("/dashboard")
 
   const isAdmin = user.role === "ADMIN"
+  const canCreate = isAdmin || user.role === "EDITOR"
 
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1)
   const q = (params.q ?? "").trim()
@@ -58,7 +59,7 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
           </p>
         </div>
 
-        {isAdmin && (
+        {canCreate && (
           <div className="self-start sm:self-auto">
             <AddMemberButton />
           </div>

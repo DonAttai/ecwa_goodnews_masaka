@@ -1,0 +1,37 @@
+import { describe, it, expect } from "vitest"
+import { Role } from "@/generated/prisma/enums"
+import { createUserSchema } from "@/app/(dashboard)/dashboard/users/schemas"
+import { requisitionStatusPermissions } from "@/app/(dashboard)/dashboard/requisitions/permissions"
+
+// Gate matrix for the EDITOR role: content + member registration only.
+// No admin privileges, no requisitions, no user management.
+describe("EDITOR role gates", () => {
+  it("exists in the Role enum", () => {
+    expect(Object.values(Role)).toContain("EDITOR")
+  })
+
+  it("can be assigned with a department", () => {
+    const parsed = createUserSchema.safeParse({
+      name: "Content Editor",
+      email: "editor@example.com",
+      role: "EDITOR",
+      departmentId: "dept-1",
+    })
+    expect(parsed.success).toBe(true)
+  })
+
+  it("requires a department like WORKER", () => {
+    const parsed = createUserSchema.safeParse({
+      name: "Content Editor",
+      email: "editor@example.com",
+      role: "EDITOR",
+    })
+    expect(parsed.success).toBe(false)
+  })
+
+  it("has no requisition status permissions", () => {
+    for (const roles of Object.values(requisitionStatusPermissions)) {
+      expect(roles).not.toContain(Role.EDITOR)
+    }
+  })
+})

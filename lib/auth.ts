@@ -117,3 +117,21 @@ export async function requireAdmin() {
     name: user?.name,
   }
 }
+
+// Scoped content role: ADMIN + EDITOR. Editors manage website content and
+// member registration only — no users, money, analytics, or requisitions.
+export async function requireEditor() {
+  const session = await getSession()
+  const user = await prisma.user.findUnique({ where: { id: session?.userId } })
+
+  if (!session || (session.role !== "ADMIN" && session.role !== "EDITOR")) {
+    throw new Error("Unauthorized: Editor access required")
+  }
+
+  return {
+    userId: user?.id,
+    role: user?.role,
+    email: user?.email,
+    name: user?.name,
+  }
+}

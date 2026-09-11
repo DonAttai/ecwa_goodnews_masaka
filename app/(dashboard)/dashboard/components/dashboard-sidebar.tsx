@@ -31,13 +31,13 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       title: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
+      roles: ["ADMIN", "WORKER", "FINANCE", "USER", "EDITOR"],
     },
     {
       title: "Members",
       href: "/dashboard/members",
       icon: Users,
-      roles: ["ADMIN", "WORKER", "FINANCE"],
+      roles: ["ADMIN", "WORKER", "FINANCE", "EDITOR"],
     },
     {
       title: "Requisitions",
@@ -49,7 +49,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       title: "Profile",
       href: "/dashboard/profile",
       icon: User,
-      roles: ["ADMIN", "FINANCE", "WORKER", "USER"],
+      roles: ["ADMIN", "FINANCE", "WORKER", "USER", "EDITOR"],
     },
     {
       title: "Users",
@@ -61,7 +61,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       title: "Settings",
       href: "/dashboard/settings",
       icon: Settings,
-      roles: ["ADMIN"],
+      roles: ["ADMIN", "EDITOR"],
     },
   ]
 

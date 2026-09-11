@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { requireAdmin } from "@/lib/auth"
+import { requireAdmin, requireEditor } from "@/lib/auth"
 import { sendMemberCreationEmail } from "@/lib/email/send-member-creation-email"
 import {
   memberFormSchema,
@@ -94,7 +94,7 @@ export async function createMember(
   input: MemberCreateInput | FormData
 ): Promise<ActionResult<{ memberId: string }>> {
   try {
-    const admin = await requireAdmin()
+    const admin = await requireEditor()
 
     const parsed = memberFormSchema.safeParse(resolveMemberPayload(input))
 

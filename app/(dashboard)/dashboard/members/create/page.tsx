@@ -18,7 +18,7 @@ export default async function CreateMember() {
     redirect("/login")
   }
 
-  if (session.role !== "ADMIN") {
+  if (session.role !== "ADMIN" && session.role !== "EDITOR") {
     redirect("/dashboard/members")
   }
 

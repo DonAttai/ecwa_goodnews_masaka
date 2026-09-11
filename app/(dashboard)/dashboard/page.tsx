@@ -15,6 +15,11 @@ export default async function Dashboard() {
 
   if (!currentUser) redirect("/login")
 
+  // EDITOR - scoped content role: land on members (no analytics, no requisitions)
+  if (currentUser.role === Role.EDITOR) {
+    redirect("/dashboard/members")
+  }
+
   // USER - personal dashboard
   if (currentUser.role === Role.USER) {
     const recentRequisitions = await prisma.requisition.findMany({

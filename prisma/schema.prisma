@@ -313,6 +313,7 @@ enum Role {
   FINANCE
   WORKER
   USER
+  EDITOR
 }
 
 enum MaritalStatus {

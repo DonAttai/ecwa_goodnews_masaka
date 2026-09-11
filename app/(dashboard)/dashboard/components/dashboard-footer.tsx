@@ -30,13 +30,13 @@ const primaryLinks = [
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-    roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
+    roles: ["ADMIN", "WORKER", "FINANCE", "USER", "EDITOR"],
   },
   {
     title: "Members",
     href: "/dashboard/members",
     icon: Users,
-    roles: ["ADMIN", "WORKER", "FINANCE"],
+    roles: ["ADMIN", "WORKER", "FINANCE", "EDITOR"],
   },
   {
     title: "Requisitions",
@@ -48,7 +48,7 @@ const primaryLinks = [
     title: "Profile",
     href: "/dashboard/profile",
     icon: User,
-    roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
+    roles: ["ADMIN", "WORKER", "FINANCE", "USER", "EDITOR"],
   },
 ]
 
@@ -63,7 +63,7 @@ const moreLinks = [
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "EDITOR"],
   },
 ]
 
