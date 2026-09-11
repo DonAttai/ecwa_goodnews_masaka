@@ -134,11 +134,12 @@ function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
               <Input
                 {...field}
                 id={field.name}
                 aria-invalid={fieldState.invalid}
+                autoComplete="name"
               />
             </Field>
           )}

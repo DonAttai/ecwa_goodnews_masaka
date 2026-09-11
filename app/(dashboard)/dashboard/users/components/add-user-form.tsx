@@ -121,6 +121,7 @@ const AddUserFormInner = memo(function AddUserFormInner({
               id={field.name}
               aria-invalid={fieldState.invalid}
               autoFocus
+              autoComplete="name"
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
@@ -137,7 +138,9 @@ const AddUserFormInner = memo(function AddUserFormInner({
             <Input
               {...field}
               id={field.name}
+              type="email"
               aria-invalid={fieldState.invalid}
+              autoComplete="email"
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
