@@ -5,11 +5,8 @@ import {
   flexRender,
   SortingState,
   getCoreRowModel,
-  ColumnFiltersState,
-  useReactTable,
-  getPaginationRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
+  useReactTable,
 } from "@tanstack/react-table"
 
 import {
@@ -22,44 +19,71 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { usePathname, useRouter } from "next/navigation"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  total: number
+  currentPage: number
+  totalPages: number
+  query: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  total,
+  currentPage,
+  totalPages,
+  query,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+  const [search, setSearch] = React.useState(query)
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const buildUrl = React.useCallback(
+    (nextPage: number, nextQuery: string) => {
+      const params = new URLSearchParams()
+      if (nextPage > 1) params.set("page", String(nextPage))
+      if (nextQuery) params.set("q", nextQuery)
+      const qs = params.toString()
+      return pathname + (qs ? `?${qs}` : "")
+    },
+    [pathname]
   )
+
+  const applySearch = React.useCallback(
+    (value: string) => {
+      setSearch(value)
+      const trimmed = value.trim()
+      router.replace(buildUrl(1, trimmed))
+    },
+    [router, buildUrl]
+  )
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
-      columnFilters,
     },
   })
+
+  const from = total === 0 ? 0 : (currentPage - 1) * data.length + 1
+  const to = (currentPage - 1) * data.length + data.length
 
   return (
     <div>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
+          value={search}
+          onChange={(event) => applySearch(event.target.value)}
           className="max-w-sm"
         />
       </div>
@@ -131,23 +155,28 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+      <div className="flex items-center justify-between gap-2 py-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {from}–{to} of {total}
+        </p>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push(buildUrl(currentPage - 1, query))}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push(buildUrl(currentPage + 1, query))}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   )

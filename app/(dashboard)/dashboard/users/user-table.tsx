@@ -10,9 +10,26 @@ import { getUserColumns, type User } from "./columns"
 export default function UserTable({
   users,
   departments,
+  total,
+  currentPage,
+  totalPages,
+  query,
 }: {
   users: User[]
   departments: Array<{ id: string; name: string }>
+  total: number
+  currentPage: number
+  totalPages: number
+  query: string
 }) {
-  return <DataTable columns={getUserColumns(departments)} data={users} />
+  return (
+    <DataTable
+      columns={getUserColumns(departments)}
+      data={users}
+      total={total}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      query={query}
+    />
+  )
 }

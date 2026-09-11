@@ -41,28 +41,46 @@ export async function isAdmin() {
 }
 
 // Admin-only user management actions
-export async function getAllUsers() {
+export async function getAllUsers(page = 1, pageSize = 20, query = "") {
   await requireAdmin()
 
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      isActive: true,
-      createdAt: true,
-      department: {
-        select: {
-          id: true,
-          name: true,
+  const q = query.trim()
+  const where = q
+    ? {
+        OR: [
+          { name: { contains: q, mode: "insensitive" as const } },
+          { email: { contains: q, mode: "insensitive" as const } },
+        ],
+      }
+    : {}
+
+  const [total, users] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        department: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+  ])
 
-  return users
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+  return { users, total, totalPages }
 }
