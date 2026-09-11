@@ -16,9 +16,14 @@ export type User = {
   department?: { id: string; name: string } | null
 }
 
-export const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "name",
+export const columns: ColumnDef<User>[] = getUserColumns()
+
+export function getUserColumns(
+  departments: Array<{ id: string; name: string }> = []
+): ColumnDef<User>[] {
+  return [
+    {
+      accessorKey: "name",
     header: ({ column }) => {
       return (
         <Button
@@ -88,7 +93,8 @@ export const columns: ColumnDef<User>[] = [
     id: "actions",
     meta: { responsiveClass: "whitespace-nowrap" },
     cell: ({ row }) => {
-      return <UserActions user={row.original} />
+      return <UserActions user={row.original} departments={departments} />
     },
   },
-]
+  ]
+}

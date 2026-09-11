@@ -33,7 +33,13 @@ import { useDialogFormReady } from "@/hooks/use-dialog-form-ready"
 import { deleteUser } from "../actions"
 import { toast } from "sonner"
 
-export function UserActions({ user }: { user: User }) {
+export function UserActions({
+  user,
+  departments,
+}: {
+  user: User
+  departments: Array<{ id: string; name: string }>
+}) {
   const {
     open: updateOpen,
     contentReady: updateContentReady,
@@ -113,7 +119,11 @@ export function UserActions({ user }: { user: User }) {
 
           {updateContentReady ? (
             <div className="animate-in fade-in-0">
-              <UpdateUserForm user={user} onClose={handleCloseUpdate} />
+              <UpdateUserForm
+                user={user}
+                departments={departments}
+                onClose={handleCloseUpdate}
+              />
             </div>
           ) : (
             <UserFormSkeleton />

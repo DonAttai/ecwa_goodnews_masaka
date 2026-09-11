@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { columns, User } from "./columns"
+import { getUserColumns, User } from "./columns"
 import { DataTable } from "./data-table"
 import AddUserDialog from "./components/add-user-dialog"
 import { getAllUsers, getCurrentUser } from "@/app/actions/auth"
@@ -48,7 +48,7 @@ export default async function Users() {
         <AddUserDialog departments={departments} />
       </div>
 
-      <DataTable columns={columns} data={users} />
+      <DataTable columns={getUserColumns(departments)} data={users} />
     </div>
   )
 }

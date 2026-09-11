@@ -21,7 +21,7 @@ import {
 import { Controller, useForm, useWatch, type Control } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { memo } from "react"
+import { memo, useEffect } from "react"
 import { User } from "../columns"
 import { DialogClose } from "@/components/ui/dialog"
 import { updateUser } from "../actions"
@@ -32,6 +32,7 @@ const updateUserSchema = z.object({
   id: z.string(),
   name: z.string().min(2, "Name must be at least 2 characters"),
   role: z.enum(["USER", "WORKER", "FINANCE", "ADMIN", "EDITOR"]),
+  departmentId: z.string().optional(),
   email: z.email(),
   isActive: z.boolean(),
 })
@@ -40,6 +41,7 @@ type UpdateUserFormValues = z.infer<typeof updateUserSchema>
 
 type UpdateUserFormProps = {
   user: User
+  departments: Array<{ id: string; name: string }>
   onClose: () => void
 }
 
@@ -75,17 +77,28 @@ function StatusDescription({
   )
 }
 
-function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
+function UpdateUserForm({ user, departments, onClose }: UpdateUserFormProps) {
   const form = useForm<UpdateUserFormValues>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       id: user.id,
       name: user.name,
       role: user.role,
+      departmentId: user.department?.id,
       email: user.email,
       isActive: user.isActive,
     },
   })
+
+  const role = useWatch({ control: form.control, name: "role" })
+  const rolesWithDepartment = ["FINANCE", "WORKER", "USER", "EDITOR"]
+  // Admins have no department — clear any stale value on switch, mirroring
+  // the add-user form.
+  useEffect(() => {
+    if (role === "ADMIN") {
+      form.setValue("departmentId", undefined)
+    }
+  }, [role, form])
 
   const onSubmit = async (data: UpdateUserFormValues) => {
     try {
@@ -182,8 +195,51 @@ function UpdateUserForm({ user, onClose }: UpdateUserFormProps) {
           )}
         />
 
-        {/* Status Field - Aesthetic Switch Card */}
+        {/* Department Field — shown for roles that require one */}
+        {rolesWithDepartment.includes(role) && (
+          <Controller
+            name="departmentId"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Department</FieldLabel>
+                <Select
+                  name={field.name}
+                  value={field.value ?? ""}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent position="item-aligned">
+                    {departments.length === 0 ? (
+                      <SelectItem value="__none" disabled>
+                        No departments available yet
+                      </SelectItem>
+                    ) : (
+                      departments.map((department) => (
+                        <SelectItem
+                          key={department.id}
+                          value={department.id}
+                        >
+                          {department.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+        )}
 
+        {/* Status Field - Aesthetic Switch Card */}
         <Controller
           name="isActive"
           control={form.control}
