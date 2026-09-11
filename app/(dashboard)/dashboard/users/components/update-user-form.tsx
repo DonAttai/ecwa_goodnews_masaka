@@ -52,7 +52,7 @@ function RoleDescription({ control }: { control: Control<UpdateUserFormValues> }
       {role === "ADMIN"
         ? "Admins have full system access"
         : role === "USER"
-          ? "Users have limited access to member-facing features"
+          ? "Department heads and assistants — can submit requisitions for their department"
           : role === "EDITOR"
             ? "Editors manage website content and member registration only"
             : "Workers have limited permissions"}

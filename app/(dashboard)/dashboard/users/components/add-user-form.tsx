@@ -39,7 +39,7 @@ export default function AddUserForm({
 }
 
 const roleDescriptions: Record<CreateUserSchemaType["role"], string> = {
-  USER: "Users have basic access",
+  USER: "Department heads and assistants — can submit requisitions for their department",
   WORKER: "Workers have limited permissions",
   FINANCE: "Finance has limited permissions",
   EDITOR: "Editors manage website content and member registration only",

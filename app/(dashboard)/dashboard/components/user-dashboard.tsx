@@ -61,10 +61,10 @@ export default function UserDashboard({
   }
 
   const departmentName = user.department?.name || "N/A"
+  // USER accounts are department heads and their assistants (church members
+  // never enter the dashboard), so show the plain role name.
   const roleLabel =
-    user.role === "USER"
-      ? "Member"
-      : user.role.charAt(0) + user.role.slice(1).toLowerCase()
+    user.role.charAt(0) + user.role.slice(1).toLowerCase()
 
   const quickActions = [
     {
@@ -112,7 +112,7 @@ export default function UserDashboard({
                 <Church className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Member since</p>
+                <p className="text-sm text-muted-foreground">Account created</p>
                 <p className="text-lg font-semibold">
                   {formatDate(user.createdAt)}
                 </p>
