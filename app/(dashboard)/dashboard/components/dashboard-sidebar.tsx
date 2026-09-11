@@ -31,7 +31,9 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       title: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["ADMIN", "WORKER", "FINANCE", "USER", "EDITOR"],
+      // EDITOR excluded: /dashboard redirects them to /members, so showing
+      // the link would bounce them with no explanation.
+      roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
     },
     {
       title: "Members",

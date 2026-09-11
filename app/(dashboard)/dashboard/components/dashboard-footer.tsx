@@ -30,7 +30,8 @@ const primaryLinks = [
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-    roles: ["ADMIN", "WORKER", "FINANCE", "USER", "EDITOR"],
+    // EDITOR excluded: /dashboard redirects them to /members.
+    roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
   },
   {
     title: "Members",
