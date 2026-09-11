@@ -4,23 +4,10 @@ export const baseUserSchema = z.object({
   name: z.string().min(3, "Name is Required"),
   email: z.email({ message: "Email is Required" }),
   role: z.enum(["ADMIN", "FINANCE", "WORKER", "USER", "EDITOR"]),
-  departmentId: z.string().optional(),
+  departmentId: z.string().min(1, "Department is required for all users"),
 })
 
-export const createUserSchema = baseUserSchema.superRefine((data, ctx) => {
-  if (
-    (data.role === "WORKER" ||
-      data.role === "USER" ||
-      data.role === "EDITOR") &&
-    !data.departmentId
-  ) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["departmentId"],
-      message: "Department is required for workers, editors and users",
-    })
-  }
-})
+export const createUserSchema = baseUserSchema
 
 export const updateUserSchema = baseUserSchema
   .omit({ email: true })
@@ -29,6 +16,15 @@ export const updateUserSchema = baseUserSchema
     isActive: z.boolean(),
   })
   .partial()
+  .superRefine((data, ctx) => {
+    if (!data.departmentId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["departmentId"],
+        message: "Department is required for all users",
+      })
+    }
+  })
 
 export type CreateUserSchemaType = z.infer<typeof createUserSchema>
 

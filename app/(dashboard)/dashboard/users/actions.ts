@@ -28,13 +28,8 @@ export async function createUser(data: CreateUserSchemaType) {
     }
 
     const { email, name, role, departmentId } = validationData.data
-    const rolesWithDepartment: Role[] = [
-      Role.FINANCE,
-      Role.WORKER,
-      Role.USER,
-      Role.EDITOR,
-    ]
-    if (rolesWithDepartment.includes(role) && !departmentId) {
+    // Department is required for every role, including ADMIN.
+    if (!departmentId) {
       return {
         success: false,
         message: "Please select a department for this user",
@@ -73,7 +68,8 @@ export async function createUser(data: CreateUserSchemaType) {
         name,
         email,
         role: role as Role,
-        departmentId: role === "ADMIN" ? null : (departmentId ?? null),
+        // Every role, including ADMIN, belongs to a department.
+        departmentId: departmentId ?? null,
         password: null,
         mustChangePassword: true,
       },
@@ -154,13 +150,20 @@ export async function updateUser(data: UpdateUserSchemaType) {
       }
     }
     const { name, role, isActive, departmentId } = validationData.data
+    // Department is required for every role, including ADMIN.
+    if (!departmentId) {
+      return {
+        success: false,
+        message: "Please select a department for this user",
+      }
+    }
     const user = await prisma.user.update({
       where: { id: data.id },
       data: {
         name,
         role,
         isActive,
-        departmentId: role === "ADMIN" ? null : (departmentId ?? null),
+        departmentId,
       },
       select: {
         id: true,

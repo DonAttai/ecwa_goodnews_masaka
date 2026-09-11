@@ -34,4 +34,21 @@ describe("EDITOR role gates", () => {
       expect(roles).not.toContain(Role.EDITOR)
     }
   })
+
+  it("requires a department for ADMIN too", () => {
+    const missing = createUserSchema.safeParse({
+      name: "Admin User",
+      email: "admin@example.com",
+      role: "ADMIN",
+    })
+    expect(missing.success).toBe(false)
+
+    const provided = createUserSchema.safeParse({
+      name: "Admin User",
+      email: "admin@example.com",
+      role: "ADMIN",
+      departmentId: "dept-1",
+    })
+    expect(provided.success).toBe(true)
+  })
 })

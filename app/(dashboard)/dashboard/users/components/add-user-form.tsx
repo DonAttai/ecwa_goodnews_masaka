@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { createUser } from "../actions"
 
@@ -79,13 +79,6 @@ const AddUserFormInner = memo(function AddUserFormInner({
     },
   })
 
-  const role = useWatch({ control: form.control, name: "role" })
-  useEffect(() => {
-    if (role === "ADMIN") {
-      form.setValue("departmentId", undefined)
-    }
-  }, [role, form])
-
   const onSubmit = async (data: CreateUserSchemaType) => {
     try {
       setIsLoading(true)
@@ -104,8 +97,6 @@ const AddUserFormInner = memo(function AddUserFormInner({
       setIsLoading(false)
     }
   }
-
-  const rolesWithDepartment = ["FINANCE", "WORKER", "USER", "EDITOR"]
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -186,8 +177,7 @@ const AddUserFormInner = memo(function AddUserFormInner({
         />
       </div>
 
-      {/* department */}
-      {rolesWithDepartment.includes(role) && (
+      {/* department — required for every role, including ADMIN */}
         <Controller
           name="departmentId"
           control={form.control}
@@ -223,14 +213,13 @@ const AddUserFormInner = memo(function AddUserFormInner({
               </Select>
 
               <FieldDescription>
-                Department is required for workers and users.
+                Department is required for all users, including admins.
               </FieldDescription>
 
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
-      )}
 
       {/* SUBMIT */}
       <Button

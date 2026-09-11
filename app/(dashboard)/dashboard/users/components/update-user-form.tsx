@@ -21,7 +21,7 @@ import {
 import { Controller, useForm, useWatch, type Control } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { memo, useEffect } from "react"
+import { memo } from "react"
 import { User } from "../columns"
 import { DialogClose } from "@/components/ui/dialog"
 import { updateUser } from "../actions"
@@ -32,7 +32,7 @@ const updateUserSchema = z.object({
   id: z.string(),
   name: z.string().min(2, "Name must be at least 2 characters"),
   role: z.enum(["USER", "WORKER", "FINANCE", "ADMIN", "EDITOR"]),
-  departmentId: z.string().optional(),
+  departmentId: z.string().min(1, "Department is required for all users"),
   email: z.email(),
   isActive: z.boolean(),
 })
@@ -89,16 +89,6 @@ function UpdateUserForm({ user, departments, onClose }: UpdateUserFormProps) {
       isActive: user.isActive,
     },
   })
-
-  const role = useWatch({ control: form.control, name: "role" })
-  const rolesWithDepartment = ["FINANCE", "WORKER", "USER", "EDITOR"]
-  // Admins have no department — clear any stale value on switch, mirroring
-  // the add-user form.
-  useEffect(() => {
-    if (role === "ADMIN") {
-      form.setValue("departmentId", undefined)
-    }
-  }, [role, form])
 
   const onSubmit = async (data: UpdateUserFormValues) => {
     try {
@@ -195,10 +185,9 @@ function UpdateUserForm({ user, departments, onClose }: UpdateUserFormProps) {
           )}
         />
 
-        {/* Department Field — shown for roles that require one */}
-        {rolesWithDepartment.includes(role) && (
-          <Controller
-            name="departmentId"
+        {/* Department Field — required for every role, including ADMIN */}
+        <Controller
+          name="departmentId"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
@@ -237,7 +226,6 @@ function UpdateUserForm({ user, departments, onClose }: UpdateUserFormProps) {
               </Field>
             )}
           />
-        )}
 
         {/* Status Field - Aesthetic Switch Card */}
         <Controller
