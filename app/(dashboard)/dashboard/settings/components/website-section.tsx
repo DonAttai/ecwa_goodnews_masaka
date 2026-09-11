@@ -1,7 +1,8 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRef, useState, type RefObject } from "react"
+import { useFormStatus } from "react-dom"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -57,6 +58,24 @@ export type WebsiteData = {
   }>
 }
 
+// Submit button that disables itself while its parent <form>'s action is
+// running. Must be a separate component rendered inside the form for
+// useFormStatus to track the right form.
+function SaveButton({
+  label,
+  pendingLabel = "Saving…",
+}: {
+  label: string
+  pendingLabel?: string
+}) {
+  const { pending } = useFormStatus()
+  return (
+    <Button type="submit" disabled={pending} className="btn-gold w-fit">
+      {pending ? pendingLabel : label}
+    </Button>
+  )
+}
+
 export default function WebsiteSection({ data }: { data: WebsiteData }) {
   const router = useRouter()
   const [tab, setTab] = useState<
@@ -70,14 +89,29 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
     | "inbox"
   >("sermons")
 
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const sermonFormRef = useRef<HTMLFormElement>(null)
+  const eventFormRef = useRef<HTMLFormElement>(null)
+  const noticeFormRef = useRef<HTMLFormElement>(null)
+  const ministryFormRef = useRef<HTMLFormElement>(null)
+  const galleryFormRef = useRef<HTMLFormElement>(null)
+
   async function wrap(
-    fn: () => Promise<{ success: boolean; message: string }>
+    fn: () => Promise<{ success: boolean; message: string }>,
+    key?: string,
+    resetRef?: RefObject<HTMLFormElement | null>
   ) {
-    const res = await fn()
-    if (res.success) {
-      toast.success(res.message)
-      router.refresh()
-    } else toast.error(res.message)
+    if (key) setBusyId(key)
+    try {
+      const res = await fn()
+      if (res.success) {
+        toast.success(res.message)
+        resetRef?.current?.reset()
+        router.refresh()
+      } else toast.error(res.message)
+    } finally {
+      if (key) setBusyId(null)
+    }
   }
 
   return (
@@ -109,7 +143,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
       {tab === "sermons" && (
         <div className="space-y-4">
           <form
-            action={(fd) => wrap(() => createSermon(fd))}
+            ref={sermonFormRef}
+            action={(fd) =>
+              wrap(() => createSermon(fd), undefined, sermonFormRef)
+            }
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add sermon</p>
@@ -139,9 +176,7 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
               <input type="checkbox" name="published" defaultChecked /> Published
               on website
             </label>
-            <Button type="submit" className="btn-gold w-fit">
-              Save sermon
-            </Button>
+            <SaveButton label="Save sermon" pendingLabel="Saving sermon…" />
           </form>
           <div className="space-y-2">
             {data.sermons.map((s) => (
@@ -156,9 +191,12 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => wrap(() => deleteSermon(s.id))}
+                  disabled={busyId === `del-sermon-${s.id}`}
+                  onClick={() =>
+                    wrap(() => deleteSermon(s.id), `del-sermon-${s.id}`)
+                  }
                 >
-                  Delete
+                  {busyId === `del-sermon-${s.id}` ? "Deleting…" : "Delete"}
                 </Button>
               </div>
             ))}
@@ -174,7 +212,8 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
       {tab === "events" && (
         <div className="space-y-4">
           <form
-            action={(fd) => wrap(() => createEvent(fd))}
+            ref={eventFormRef}
+            action={(fd) => wrap(() => createEvent(fd), undefined, eventFormRef)}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add event</p>
@@ -203,9 +242,7 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="published" defaultChecked /> Published
             </label>
-            <Button type="submit" className="btn-gold w-fit">
-              Save event
-            </Button>
+            <SaveButton label="Save event" pendingLabel="Saving event…" />
           </form>
           <div className="space-y-2">
             {data.events.map((e) => (
@@ -217,9 +254,12 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => wrap(() => deleteEvent(e.id))}
+                  disabled={busyId === `del-event-${e.id}`}
+                  onClick={() =>
+                    wrap(() => deleteEvent(e.id), `del-event-${e.id}`)
+                  }
                 >
-                  Delete
+                  {busyId === `del-event-${e.id}` ? "Deleting…" : "Delete"}
                 </Button>
               </div>
             ))}
@@ -230,7 +270,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
       {tab === "notices" && (
         <div className="space-y-4">
           <form
-            action={(fd) => wrap(() => createAnnouncement(fd))}
+            ref={noticeFormRef}
+            action={(fd) =>
+              wrap(() => createAnnouncement(fd), undefined, noticeFormRef)
+            }
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add announcement</p>
@@ -251,9 +294,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <input type="checkbox" name="pinned" /> Pinned
               </label>
             </div>
-            <Button type="submit" className="btn-gold w-fit">
-              Save announcement
-            </Button>
+            <SaveButton
+              label="Save announcement"
+              pendingLabel="Saving announcement…"
+            />
           </form>
           <div className="space-y-2">
             {data.announcements.map((a) => (
@@ -265,9 +309,12 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => wrap(() => deleteAnnouncement(a.id))}
+                  disabled={busyId === `del-notice-${a.id}`}
+                  onClick={() =>
+                    wrap(() => deleteAnnouncement(a.id), `del-notice-${a.id}`)
+                  }
                 >
-                  Delete
+                  {busyId === `del-notice-${a.id}` ? "Deleting…" : "Delete"}
                 </Button>
               </div>
             ))}
@@ -278,7 +325,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
       {tab === "ministries" && (
         <div className="space-y-4">
           <form
-            action={(fd) => wrap(() => createMinistry(fd))}
+            ref={ministryFormRef}
+            action={(fd) =>
+              wrap(() => createMinistry(fd), undefined, ministryFormRef)
+            }
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add ministry</p>
@@ -296,9 +346,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
               <Label>Description</Label>
               <Textarea name="description" rows={3} />
             </div>
-            <Button type="submit" className="btn-gold w-fit">
-              Save ministry
-            </Button>
+            <SaveButton
+              label="Save ministry"
+              pendingLabel="Saving ministry…"
+            />
           </form>
           <div className="space-y-2">
             {data.ministries.map((m) => (
@@ -317,9 +368,12 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => wrap(() => deleteMinistry(m.id))}
+                  disabled={busyId === `del-ministry-${m.id}`}
+                  onClick={() =>
+                    wrap(() => deleteMinistry(m.id), `del-ministry-${m.id}`)
+                  }
                 >
-                  Delete
+                  {busyId === `del-ministry-${m.id}` ? "Deleting…" : "Delete"}
                 </Button>
               </div>
             ))}
@@ -336,7 +390,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
       {tab === "gallery" && (
         <div className="space-y-4">
           <form
-            action={(fd) => wrap(() => createGalleryImage(fd))}
+            ref={galleryFormRef}
+            action={(fd) =>
+              wrap(() => createGalleryImage(fd), undefined, galleryFormRef)
+            }
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add photo</p>
@@ -359,9 +416,7 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="published" defaultChecked /> Published
             </label>
-            <Button type="submit" className="btn-gold w-fit">
-              Add photo
-            </Button>
+            <SaveButton label="Add photo" pendingLabel="Adding photo…" />
           </form>
           <div className="grid gap-3 sm:grid-cols-2">
             {data.gallery.map((g) => (
@@ -381,9 +436,12 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => wrap(() => deleteGalleryImage(g.id))}
+                    disabled={busyId === `del-photo-${g.id}`}
+                    onClick={() =>
+                      wrap(() => deleteGalleryImage(g.id), `del-photo-${g.id}`)
+                    }
                   >
-                    Delete
+                    {busyId === `del-photo-${g.id}` ? "Deleting…" : "Delete"}
                   </Button>
                 </div>
               </div>
@@ -438,9 +496,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 />
               </div>
             </div>
-            <Button type="submit" className="btn-gold w-fit">
-              Save giving details
-            </Button>
+            <SaveButton
+              label="Save giving details"
+              pendingLabel="Saving giving details…"
+            />
           </form>
         </div>
       )}
@@ -530,9 +589,10 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 />
               </div>
             </div>
-            <Button type="submit" className="btn-gold w-fit">
-              Save identity
-            </Button>
+            <SaveButton
+              label="Save identity"
+              pendingLabel="Saving identity…"
+            />
           </form>
         </div>
       )}
@@ -552,11 +612,16 @@ export default function WebsiteSection({ data }: { data: WebsiteData }) {
                 <Button
                   variant="ghost"
                   size="sm"
+                  disabled={busyId === `inbox-${m.id}`}
                   onClick={() =>
-                    wrap(() => markMessageRead(m.id, !m.read))
+                    wrap(() => markMessageRead(m.id, !m.read), `inbox-${m.id}`)
                   }
                 >
-                  {m.read ? "Mark unread" : "Mark read"}
+                  {busyId === `inbox-${m.id}`
+                    ? "Saving…"
+                    : m.read
+                      ? "Mark unread"
+                      : "Mark read"}
                 </Button>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{m.message}</p>
