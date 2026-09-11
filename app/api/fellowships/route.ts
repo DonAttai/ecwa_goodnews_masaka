@@ -10,7 +10,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    if (user.role === "USER") {
+    if (user.role === "WORKER") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 

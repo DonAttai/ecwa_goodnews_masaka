@@ -39,8 +39,10 @@ export default function AddUserForm({
 }
 
 const roleDescriptions: Record<CreateUserSchemaType["role"], string> = {
-  USER: "Department heads and assistants — can submit requisitions for their department",
-  WORKER: "Workers have limited permissions",
+  WORKER:
+    "Department heads and assistants — can submit requisitions for their department",
+  ELDER: "Elders oversee church affairs and can submit requisitions",
+  PASTOR: "Pastors oversee church affairs and can submit requisitions",
   FINANCE: "Finance has limited permissions",
   EDITOR: "Editors manage website content and member registration only",
   ADMIN: "Admins have full system access",
@@ -74,7 +76,7 @@ const AddUserFormInner = memo(function AddUserFormInner({
     defaultValues: {
       name: "",
       email: "",
-      role: "USER",
+      role: "WORKER",
       departmentId: undefined,
     },
   })
@@ -165,10 +167,10 @@ const AddUserFormInner = memo(function AddUserFormInner({
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent position="item-aligned">
-                  <SelectItem value="USER">User</SelectItem>
                   <SelectItem value="WORKER">Worker</SelectItem>
+                  <SelectItem value="ELDER">Elder</SelectItem>
+                  <SelectItem value="PASTOR">Pastor</SelectItem>
                   <SelectItem value="FINANCE">Finance</SelectItem>
-                  <SelectItem value="EDITOR">Editor</SelectItem>
                   <SelectItem value="ADMIN">Administrator</SelectItem>
                 </SelectContent>
               </Select>

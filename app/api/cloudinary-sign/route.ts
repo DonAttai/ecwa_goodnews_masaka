@@ -13,7 +13,18 @@ cloudinary.config({
 // $0 hardening: auth-required signed uploads with folder allowlist +
 // in-memory rate limit (single-node documented in lib/rate-limit.ts).
 // No Upstash/Redis so this stays free on Vercel Hobby forever.
-const ALLOWED_FOLDERS = ["members", "events", "sermons", "gallery", "receipts"] as const
+//
+// Any authenticated dashboard user may sign uploads: requisition receipts
+// are filed by dept heads (WORKER), passports by ADMIN/EDITOR, site assets
+// by ADMIN/EDITOR. Session + rate limit + folder allowlist are the guards.
+const ALLOWED_FOLDERS = [
+  "members",
+  "events",
+  "sermons",
+  "gallery",
+  "receipts",
+  "requisitions",
+] as const
 
 const signSchema = z.object({
   paramsToSign: z.record(z.string(), z.union([z.string(), z.number()])),
@@ -23,9 +34,6 @@ export async function POST(request: Request) {
   const user = await getCurrentUser()
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-  if (user.role === "USER") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
   const ip = await getClientIp()

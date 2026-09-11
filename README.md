@@ -30,7 +30,7 @@ CI (`.github/workflows/ci.yml`, free minutes): install → `prisma validate` →
 
 * `app/(site)/` — public ISR site (`revalidate=3600`): `/`, `/about`, `/sermons/[id]`, `/events/[id]`, `/ministries`, `/gallery`, `/give`, `/visit`, `/staff`, `/contact`. DB-driven via `lib/site.ts` + single-row `Settings{id=1}`.
 * `app/(auth)/` — `/login`, `/forgot-password`, `/reset-password`, `/set-password/[token]`.
-* `app/(dashboard)/dashboard/` — role-gated (`ADMIN/FINANCE/WORKER/USER`): `members/` (multi-step + tanstack table), `requisitions/` (`SUBMITTED→APPROVED→PAID→COMPLETED`), `users/` (admin), `profile/`, `settings/`.
+* `app/(dashboard)/dashboard/` — role-gated (`ADMIN/FINANCE/ELDER/WORKER/PASTOR/EDITOR`): `members/` (multi-step + tanstack table), `requisitions/` (`SUBMITTED→APPROVED→PAID→COMPLETED`), `users/` (admin), `profile/`, `settings/`.
 * `app/api/` — `public/[slug]`, `health` (public, for uptime pings), `fellowships`, `notifications`, `push/subscribe`, `auth/set-password`, `cloudinary-sign` (**auth-required**, folder allowlist).
 * `lib/` — `auth.ts` (bcrypt+JWT cookie), `auth-edge.ts` (middleware verifier), `env.ts` (zod boot validation), `rate-limit.ts` (**in-memory, single-node** — documented; no Redis to stay $0), `site.ts`, `prisma.ts`, `push/`, `email/` (Resend), `cloudinary.ts`.
 

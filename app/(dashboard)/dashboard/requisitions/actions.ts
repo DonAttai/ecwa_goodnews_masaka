@@ -34,8 +34,9 @@ export async function createRequisition(input: RequisitionType) {
   const allowedRoles: Role[] = [
     Role.ADMIN,
     Role.FINANCE,
+    Role.ELDER,
     Role.WORKER,
-    Role.USER,
+    Role.PASTOR,
   ]
 
   if (!allowedRoles.includes(user.role)) {
@@ -57,8 +58,9 @@ export async function createRequisition(input: RequisitionType) {
   const departmentId = user.department ? user.department?.id : null
 
   if (
-    (user.role === "WORKER" ||
-      user.role === "USER" ||
+    (user.role === "ELDER" ||
+      user.role === "WORKER" ||
+      user.role === "PASTOR" ||
       user.role === "FINANCE") &&
     !departmentId
   ) {
@@ -344,8 +346,9 @@ function getRequisitionWhere(user: {
         ],
       }
 
+    case "ELDER":
     case "WORKER":
-    case "USER":
+    case "PASTOR":
       return { requestedById: user.id }
 
     case "EDITOR":

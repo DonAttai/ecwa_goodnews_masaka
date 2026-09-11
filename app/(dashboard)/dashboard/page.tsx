@@ -20,8 +20,8 @@ export default async function Dashboard() {
     redirect("/dashboard/members")
   }
 
-  // USER - personal dashboard
-  if (currentUser.role === Role.USER) {
+  // WORKER (department heads and assistants) - personal dashboard
+  if (currentUser.role === Role.WORKER) {
     const recentRequisitions = await prisma.requisition.findMany({
       where: { requestedById: currentUser.id },
       orderBy: { createdAt: "desc" },
@@ -42,7 +42,7 @@ export default async function Dashboard() {
     )
   }
 
-  // FINANCE / WORKER - role-specific staff dashboards
+  // FINANCE / ELDER / PASTOR - role-specific staff dashboards
   if (currentUser.role !== Role.ADMIN) {
     return (
       <StaffDashboard

@@ -3,7 +3,7 @@ import * as z from "zod"
 export const baseUserSchema = z.object({
   name: z.string().min(3, "Name is Required"),
   email: z.email({ message: "Email is Required" }),
-  role: z.enum(["ADMIN", "FINANCE", "WORKER", "USER", "EDITOR"]),
+  role: z.enum(["ADMIN", "FINANCE", "ELDER", "WORKER", "PASTOR", "EDITOR"]),
   departmentId: z.string().min(1, "Department is required for all users"),
 })
 

@@ -6,10 +6,11 @@ export default async function DashboardLoading() {
 
   const role = currentUser?.role
 
-  if (role === Role.WORKER) return <WorkerSkeleton />
-  if (role === Role.EDITOR) return <WorkerSkeleton />
+  if (role === Role.ELDER) return <WorkerSkeleton />
+  if (role === Role.PASTOR) return <WorkerSkeleton />
+  if (role === Role.WORKER) return <UserSkeleton />
   if (role === Role.FINANCE) return <FinanceSkeleton />
-  if (role === Role.USER) return <UserSkeleton />
+  return <AdminSkeleton />
   return <AdminSkeleton />
 }
 

@@ -16,7 +16,7 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
 
   if (!user) redirect("/login")
 
-  if (user.role === "USER") redirect("/dashboard")
+  if (user.role === "WORKER") redirect("/dashboard")
 
   const isAdmin = user.role === "ADMIN"
   const canCreate = isAdmin || user.role === "EDITOR"

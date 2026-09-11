@@ -20,7 +20,7 @@ describe("EDITOR role gates", () => {
     expect(parsed.success).toBe(true)
   })
 
-  it("requires a department like WORKER", () => {
+  it("requires a department like other staff roles", () => {
     const parsed = createUserSchema.safeParse({
       name: "Content Editor",
       email: "editor@example.com",
@@ -33,6 +33,33 @@ describe("EDITOR role gates", () => {
     for (const roles of Object.values(requisitionStatusPermissions)) {
       expect(roles).not.toContain(Role.EDITOR)
     }
+  })
+
+  it("role set is exactly ADMIN, FINANCE, ELDER, WORKER, PASTOR, EDITOR", () => {
+    expect(Object.values(Role).sort()).toEqual(
+      ["ADMIN", "EDITOR", "ELDER", "FINANCE", "PASTOR", "WORKER"].sort()
+    )
+  })
+
+  it("PASTOR has no requisition status permissions and needs a department", () => {
+    for (const roles of Object.values(requisitionStatusPermissions)) {
+      expect(roles).not.toContain(Role.PASTOR)
+    }
+    expect(
+      createUserSchema.safeParse({
+        name: "Pastor User",
+        email: "pastor@example.com",
+        role: "PASTOR",
+      }).success
+    ).toBe(false)
+    expect(
+      createUserSchema.safeParse({
+        name: "Pastor User",
+        email: "pastor@example.com",
+        role: "PASTOR",
+        departmentId: "dept-1",
+      }).success
+    ).toBe(true)
   })
 
   it("requires a department for ADMIN too", () => {

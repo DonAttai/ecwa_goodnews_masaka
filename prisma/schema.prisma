@@ -22,7 +22,7 @@ model User {
   name                 String
   email                String               @unique
   password             String?
-  role                 Role                 @default(USER)
+  role                 Role                 @default(WORKER)
   isActive             Boolean              @default(false)
   mustChangePassword   Boolean              @default(true)
   resetToken           String?              @unique
@@ -311,8 +311,9 @@ model GalleryImage {
 enum Role {
   ADMIN
   FINANCE
+  ELDER
   WORKER
-  USER
+  PASTOR
   EDITOR
 }
 

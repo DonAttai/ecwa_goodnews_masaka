@@ -31,7 +31,7 @@ import { toast } from "sonner"
 const updateUserSchema = z.object({
   id: z.string(),
   name: z.string().min(2, "Name must be at least 2 characters"),
-  role: z.enum(["USER", "WORKER", "FINANCE", "ADMIN", "EDITOR"]),
+  role: z.enum(["WORKER", "ELDER", "PASTOR", "FINANCE", "ADMIN", "EDITOR"]),
   departmentId: z.string().min(1, "Department is required for all users"),
   email: z.email(),
   isActive: z.boolean(),
@@ -53,11 +53,15 @@ function RoleDescription({ control }: { control: Control<UpdateUserFormValues> }
     <FieldDescription>
       {role === "ADMIN"
         ? "Admins have full system access"
-        : role === "USER"
+        : role === "WORKER"
           ? "Department heads and assistants — can submit requisitions for their department"
           : role === "EDITOR"
             ? "Editors manage website content and member registration only"
-            : "Workers have limited permissions"}
+            : role === "ELDER"
+              ? "Elders oversee church affairs and can submit requisitions"
+              : role === "PASTOR"
+                ? "Pastors oversee church affairs and can submit requisitions"
+                : "Finance has limited permissions"}
     </FieldDescription>
   )
 }
@@ -174,10 +178,10 @@ function UpdateUserForm({ user, departments, onClose }: UpdateUserFormProps) {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent position="item-aligned">
-                  <SelectItem value="USER">User</SelectItem>
                   <SelectItem value="WORKER">Worker</SelectItem>
+                  <SelectItem value="ELDER">Elder</SelectItem>
+                  <SelectItem value="PASTOR">Pastor</SelectItem>
                   <SelectItem value="FINANCE">Finance</SelectItem>
-                  <SelectItem value="EDITOR">Editor</SelectItem>
                   <SelectItem value="ADMIN">Administrator</SelectItem>
                 </SelectContent>
               </Select>

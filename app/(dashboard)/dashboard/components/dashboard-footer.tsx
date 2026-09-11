@@ -31,25 +31,25 @@ const primaryLinks = [
     href: "/dashboard",
     icon: LayoutDashboard,
     // EDITOR excluded: /dashboard redirects them to /members.
-    roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
+    roles: ["ADMIN", "ELDER", "PASTOR", "WORKER", "FINANCE"],
   },
   {
     title: "Members",
     href: "/dashboard/members",
     icon: Users,
-    roles: ["ADMIN", "WORKER", "FINANCE", "EDITOR"],
+    roles: ["ADMIN", "ELDER", "PASTOR", "FINANCE", "EDITOR"],
   },
   {
     title: "Requisitions",
     href: "/dashboard/requisitions",
     icon: ClipboardList,
-    roles: ["ADMIN", "WORKER", "FINANCE", "USER"],
+    roles: ["ADMIN", "ELDER", "WORKER", "PASTOR", "FINANCE"],
   },
   {
     title: "Profile",
     href: "/dashboard/profile",
     icon: User,
-    roles: ["ADMIN", "WORKER", "FINANCE", "USER", "EDITOR"],
+    roles: ["ADMIN", "ELDER", "WORKER", "PASTOR", "FINANCE", "EDITOR"],
   },
 ]
 
