@@ -16,8 +16,6 @@ export type User = {
   department?: { id: string; name: string } | null
 }
 
-export const columns: ColumnDef<User>[] = getUserColumns()
-
 export function getUserColumns(
   departments: Array<{ id: string; name: string }> = []
 ): ColumnDef<User>[] {
