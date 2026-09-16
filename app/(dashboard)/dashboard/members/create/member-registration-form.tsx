@@ -705,13 +705,21 @@ export default function MemberRegistrationForm({
 
         <form
           id="member-registration-form"
-          onSubmit={(event) => {
+          // No type="submit" button exists in this form (footer buttons are
+          // type="button"), so the browser cannot implicitly submit. This
+          // handler is a defensive backstop only.
+          onSubmit={(event) => event.preventDefault()}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return
+            const target = event.target as HTMLElement | null
+            // Only single-line inputs: textareas keep Enter=newline,
+            // buttons/selects keep native behavior.
+            if (!target || target.tagName !== "INPUT") return
+            event.preventDefault()
             if (currentStep < steps.length - 1) {
-              // Enter on earlier steps advances instead of submitting
-              event.preventDefault()
               void nextStep()
             } else {
-              void handleFormSubmit(event)
+              void handleFormSubmit()
             }
           }}
         >
@@ -873,8 +881,8 @@ export default function MemberRegistrationForm({
 
           {currentStep === steps.length - 1 ? (
             <Button
-              type="submit"
-              form="member-registration-form"
+              type="button"
+              onClick={handleFormSubmit}
               disabled={isSubmitting}
               className="gap-2 bg-green-600 hover:bg-green-700"
             >
