@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { StatusBadge } from "./status-badge"
+import { toFaceThumb } from "@/lib/cloudinary-url"
 import { InfoCard } from "./info-card"
 import { ChildCard } from "./child-card"
 import { FellowshipGroupCard } from "./fellowship-group-card"
@@ -68,7 +69,7 @@ export default async function MemberDetailsPage({
               <Avatar className="h-28 w-28 rounded-2xl border-4 border-background shadow-xl after:rounded-2xl sm:h-32 sm:w-32">
                 {member.passportUrl ? (
                   <AvatarImage
-                    src={member.passportUrl}
+                    src={toFaceThumb(member.passportUrl, 256) ?? undefined}
                     alt="Passport"
                     className="rounded-2xl"
                   />
