@@ -57,7 +57,18 @@ export function getColumns(isAdmin: boolean): ColumnDef<Member>[] {
       header: "Email",
       meta: { responsiveClass: "hidden sm:table-cell" },
       cell: ({ row }) => {
-        const email = row.getValue("email") as string
+        const email = row.getValue("email") as string | null | undefined
+        if (!email) {
+          return (
+            <span
+              className="block max-w-[12rem] truncate text-muted-foreground"
+              title="No email provided"
+              aria-label="No email provided"
+            >
+              —
+            </span>
+          )
+        }
         return <span className="block max-w-[12rem] truncate">{email}</span>
       },
     },
