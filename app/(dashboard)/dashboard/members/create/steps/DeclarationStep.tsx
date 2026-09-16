@@ -11,10 +11,11 @@ interface DeclarationStepProps {
 }
 
 export default function DeclarationStep({ control }: DeclarationStepProps) {
+  const today = new Date().toISOString().split("T")[0]
   return (
     <div className="space-y-6">
       <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
-        <p className="text-lg font-semibold">Declaration</p>
+        <p className="text-lg font-semibold">Declaration (Optional)</p>
         <p className="mt-2 text-sm text-slate-600">
           I hereby declare that the information provided in this membership form
           is true and correct to the best of my knowledge.
@@ -40,7 +41,12 @@ export default function DeclarationStep({ control }: DeclarationStepProps) {
           render={({ field, fieldState }) => (
             <Field>
               <FieldLabel>Member Signed Date</FieldLabel>
-              <Input {...field} value={field.value ?? ""} type="date" />
+              <Input
+                {...field}
+                value={field.value ?? ""}
+                type="date"
+                max={today}
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
@@ -66,7 +72,12 @@ export default function DeclarationStep({ control }: DeclarationStepProps) {
           render={({ field, fieldState }) => (
             <Field>
               <FieldLabel>Pastor Signed Date</FieldLabel>
-              <Input {...field} value={field.value ?? ""} type="date" />
+              <Input
+                {...field}
+                value={field.value ?? ""}
+                type="date"
+                max={today}
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}

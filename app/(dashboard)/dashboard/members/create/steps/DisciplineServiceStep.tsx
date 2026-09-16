@@ -24,6 +24,7 @@ export default function DisciplineServiceStep({
   control,
   hasBeenOnDiscipline,
 }: DisciplineServiceStepProps) {
+  const today = new Date().toISOString().split("T")[0]
   return (
     <div className="space-y-6">
       <Controller
@@ -74,7 +75,12 @@ export default function DisciplineServiceStep({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Discipline Date</FieldLabel>
-                  <Input {...field} value={field.value ?? ""} type="date" />
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    type="date"
+                    max={today}
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -86,7 +92,12 @@ export default function DisciplineServiceStep({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Relief Date</FieldLabel>
-                  <Input {...field} value={field.value ?? ""} type="date" />
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    type="date"
+                    max={today}
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}

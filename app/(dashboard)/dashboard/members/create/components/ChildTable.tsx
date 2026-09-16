@@ -24,53 +24,56 @@ export const ChildTable: React.FC<ChildTableProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2">
-        <table className="w-full table-fixed divide-y divide-slate-200 text-sm">
-          <thead>
-            <tr className="text-left text-slate-600">
-              <th className="w-[45%] px-3 py-2">Child Name</th>
-              <th className="hidden w-[45%] px-3 py-2 sm:table-cell">
+      {childrenList.length === 0 && (
+        <p className="text-sm text-slate-500">
+          No children added yet. Use “Add Child” if applicable.
+        </p>
+      )}
+      <div className="space-y-3">
+        {childrenList.map((child, idx) => (
+          <div
+            key={`child-${idx}`}
+            className="grid grid-cols-[1fr_auto] gap-2 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+          >
+            <div className="min-w-0">
+              <label className="mb-1 block text-xs font-medium text-slate-600">
+                Child Name
+              </label>
+              <Input
+                className="w-full min-w-0"
+                value={child.name}
+                placeholder="Child full name"
+                onChange={(event) =>
+                  onChildUpdate(idx, "name", event.target.value)
+                }
+              />
+            </div>
+            <div className="min-w-0">
+              <label className="mb-1 block text-xs font-medium text-slate-600">
                 Contact Details
-              </th>
-              <th className="w-[10%] px-3 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {childrenList.map((child, idx) => (
-              <tr key={`child-${idx}`}>
-                <td className="min-w-0 px-3 py-2">
-                  <Input
-                    className="w-full min-w-0"
-                    value={child.name}
-                    onChange={(event) =>
-                      onChildUpdate(idx, "name", event.target.value)
-                    }
-                  />
-                </td>
-                <td className="hidden min-w-0 px-3 py-2 sm:table-cell">
-                  <Input
-                    className="w-full min-w-0"
-                    value={child.contact}
-                    onChange={(event) =>
-                      onChildUpdate(idx, "contact", event.target.value)
-                    }
-                  />
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600"
-                    onClick={() => onChildRemove(idx)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </label>
+              <Input
+                className="w-full min-w-0"
+                value={child.contact}
+                placeholder="080... (optional)"
+                inputMode="tel"
+                onChange={(event) =>
+                  onChildUpdate(idx, "contact", event.target.value)
+                }
+              />
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-red-600"
+              aria-label={`Remove child ${idx + 1}`}
+              onClick={() => onChildRemove(idx)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
       </div>
 
       <Button

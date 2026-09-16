@@ -78,7 +78,16 @@ function resolveMemberPayload(input: MemberPayloadInput): Record<string, unknown
     ...OPTIONAL_STRING_FIELDS,
   ]) {
     const value = formData.get(key)
-    if (value != null && value !== "") data[key] = String(value)
+    if (value != null && value !== "") {
+      let normalized = String(value)
+      if (key === "phoneNumber") {
+        normalized = normalized.replace(/[\s\-()]/g, "")
+        if (/^234[789][01]\d{8}$/.test(normalized)) {
+          normalized = `+${normalized}`
+        }
+      }
+      data[key] = normalized
+    }
   }
 
   const children = parseJsonArray(formData.get("children"))
@@ -117,6 +126,34 @@ export async function createMember(
         success: false,
         message: "A member with this email already exists",
         fieldErrors: { email: ["A member with this email already exists"] },
+      }
+    }
+
+    const normalizedPhone = data.phoneNumber.replace(/[\s\-()]/g, "")
+    const phoneCandidates = Array.from(
+      new Set([
+        data.phoneNumber,
+        normalizedPhone,
+        normalizedPhone.startsWith("+")
+          ? normalizedPhone.slice(1)
+          : `+${normalizedPhone}`,
+        normalizedPhone.replace(/^\+?234/, "0"),
+      ])
+    )
+    const existingPhone = await prisma.member.findFirst({
+      where: { phoneNumber: { in: phoneCandidates } },
+      select: { id: true, firstName: true, surname: true },
+    })
+    if (existingPhone) {
+      const name = `${existingPhone.firstName} ${existingPhone.surname}`
+      return {
+        success: false,
+        message: `A member with this phone number already exists (${name})`,
+        fieldErrors: {
+          phoneNumber: [
+            `This number is already registered to ${name}. Search members to update instead.`,
+          ],
+        },
       }
     }
 

@@ -187,6 +187,7 @@ export default function PersonalInfoStep({
                   <SelectItem value="MARRIED">Married</SelectItem>
                   <SelectItem value="DIVORCED">Divorced</SelectItem>
                   <SelectItem value="WIDOWED">Widowed</SelectItem>
+                  <SelectItem value="SEPARATED">Separated</SelectItem>
                 </SelectContent>
               </Select>
               <FieldError>{fieldState.error?.message}</FieldError>
@@ -232,7 +233,9 @@ export default function PersonalInfoStep({
               </div>
               <Input
                 {...field}
-                placeholder="Phone number"
+                placeholder="08031234567"
+                inputMode="tel"
+                autoComplete="tel"
                 className={
                   fieldState.error
                     ? "border-red-500 focus-visible:ring-red-500"
@@ -392,6 +395,7 @@ export default function PersonalInfoStep({
                   field.onBlur()
                 }}
                 value={field.value || undefined}
+                disabled={availableLgas.length === 0}
               >
                 <SelectTrigger
                   className={
@@ -400,14 +404,26 @@ export default function PersonalInfoStep({
                       : ""
                   }
                 >
-                  <SelectValue placeholder="Select LGA" />
+                  <SelectValue
+                    placeholder={
+                      availableLgas.length === 0
+                        ? "Select state first"
+                        : "Select LGA"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableLgas.map((lga) => (
-                    <SelectItem key={lga} value={lga}>
-                      {lga}
+                  {availableLgas.length === 0 ? (
+                    <SelectItem value="__none" disabled>
+                      No LGAs — select state first
                     </SelectItem>
-                  ))}
+                  ) : (
+                    availableLgas.map((lga) => (
+                      <SelectItem key={lga} value={lga}>
+                        {lga}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
               <FieldError>{fieldState.error?.message}</FieldError>
@@ -427,12 +443,31 @@ export default function PersonalInfoStep({
               <Input
                 {...field}
                 placeholder="Tribe"
+                list="tribe-suggestions"
                 className={
                   fieldState.error
                     ? "border-red-500 focus-visible:ring-red-500"
                     : ""
                 }
               />
+              <datalist id="tribe-suggestions">
+                {[
+                  "Hausa",
+                  "Yoruba",
+                  "Igbo",
+                  "Tiv",
+                  "Idoma",
+                  "Igede",
+                  "Ebira",
+                  "Nupe",
+                  "Gwari",
+                  "Mada",
+                  "Eggon",
+                  "Berom",
+                ].map((tribe) => (
+                  <option key={tribe} value={tribe} />
+                ))}
+              </datalist>
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}

@@ -19,8 +19,10 @@ import { FieldGroup } from "@/components/ui/field"
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
@@ -52,6 +54,12 @@ import DisciplineServiceStep from "./steps/DisciplineServiceStep"
 import RecommendationsStep from "./steps/RecommendationsStep"
 import DeclarationStep from "./steps/DeclarationStep"
 import { shouldShowChildrenField } from "./utils/marita-status"
+import {
+  saveDraft,
+  loadDraft,
+  clearDraft,
+  type MemberDraft,
+} from "./utils/draft"
 
 interface Child {
   name: string
@@ -137,15 +145,33 @@ const DEFAULT_VALUES: Omit<MemberFormValues, "id"> = {
   pastorSignedDate: null,
 } satisfies Omit<MemberFormValues, "id">
 
-export default function MemberRegistrationForm() {
+export interface FellowshipOption {
+  id: string
+  name: string
+  description?: string | null
+}
+
+export default function MemberRegistrationForm({
+  initialFellowships,
+}: {
+  initialFellowships?: FellowshipOption[]
+}) {
   const [currentStep, setCurrentStep] = React.useState(0)
   const [passportUrl, setPassportUrl] = React.useState<string | null>(null)
   const [submitError, setSubmitError] = React.useState<string | null>(null)
   const [availableLgas, setAvailableLgas] = React.useState<string[]>([])
   const [fellowships, setFellowships] = React.useState<
     Array<{ id: string; name: string; description?: string }>
-  >([])
-  const [isLoadingFellowships, setIsLoadingFellowships] = React.useState(true)
+  >(
+    (initialFellowships ?? []).map((fellowship) => ({
+      id: fellowship.id,
+      name: fellowship.name,
+      description: fellowship.description ?? undefined,
+    }))
+  )
+  const [isLoadingFellowships, setIsLoadingFellowships] = React.useState(
+    initialFellowships === undefined
+  )
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [showSuccessModal, setShowSuccessModal] = React.useState(false)
   const [successMessage, setSuccessMessage] = React.useState<string | null>(
@@ -155,6 +181,17 @@ export default function MemberRegistrationForm() {
     id: string
     name: string
   } | null>(null)
+  const [pendingDraft, setPendingDraft] = React.useState<MemberDraft | null>(
+    null
+  )
+  const [showResetConfirm, setShowResetConfirm] = React.useState(false)
+  const [maxVisited, setMaxVisited] = React.useState(0)
+  const [duplicateMatch, setDuplicateMatch] = React.useState<{
+    id: string
+    name: string
+  } | null>(null)
+  const titleRef = React.useRef<HTMLHeadingElement>(null)
+  const prevStateRef = React.useRef<string>("")
 
   const form = useForm<MemberFormValues>({
     resolver: zodResolver(
@@ -165,6 +202,7 @@ export default function MemberRegistrationForm() {
   })
 
   const selectedState = form.watch("stateOfOrigin")
+  const phoneValue = form.watch("phoneNumber")
   const watchedChildren = (form.watch("children") as Child[]) || []
   const isMarried = form.watch("maritalStatus") === "MARRIED"
   const maritalStatus = form.watch("maritalStatus")
@@ -172,7 +210,88 @@ export default function MemberRegistrationForm() {
   const isBaptized = form.watch("baptized") === "YES"
   const hasBeenOnDiscipline = form.watch("beenOnDiscipline") === "YES"
 
-  const progress = ((currentStep + 1) / steps.length) * 100
+  const CORE_REQUIRED_FIELDS = [
+    "surname",
+    "firstName",
+    "presentAddress",
+    "phoneNumber",
+    "maritalStatus",
+    "gender",
+    "stateOfOrigin",
+    "lga",
+    "tribe",
+    "acceptedChrist",
+    "baptized",
+    "communicant",
+    "beenOnDiscipline",
+  ] as const
+
+  const allWatchedValues = form.watch()
+  const filledRequired = CORE_REQUIRED_FIELDS.filter((key) => {
+    const value = allWatchedValues[key]
+    return value != null && String(value).trim() !== ""
+  }).length
+  const progress = Math.round(
+    (filledRequired / CORE_REQUIRED_FIELDS.length) * 100
+  )
+
+  // Offer to resume an autosaved draft (shared admin PCs: explicit opt-in)
+  React.useEffect(() => {
+    const draft = loadDraft()
+    if (draft) {
+      setPendingDraft(draft)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Live duplicate-phone warning (non-blocking; server enforces on submit)
+  React.useEffect(() => {
+    const digits = String(phoneValue ?? "").replace(/\D/g, "")
+    if (digits.length < 10) {
+      setDuplicateMatch(null)
+      return
+    }
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `/api/members/check-duplicate?phone=${encodeURIComponent(String(phoneValue))}`
+        )
+        if (!response.ok) return
+        const data = await response.json()
+        if (!cancelled) {
+          setDuplicateMatch(data.match ?? null)
+        }
+      } catch {
+        // fail silently — server validation is the source of truth
+      }
+    }, 600)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [phoneValue])
+
+  // Autosave draft (debounced) — skipped once success modal is showing
+  React.useEffect(() => {
+    if (showSuccessModal) return
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const subscription = form.watch((values) => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => {
+        saveDraft({
+          values: values as Record<string, unknown>,
+          passportUrl,
+          currentStep,
+          savedAt: new Date().toISOString(),
+        })
+      }, 500)
+    })
+    return () => {
+      subscription.unsubscribe()
+      if (timer) clearTimeout(timer)
+    }
+  }, [form, passportUrl, currentStep, showSuccessModal])
 
   // Clear submit error when form fields change
   React.useEffect(() => {
@@ -185,22 +304,37 @@ export default function MemberRegistrationForm() {
   }, [form, submitError])
 
   React.useEffect(() => {
-    if (selectedState) {
-      setAvailableLgas(getLgasByState(selectedState))
-      if (form.getValues("lga")) {
-        form.setValue("lga", "")
+    // Only clear LGA when the state actually changed (not on mount/restore)
+    if (selectedState !== prevStateRef.current) {
+      prevStateRef.current = selectedState || ""
+      if (selectedState) {
+        setAvailableLgas(getLgasByState(selectedState))
+        if (form.getValues("lga")) {
+          form.setValue("lga", "")
+        }
+      } else {
+        setAvailableLgas([])
       }
-    } else {
-      setAvailableLgas([])
+    } else if (selectedState && availableLgas.length === 0) {
+      setAvailableLgas(getLgasByState(selectedState))
     }
-  }, [selectedState, form])
+  }, [selectedState, form, availableLgas.length])
 
+  // Fellowships come preloaded from the server page; client fetch is
+  // fallback only (e.g. direct client render without initial data).
   React.useEffect(() => {
+    if (initialFellowships !== undefined) return
     const fetchFellowships = async () => {
       try {
         const response = await fetch("/api/fellowships")
         const data = await response.json()
-        setFellowships(data)
+        setFellowships(
+          (Array.isArray(data) ? data : []).map((fellowship) => ({
+            id: fellowship.id,
+            name: fellowship.name,
+            description: fellowship.description ?? undefined,
+          }))
+        )
       } catch (error) {
         console.error("Failed to fetch fellowships:", error)
         toast.error("Failed to load fellowship groups")
@@ -210,7 +344,7 @@ export default function MemberRegistrationForm() {
     }
 
     fetchFellowships()
-  }, [])
+  }, [initialFellowships])
 
   const resetForm = () => {
     form.reset(DEFAULT_VALUES)
@@ -218,18 +352,57 @@ export default function MemberRegistrationForm() {
     setCurrentStep(0)
     setSubmitError(null)
     setCreatedMember(null)
+    setMaxVisited(0)
+    setPendingDraft(null)
+    setDuplicateMatch(null)
+    clearDraft()
+  }
+
+  const resumeDraft = () => {
+    if (!pendingDraft) return
+    form.reset(pendingDraft.values as Partial<MemberFormValues>)
+    setPassportUrl(pendingDraft.passportUrl)
+    const step = Math.min(
+      Math.max(pendingDraft.currentStep, 0),
+      steps.length - 1
+    )
+    setCurrentStep(step)
+    setMaxVisited(step)
+    if (pendingDraft.values.stateOfOrigin) {
+      setAvailableLgas(
+        getLgasByState(String(pendingDraft.values.stateOfOrigin))
+      )
+    }
+    setPendingDraft(null)
+    toast.success("Draft resumed")
+  }
+
+  const discardDraft = () => {
+    clearDraft()
+    setPendingDraft(null)
+  }
+
+  const focusTitle = () => {
+    requestAnimationFrame(() => {
+      titleRef.current?.focus()
+    })
   }
 
   const addChild = () => {
     const currentChildren = (form.getValues("children") as Child[]) || []
-    form.setValue("children", [...currentChildren, { name: "", contact: "" }])
+    form.setValue(
+      "children",
+      [...currentChildren, { name: "", contact: "" }],
+      { shouldValidate: true, shouldDirty: true }
+    )
   }
 
   const removeChild = (index: number) => {
     const currentChildren = (form.getValues("children") as Child[]) || []
     form.setValue(
       "children",
-      currentChildren.filter((_, i) => i !== index)
+      currentChildren.filter((_, i) => i !== index),
+      { shouldValidate: true, shouldDirty: true }
     )
   }
 
@@ -238,7 +411,10 @@ export default function MemberRegistrationForm() {
     const updatedChildren = currentChildren.map((child, i) =>
       i === index ? { ...child, [field]: value } : child
     )
-    form.setValue("children", updatedChildren)
+    form.setValue("children", updatedChildren, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
   }
 
   const handlePassportUpload = (url: string) => {
@@ -251,9 +427,10 @@ export default function MemberRegistrationForm() {
   }
 
   const moveToStep = (step: number) => {
-    if (step < currentStep) {
+    if (step <= maxVisited && step !== currentStep) {
       setCurrentStep(step)
-      setSubmitError(null) // Clear error when moving to previous step
+      setSubmitError(null) // Clear error when moving between visited steps
+      focusTitle()
     }
   }
 
@@ -301,16 +478,11 @@ export default function MemberRegistrationForm() {
         // Passport upload is now optional - no validation needed
         return true
       case 5:
-        stepFields.push("suggestions")
-        break
+        // Recommendations are optional — never block Next
+        return true
       case 6:
-        stepFields.push(
-          "memberSignature",
-          "memberSignedDate",
-          "pastorSignature",
-          "pastorSignedDate"
-        )
-        break
+        // Declaration signatures are optional for bulk admin entry
+        return true
       default:
         return true
     }
@@ -346,8 +518,11 @@ export default function MemberRegistrationForm() {
     }
 
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
+      const next = currentStep + 1
+      setCurrentStep(next)
+      setMaxVisited((prev) => Math.max(prev, next))
       window.scrollTo({ top: 0, behavior: "smooth" })
+      focusTitle()
     }
   }
 
@@ -356,6 +531,7 @@ export default function MemberRegistrationForm() {
       setCurrentStep(currentStep - 1)
       setSubmitError(null) // Clear error when going back
       window.scrollTo({ top: 0, behavior: "smooth" })
+      focusTitle()
     }
   }
 
@@ -474,16 +650,59 @@ export default function MemberRegistrationForm() {
     <Card className="mx-auto w-full max-w-5xl shadow-lg">
       <CardHeader className="border-b bg-linear-to-r from-primary/5 to-primary/10">
         <div className="mb-2 text-center">
-          <CardTitle className="mt-2 text-xl">MEMBERSHIP FORM</CardTitle>
+          <CardTitle ref={titleRef} tabIndex={-1} className="mt-2 text-xl">
+            MEMBERSHIP FORM
+          </CardTitle>
         </div>
       </CardHeader>
+
+      {pendingDraft && (
+        <div className="mx-6 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm">
+              Unsaved draft found. Resume where you left off?
+            </p>
+            <div className="flex gap-2">
+              <Button type="button" size="sm" onClick={resumeDraft}>
+                Resume
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={discardDraft}
+              >
+                Discard
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {duplicateMatch && currentStep === 0 && (
+        <div className="mx-6 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm">
+              Possible duplicate: this number is already registered to{" "}
+              <span className="font-semibold">{duplicateMatch.name}</span>.
+            </p>
+            <Button type="button" size="sm" variant="outline" asChild>
+              <Link href={`/dashboard/members/${duplicateMatch.id}`}>
+                View member
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
 
       <CardContent className="pt-6">
         <div className="mb-8">
           <div className="mb-2 flex justify-between text-sm font-medium">
-            <span>Registration Progress</span>
+            <span>
+              Step {currentStep + 1} of {steps.length} — Registration Progress
+            </span>
             <span className="text-primary">
-              {Math.round(progress)}% Complete
+              {progress}% of required fields filled
             </span>
           </div>
           <FormProgress value={progress} />
@@ -492,13 +711,22 @@ export default function MemberRegistrationForm() {
         <StepIndicator
           steps={steps}
           currentStep={currentStep}
+          maxVisited={maxVisited}
           passportUrl={passportUrl}
           onStepClick={moveToStep}
         />
 
         <form
           id="member-registration-form"
-          onSubmit={(event) => event.preventDefault()}
+          onSubmit={(event) => {
+            if (currentStep < steps.length - 1) {
+              // Enter on earlier steps advances instead of submitting
+              event.preventDefault()
+              void nextStep()
+            } else {
+              void handleFormSubmit(event)
+            }
+          }}
         >
           <FieldGroup>
             {currentStep === 0 && (
@@ -577,12 +805,13 @@ export default function MemberRegistrationForm() {
               {successMessage}
               {createdMember && (
                 <span className="mt-1 block font-semibold text-foreground">
-                  {createdMember.name} has been added to the membership.
+                  {createdMember.name} has been added to the membership. Form
+                  cleared — ready for the next entry.
                 </span>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="flex justify-center gap-2 pt-4">
+          <div className="flex flex-wrap justify-center gap-2 pt-4">
             {createdMember?.id && (
               <Button asChild variant="outline">
                 <Link href={`/dashboard/members/${createdMember.id}`}>
@@ -590,6 +819,16 @@ export default function MemberRegistrationForm() {
                 </Link>
               </Button>
             )}
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowSuccessModal(false)
+                window.scrollTo({ top: 0, behavior: "smooth" })
+                focusTitle()
+              }}
+            >
+              Register another
+            </Button>
             <AlertDialogAction
               onClick={() => setShowSuccessModal(false)}
               className="bg-green-600 text-white hover:bg-green-700"
@@ -597,6 +836,30 @@ export default function MemberRegistrationForm() {
               OK
             </AlertDialogAction>
           </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard all entries?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This clears every step of this form and any autosaved draft. This
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep editing</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                resetForm()
+                setShowResetConfirm(false)
+              }}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Discard
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
@@ -613,14 +876,18 @@ export default function MemberRegistrationForm() {
         </Button>
 
         <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={resetForm}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setShowResetConfirm(true)}
+          >
             Reset
           </Button>
 
           {currentStep === steps.length - 1 ? (
             <Button
-              type="button"
-              onClick={handleFormSubmit}
+              type="submit"
+              form="member-registration-form"
               disabled={isSubmitting}
               className="gap-2 bg-green-600 hover:bg-green-700"
             >

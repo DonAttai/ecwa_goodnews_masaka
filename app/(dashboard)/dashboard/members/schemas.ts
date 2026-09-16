@@ -32,7 +32,14 @@ export const baseMemberFormSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
   otherNames: z.string().optional(),
   presentAddress: z.string().min(1, "Present address is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(1, "Phone number is required")
+    .regex(
+      /^(\+234|0)[789][01]\d{8}$/,
+      "Enter a valid Nigerian number e.g. 08031234567"
+    ),
   email: z
     .email({ message: "Invalid email address" })
     .optional()

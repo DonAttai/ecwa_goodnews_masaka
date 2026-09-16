@@ -2,7 +2,7 @@
 
 import { Controller, Control } from "react-hook-form"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
-import RequiredLabel from "../components/RequiredLabel"
+import { Badge } from "@/components/ui/badge"
 import ChildTable from "../components/ChildTable"
 import FellowshipSelector from "../components/FellowshipSelector"
 import { MemberFormValues } from "../../schemas"
@@ -39,13 +39,20 @@ export default function FamilyFellowshipStep({
         <div className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6">
           <div className="flex items-center justify-between">
             <FieldLabel>Children</FieldLabel>
-            <RequiredLabel />
+            <Badge variant="outline">Optional</Badge>
           </div>
           <ChildTable
             childrenList={childrenList}
             onChildAdd={onChildAdd}
             onChildRemove={onChildRemove}
             onChildUpdate={onChildUpdate}
+          />
+          <Controller
+            control={control}
+            name="children"
+            render={({ fieldState }) => (
+              <FieldError>{fieldState.error?.message}</FieldError>
+            )}
           />
         </div>
       )}
@@ -54,7 +61,7 @@ export default function FamilyFellowshipStep({
       <div className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6">
         <div className="flex items-center justify-between">
           <FieldLabel>Fellowship Groups</FieldLabel>
-          <RequiredLabel />
+          <Badge variant="outline">Optional</Badge>
         </div>
         <Controller
           control={control}
