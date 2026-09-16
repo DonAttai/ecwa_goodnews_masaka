@@ -61,8 +61,9 @@ export function CloudinaryUploader({
           onSuccess={({ info }) => {
             const url = typeof info === "string" ? undefined : info?.secure_url
             if (url) {
+              // Success toast lives with the parent (handlePassportUpload) —
+              // toasting here too produces a double toast.
               onUpload(url)
-              toast.success("Upload successful")
             } else {
               toast.error("No image URL returned")
             }
