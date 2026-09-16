@@ -1,56 +1,57 @@
-export const CORE_REQUIRED_FIELDS = [
+/**
+ * The "submittable set": fields that actually block submit.
+ *
+ * Fellowship groups, children, suggestions and declaration signatures are
+ * intentionally excluded (product decision: optional). YES/NO groups and
+ * maritalStatus are excluded too — the schema coerces/defaults them so they
+ * can never block. Progress and submit now share this single definition, so
+ * submit is possible ⟺ progress reads 100%.
+ */
+export const BASE_SUBMITTABLE_FIELDS = [
   "surname",
   "firstName",
   "presentAddress",
   "phoneNumber",
-  "maritalStatus",
   "gender",
   "stateOfOrigin",
   "lga",
   "tribe",
-  "acceptedChrist",
-  "baptized",
-  "communicant",
-  "beenOnDiscipline",
 ] as const
 
-export type CoreRequiredField = (typeof CORE_REQUIRED_FIELDS)[number]
+export type SubmittableField = string
 
 function isNonEmpty(value: unknown): boolean {
   return value != null && String(value).trim() !== ""
 }
 
-/**
- * Counts required fields the user actually provided.
- *
- * Schema defaults (e.g. maritalStatus "SINGLE", YES/NO radio groups) must NOT
- * count until the user touches them — otherwise a pristine form reads 38%.
- * A field counts when it is non-empty AND (dirty OR different from default),
- * so restored drafts (reset = pristine) still score correctly.
- */
-export function countFilledRequired(
-  values: Record<string, unknown>,
-  dirtyFields: Partial<Record<string, unknown>> | undefined,
-  defaultValues: Record<string, unknown>
-): number {
-  return CORE_REQUIRED_FIELDS.filter((key) => {
-    const value = values[key]
-    if (!isNonEmpty(value)) return false
-    if (dirtyFields?.[key]) return true
-    const defaultValue = defaultValues[key]
-    if (defaultValue == null || defaultValue === "") return true
-    return String(value) !== String(defaultValue)
-  }).length
+/** Base fields plus whatever the member's answers make obligatory. */
+export function getSubmittableFields(
+  values: Record<string, unknown>
+): string[] {
+  const fields: string[] = [...BASE_SUBMITTABLE_FIELDS]
+  if (values.maritalStatus === "MARRIED") {
+    fields.push("spouseName")
+  }
+  if (values.baptized === "YES") {
+    fields.push("baptismPlace", "baptizedBy")
+  }
+  if (values.beenOnDiscipline === "YES") {
+    fields.push("disciplineReason")
+  }
+  return fields
 }
 
-export function requiredProgress(
-  values: Record<string, unknown>,
-  dirtyFields: Partial<Record<string, unknown>> | undefined,
-  defaultValues: Record<string, unknown>
+export function countFilledSubmittable(
+  values: Record<string, unknown>
 ): number {
-  return Math.round(
-    (countFilledRequired(values, dirtyFields, defaultValues) /
-      CORE_REQUIRED_FIELDS.length) *
-      100
-  )
+  return getSubmittableFields(values).filter((key) =>
+    isNonEmpty(values[key])
+  ).length
+}
+
+export function submittableProgress(
+  values: Record<string, unknown>
+): number {
+  const required = getSubmittableFields(values)
+  return Math.round((countFilledSubmittable(values) / required.length) * 100)
 }

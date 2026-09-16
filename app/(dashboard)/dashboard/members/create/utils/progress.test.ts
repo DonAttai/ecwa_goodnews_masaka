@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest"
 import {
-  requiredProgress,
-  countFilledRequired,
-  CORE_REQUIRED_FIELDS,
+  submittableProgress,
+  countFilledSubmittable,
+  getSubmittableFields,
+  BASE_SUBMITTABLE_FIELDS,
 } from "./progress"
 
-const DEFAULTS: Record<string, unknown> = {
+const EMPTY: Record<string, unknown> = {
   surname: "",
   firstName: "",
   presentAddress: "",
@@ -19,44 +20,81 @@ const DEFAULTS: Record<string, unknown> = {
   baptized: "NO",
   communicant: "NO",
   beenOnDiscipline: "NO",
+  spouseName: "",
+  baptismPlace: "",
+  baptizedBy: "",
+  disciplineReason: "",
 }
 
-describe("requiredProgress", () => {
-  it("scores a pristine form at 0% (defaults must not count)", () => {
-    expect(requiredProgress({ ...DEFAULTS }, {}, DEFAULTS)).toBe(0)
-    expect(countFilledRequired({ ...DEFAULTS }, {}, DEFAULTS)).toBe(0)
+const FULL_BASE: Record<string, unknown> = {
+  ...EMPTY,
+  surname: "Doe",
+  firstName: "John",
+  presentAddress: "1 Church St",
+  phoneNumber: "08031234567",
+  gender: "MALE",
+  stateOfOrigin: "Nasarawa",
+  lga: "Karu",
+  tribe: "Mada",
+}
+
+describe("submittableProgress", () => {
+  it("scores a pristine form at 0% (defaults never count)", () => {
+    expect(submittableProgress({ ...EMPTY })).toBe(0)
+    expect(countFilledSubmittable({ ...EMPTY })).toBe(0)
   })
 
-  it("counts untouched non-defaulted fields once filled", () => {
-    const values = { ...DEFAULTS, surname: "Doe", gender: "MALE" }
-    expect(countFilledRequired(values, {}, DEFAULTS)).toBe(2)
+  it("has 8 base obligations for a single, unbaptized member", () => {
+    expect(getSubmittableFields({ ...EMPTY })).toHaveLength(
+      BASE_SUBMITTABLE_FIELDS.length
+    )
+    expect(BASE_SUBMITTABLE_FIELDS).toHaveLength(8)
   })
 
-  it("ignores untouched schema defaults", () => {
-    const values = { ...DEFAULTS }
-    expect(countFilledRequired(values, {}, DEFAULTS)).toBe(0)
+  it("reaches exactly 100% when the base set is filled", () => {
+    expect(submittableProgress({ ...FULL_BASE })).toBe(100)
   })
 
-  it("counts explicitly confirmed defaults once dirty", () => {
-    const values = { ...DEFAULTS }
-    const dirty = { maritalStatus: true, acceptedChrist: true }
-    expect(countFilledRequired(values, dirty, DEFAULTS)).toBe(2)
+  it("grows the denominator when married (spouse becomes obligatory)", () => {
+    const values = { ...FULL_BASE, maritalStatus: "MARRIED" }
+    expect(getSubmittableFields(values)).toContain("spouseName")
+    // 8 of 9 filled
+    expect(submittableProgress(values)).toBe(89)
+    expect(
+      submittableProgress({ ...values, spouseName: "Jane Doe" })
+    ).toBe(100)
   })
 
-  it("counts restored drafts that differ from defaults (reset = pristine)", () => {
-    const values = { ...DEFAULTS, acceptedChrist: "YES", surname: "Doe" }
-    expect(countFilledRequired(values, {}, DEFAULTS)).toBe(2)
+  it("adds baptism details when baptized", () => {
+    const values = { ...FULL_BASE, baptized: "YES" }
+    expect(getSubmittableFields(values)).toEqual(
+      expect.arrayContaining(["baptismPlace", "baptizedBy"])
+    )
+    // 8 of 10 filled
+    expect(submittableProgress(values)).toBe(80)
+    expect(
+      submittableProgress({
+        ...values,
+        baptismPlace: "River Jordan",
+        baptizedBy: "Pastor Paul",
+      })
+    ).toBe(100)
   })
 
-  it("reaches 100% when all required fields are user-provided", () => {
-    const values: Record<string, unknown> = {}
-    for (const key of CORE_REQUIRED_FIELDS) {
-      values[key] = DEFAULTS[key] === "NO" ? "YES" : `x-${key}`
+  it("adds discipline reason when on discipline", () => {
+    const values = { ...FULL_BASE, beenOnDiscipline: "YES" }
+    expect(getSubmittableFields(values)).toContain("disciplineReason")
+    // 8 of 9 filled
+    expect(submittableProgress(values)).toBe(89)
+  })
+
+  it("ignores optional extras (fellowship, signatures, suggestions)", () => {
+    const values = {
+      ...FULL_BASE,
+      fellowshipGroupIds: [],
+      suggestions: "",
+      memberSignature: "",
     }
-    values.maritalStatus = "MARRIED"
-    values.gender = "FEMALE"
-    const dirty: Record<string, unknown> = {}
-    for (const key of CORE_REQUIRED_FIELDS) dirty[key] = true
-    expect(requiredProgress(values, dirty, DEFAULTS)).toBe(100)
+    expect(submittableProgress(values)).toBe(100)
   })
 })

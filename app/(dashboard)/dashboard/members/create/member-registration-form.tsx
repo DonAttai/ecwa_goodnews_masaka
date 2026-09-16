@@ -60,7 +60,7 @@ import {
   clearDraft,
   type MemberDraft,
 } from "./utils/draft"
-import { requiredProgress } from "./utils/progress"
+import { submittableProgress } from "./utils/progress"
 
 interface Child {
   name: string
@@ -212,14 +212,8 @@ export default function MemberRegistrationForm({
   const hasBeenOnDiscipline = form.watch("beenOnDiscipline") === "YES"
 
   const allWatchedValues = form.watch()
-  // formState read subscribes this component to dirty-field updates
-  const dirtyFields = form.formState.dirtyFields as Partial<
-    Record<string, unknown>
-  >
-  const progress = requiredProgress(
-    allWatchedValues as unknown as Record<string, unknown>,
-    dirtyFields,
-    DEFAULT_VALUES as unknown as Record<string, unknown>
+  const progress = submittableProgress(
+    allWatchedValues as unknown as Record<string, unknown>
   )
 
   // Offer to resume an autosaved draft (shared admin PCs: explicit opt-in)
@@ -421,6 +415,89 @@ export default function MemberRegistrationForm({
     }
   }
 
+  /** Maps any form field to the wizard step that renders it. */
+  const stepForField = (field: string): number => {
+    if (
+      [
+        "surname",
+        "firstName",
+        "otherNames",
+        "presentAddress",
+        "phoneNumber",
+        "email",
+        "previousPlaceOfWorship",
+        "maritalStatus",
+        "gender",
+        "spouseName",
+        "homeCell",
+        "zone",
+        "stateOfOrigin",
+        "lga",
+        "tribe",
+      ].includes(field)
+    ) {
+      return 0
+    }
+    if (["children", "fellowshipGroupIds"].includes(field)) {
+      return 1
+    }
+    if (
+      [
+        "acceptedChrist",
+        "baptized",
+        "baptismPlace",
+        "baptizedBy",
+        "communicant",
+      ].includes(field)
+    ) {
+      return 2
+    }
+    if (
+      [
+        "beenOnDiscipline",
+        "disciplineReason",
+        "disciplineDate",
+        "disciplineReliefDate",
+        "previousChurchPosition",
+      ].includes(field)
+    ) {
+      return 3
+    }
+    if (["suggestions"].includes(field)) {
+      return 5
+    }
+    if (
+      [
+        "memberSignature",
+        "memberSignedDate",
+        "pastorSignature",
+        "pastorSignedDate",
+      ].includes(field)
+    ) {
+      return 6
+    }
+    return 0
+  }
+
+  /** Jumps to the step containing a failed field and focuses it. */
+  const goToFieldStep = (field: string) => {
+    const step = stepForField(field)
+    setCurrentStep(step)
+    setMaxVisited((prev) => Math.max(prev, step))
+    setSubmitError("Please check the highlighted fields for errors")
+    focusTitle()
+    setTimeout(() => {
+      const errorElement = document.querySelector(
+        `[name="${field}"]`
+      ) as HTMLElement | null
+      errorElement?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      })
+      errorElement?.focus({ preventScroll: true })
+    }, 100)
+  }
+
   const validateCurrentStep = async () => {
     // Clear previous errors before validation
     setSubmitError(null)
@@ -569,49 +646,9 @@ export default function MemberRegistrationForm({
         setSubmitError("Please check the highlighted fields for errors")
 
         const errorField = Object.keys(result.fieldErrors)[0]
-        let errorStepIndex = 0
-
-        if (
-          [
-            "surname",
-            "firstName",
-            "presentAddress",
-            "phoneNumber",
-            "maritalStatus",
-            "gender",
-            "stateOfOrigin",
-            "lga",
-            "tribe",
-          ].includes(errorField)
-        ) {
-          errorStepIndex = 0
-        } else if (["fellowshipGroupIds"].includes(errorField)) {
-          errorStepIndex = 1
-        } else if (
-          ["acceptedChrist", "baptized", "communicant"].includes(errorField)
-        ) {
-          errorStepIndex = 2
-        } else if (["beenOnDiscipline"].includes(errorField)) {
-          errorStepIndex = 3
-        } else if (
-          [
-            "memberSignature",
-            "memberSignedDate",
-            "pastorSignature",
-            "pastorSignedDate",
-          ].includes(errorField)
-        ) {
-          errorStepIndex = 6
+        if (errorField) {
+          goToFieldStep(errorField)
         }
-
-        setCurrentStep(errorStepIndex)
-        setTimeout(() => {
-          const errorElement = document.querySelector(`[name="${errorField}"]`)
-          errorElement?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          })
-        }, 100)
       } else {
         const errorMsg = result.message || "Failed to register member"
         toast.error(errorMsg)
@@ -629,8 +666,18 @@ export default function MemberRegistrationForm({
     }
   }
 
-  const handleFormSubmit = form.handleSubmit(onSubmit, () => {
-    toast.error("Please fill in all required fields correctly")
+  // Full-schema gate: onSubmit only fires when the whole form is valid.
+  // Otherwise jump to the first failing step instead of submitting.
+  const handleFormSubmit = form.handleSubmit(onSubmit, (errors) => {
+    const firstField = Object.keys(errors)[0]
+    if (firstField) {
+      goToFieldStep(firstField)
+      toast.error(
+        `Step ${stepForField(firstField) + 1}: please complete the highlighted fields`
+      )
+    } else {
+      toast.error("Please fill in all required fields correctly")
+    }
   })
 
   return (

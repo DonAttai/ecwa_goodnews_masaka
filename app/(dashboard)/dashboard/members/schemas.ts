@@ -45,9 +45,9 @@ export const baseMemberFormSchema = z.object({
     .optional()
     .or(z.literal("")),
   previousPlaceOfWorship: z.string().optional(),
-  maritalStatus: z
-    .enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED", "SEPARATED"])
-    .nullable(),
+  maritalStatus: z.enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED", "SEPARATED"], {
+    error: "Please select a marital status",
+  }),
   gender: z.preprocess(
     (val) => (val === "" ? undefined : val),
     z.enum(["MALE", "FEMALE"], {

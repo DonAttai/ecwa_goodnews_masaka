@@ -53,4 +53,34 @@ describe("memberFormSchema phone validation", () => {
     })
     expect(r.success).toBe(false)
   })
+
+  it("requires marital status (no longer nullable)", () => {
+    for (const bad of [null, undefined, ""]) {
+      const payload = { ...baseValid, maritalStatus: bad }
+      const r = memberFormSchema.safeParse(payload)
+      expect(r.success, String(bad)).toBe(false)
+    }
+  })
+
+  it("accepts a submittable-set payload end to end", () => {
+    const r = memberFormSchema.safeParse(baseValid)
+    expect(r.success).toBe(true)
+  })
+
+  it("requires baptism details when baptized", () => {
+    const r = memberFormSchema.safeParse({
+      ...baseValid,
+      baptized: "YES",
+      baptismPlace: "",
+      baptizedBy: "",
+    })
+    expect(r.success).toBe(false)
+    const ok = memberFormSchema.safeParse({
+      ...baseValid,
+      baptized: "YES",
+      baptismPlace: "River Jordan",
+      baptizedBy: "Pastor Paul",
+    })
+    expect(ok.success).toBe(true)
+  })
 })
