@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Script from "next/script"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FieldPath, Resolver, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -681,7 +682,14 @@ export default function MemberRegistrationForm({
   })
 
   return (
-    <Card className="mx-auto w-full max-w-5xl shadow-lg">
+    <>
+      {/* Warm the Cloudinary upload-widget CDN script while the admin fills
+          earlier steps, so Step 4 (passport) mounts instantly from cache. */}
+      <Script
+        src="https://upload-widget.cloudinary.com/global/all.js"
+        strategy="lazyOnload"
+      />
+      <Card className="mx-auto w-full max-w-5xl shadow-lg">
       <CardHeader className="border-b bg-linear-to-r from-primary/5 to-primary/10">
         <div className="mb-2 text-center">
           <CardTitle ref={titleRef} tabIndex={-1} className="mt-2 text-xl">
@@ -953,6 +961,7 @@ export default function MemberRegistrationForm({
           )}
         </div>
       </CardFooter>
-    </Card>
+      </Card>
+    </>
   )
 }

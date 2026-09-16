@@ -83,7 +83,7 @@ export function CloudinaryUploader({
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Uploading...
+                  Preparing photo upload...
                 </>
               ) : (
                 <>
