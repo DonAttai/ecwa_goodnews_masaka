@@ -65,9 +65,13 @@ export default async function MemberDetailsPage({
           <div className="absolute inset-0 bg-linear-to-r from-primary/10 via-primary/5 to-transparent" />
           <CardContent className="relative p-6 sm:p-8">
             <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
-              <Avatar className="h-28 w-28 border-4 border-background shadow-xl sm:h-32 sm:w-32">
+              <Avatar className="h-28 w-28 rounded-2xl border-4 border-background shadow-xl after:rounded-2xl sm:h-32 sm:w-32">
                 {member.passportUrl ? (
-                  <AvatarImage src={member.passportUrl} alt="Passport" />
+                  <AvatarImage
+                    src={member.passportUrl}
+                    alt="Passport"
+                    className="rounded-2xl"
+                  />
                 ) : (
                   <AvatarFallback className="bg-linear-to-br from-primary to-primary/70 text-2xl text-white sm:text-3xl">
                     {getInitials()}

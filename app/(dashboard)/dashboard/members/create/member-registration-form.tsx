@@ -869,21 +869,15 @@ export default function MemberRegistrationForm({
                 </Link>
               </Button>
             )}
-            <Button
-              variant="outline"
+            <AlertDialogAction
               onClick={() => {
                 setShowSuccessModal(false)
                 window.scrollTo({ top: 0, behavior: "smooth" })
                 focusTitle()
               }}
-            >
-              Register another
-            </Button>
-            <AlertDialogAction
-              onClick={() => setShowSuccessModal(false)}
               className="bg-green-600 text-white hover:bg-green-700"
             >
-              OK
+              Done
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
