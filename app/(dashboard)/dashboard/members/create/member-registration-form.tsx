@@ -60,6 +60,7 @@ import {
   clearDraft,
   type MemberDraft,
 } from "./utils/draft"
+import { requiredProgress } from "./utils/progress"
 
 interface Child {
   name: string
@@ -210,29 +211,15 @@ export default function MemberRegistrationForm({
   const isBaptized = form.watch("baptized") === "YES"
   const hasBeenOnDiscipline = form.watch("beenOnDiscipline") === "YES"
 
-  const CORE_REQUIRED_FIELDS = [
-    "surname",
-    "firstName",
-    "presentAddress",
-    "phoneNumber",
-    "maritalStatus",
-    "gender",
-    "stateOfOrigin",
-    "lga",
-    "tribe",
-    "acceptedChrist",
-    "baptized",
-    "communicant",
-    "beenOnDiscipline",
-  ] as const
-
   const allWatchedValues = form.watch()
-  const filledRequired = CORE_REQUIRED_FIELDS.filter((key) => {
-    const value = allWatchedValues[key]
-    return value != null && String(value).trim() !== ""
-  }).length
-  const progress = Math.round(
-    (filledRequired / CORE_REQUIRED_FIELDS.length) * 100
+  // formState read subscribes this component to dirty-field updates
+  const dirtyFields = form.formState.dirtyFields as Partial<
+    Record<string, unknown>
+  >
+  const progress = requiredProgress(
+    allWatchedValues as unknown as Record<string, unknown>,
+    dirtyFields,
+    DEFAULT_VALUES as unknown as Record<string, unknown>
   )
 
   // Offer to resume an autosaved draft (shared admin PCs: explicit opt-in)
