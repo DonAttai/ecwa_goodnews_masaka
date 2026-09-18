@@ -9,6 +9,9 @@ export async function logout() {
 }
 
 // get current user
+// DB-truth gate ($0, no migration): deactivation / password-removal takes
+// effect immediately because we return null for inactive or password-less
+// accounts instead of trusting the JWT alone.
 export async function getCurrentUser() {
   const session = await getSession()
 
@@ -22,6 +25,7 @@ export async function getCurrentUser() {
       email: true,
       role: true,
       isActive: true,
+      password: true,
       department: {
         select: {
           id: true,
@@ -32,12 +36,15 @@ export async function getCurrentUser() {
     },
   })
 
-  return user
+  if (!user || !user.isActive || !user.password) return null
+
+  const { password: _password, ...safeUser } = user
+  return safeUser
 }
 
 export async function isAdmin() {
-  const session = await getSession()
-  return session?.role === "ADMIN"
+  const user = await getCurrentUser()
+  return user?.role === "ADMIN"
 }
 
 // Admin-only user management actions

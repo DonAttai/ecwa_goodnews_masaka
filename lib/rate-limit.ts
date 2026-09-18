@@ -12,11 +12,19 @@ type RateLimitResult = {
 }
 
 /**
- * Simple in-memory sliding-window rate limiter.
+ * Simple in-memory sliding-window rate limiter ($0, no Redis).
  *
- * NOTE: counters live in process memory, so this is per-server-instance.
- * It is sufficient for a single self-hosted node; for multi-instance
- * deployments replace this with a shared store (e.g. Redis/Upstash).
+ * NOTE (kept per project decision): counters live in process memory, so this
+ * is per-server-instance and resets on redeploy. On Vercel Hobby
+ * (serverless/multi-instance) this is best-effort brute-force friction, not
+ * a hard global cap. Keys always combine user/email+IP so one attacker
+ * cannot exhaust another user's bucket. A Postgres-backed limiter was
+ * deliberately deferred to avoid extra DB writes/cost.
+ *
+ * Standard budgets (1h windows):
+ * - login: 10/hr per email+IP
+ * - forgot/reset/set-password: 5/hr per email-or-token+IP
+ * - cloudinary-sign: 30/hr per user+IP
  */
 
 const buckets = new Map<string, number[]>()
@@ -48,6 +56,15 @@ export function rateLimit({ key, limit, windowMs }: RateLimitOptions): RateLimit
 export async function getClientIp(): Promise<string> {
   const h = await headers()
   const xff = h.get("x-forwarded-for")
-  if (xff) return xff.split(",")[0].trim()
-  return h.get("x-real-ip") ?? "unknown"
+  if (xff) {
+    const first = xff.split(",")[0].trim()
+    if (first) return first
+  }
+  const realIp = h.get("x-real-ip")?.trim()
+  return realIp || "unknown"
+}
+
+/** Standard `Retry-After` header value for 429 responses. */
+export function retryAfterHeaders(retryAfterSec: number): Record<string, string> {
+  return { "Retry-After": String(Math.max(1, retryAfterSec)) }
 }

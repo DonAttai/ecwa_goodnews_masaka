@@ -36,9 +36,9 @@ CI (`.github/workflows/ci.yml`, free minutes): install → `prisma validate` →
 
 ## Auth & security ($0)
 
-* JWT (`7d`) in httpOnly `SameSite=lax` cookie. Edge `proxy.ts` gates `/dashboard`; handlers re-check via `getCurrentUser()` (defense in depth).
-* Login/forgot/reset/set-password + `cloudinary-sign` rate-limited in-memory (30-10/hr per user+IP). Resets on redeploy / per Edge instance — accepted tradeoff to avoid paid Redis.
-* Security headers in `next.config.mjs` (HSTS, CSP, frame-ancestors none, etc.). Uploads restricted to `members/events/sermons/gallery/receipts`.
+* JWT (`7d`) in httpOnly `SameSite=lax` cookie (cookie `maxAge` derived from `JWT_EXPIRES_IN` via `lib/session-max-age.ts`). Edge `proxy.ts` gates `/dashboard`; handlers re-check via DB-truth `getCurrentUser()` / `requireAdmin()` / `requireEditor()` (role + `isActive` re-read every call, so demotion/deactivation applies instantly; logout clears cookie only — token valid until expiry by design, no migration).
+* Login/forgot/reset/set-password + `cloudinary-sign` rate-limited in-memory (login 10/hr, forgot/reset/set-password 5/hr, sign 30/hr per user+IP) with `Retry-After`. Resets on redeploy / per instance — accepted $0 tradeoff to avoid paid Redis.
+* Security headers in `next.config.mjs` (HSTS, CSP, frame-ancestors none, etc.). Uploads restricted to `members/events/sermons/gallery/receipts/requisitions`, JPG/PNG/WEBP/PDF, 5MB max (`lib/cloudinary.ts`).
 * `GET /api/health` is public for Vercel checks; everything else under `/api` (except `/api/public/*`) requires session.
 
 ## Vercel Hobby notes (small church)
@@ -50,4 +50,4 @@ Fits free tier: ~10GB of 100GB transfer, <100k of 1M invocations, ~9k of 200k IS
 * Env: copy `.env.example`; `JWT_SECRET` 32+ chars or boot fails with `Invalid environment`.
 * DB: Vercel env `DATABASE_URL` (pooled) + `DIRECT_URL` (migrate). Build runs `prisma generate`; set Vercel Build Command to `prisma migrate deploy && next build` if auto-migrating.
 * Cron (optional, free 10k/mo): add Vercel Cron hitting an admin cleanup route for expired `PasswordSetupToken` / `resetToken`.
-* Backups: enable PITR on Neon/Supabase. Never commit `dev.db` (gitignored).
+* Backups: enable PITR on Neon/Supabase. Never commit `dev.db` (gitignored). Manual dump: `./scripts/backup-live.sh` (needs `DIRECT_URL`, see `docs/live-migrate.md`).

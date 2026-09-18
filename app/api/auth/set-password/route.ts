@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcrypt"
 import { revalidatePath } from "next/cache"
 import { NextResponse } from "next/server"
-import { getClientIp, rateLimit } from "@/lib/rate-limit"
+import { getClientIp, rateLimit, retryAfterHeaders } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         },
         {
           status: 429,
-          headers: { "Retry-After": String(throttled.retryAfterSec) },
+          headers: retryAfterHeaders(throttled.retryAfterSec),
         }
       )
     }

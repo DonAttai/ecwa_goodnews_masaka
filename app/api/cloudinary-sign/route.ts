@@ -2,7 +2,7 @@ import { v2 as cloudinary } from "cloudinary"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { getCurrentUser } from "@/app/actions/auth"
-import { getClientIp, rateLimit } from "@/lib/rate-limit"
+import { getClientIp, rateLimit, retryAfterHeaders } from "@/lib/rate-limit"
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   if (!throttled.ok) {
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
-      { status: 429 }
+      { status: 429, headers: retryAfterHeaders(throttled.retryAfterSec) }
     )
   }
 

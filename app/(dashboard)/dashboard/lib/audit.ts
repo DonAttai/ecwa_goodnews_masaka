@@ -53,3 +53,42 @@ export const auditMetadataSchema = z.record(
   z.string(),
   z.unknown()
 ).optional()
+
+/**
+ * $0 requisition trail without a Prisma migration.
+ *
+ * `AuditAction`/`EntityType` currently only cover USER/MEMBER, so requisition
+ * status changes are tracked via the existing money-trail fields
+ * (`requestedBy/approvedBy/paidBy`, `approvedAt/paidAt`) plus user-facing
+ * `Notification` rows (see `requisitions/actions.ts`). When a migration is
+ * allowed, extend the enums like:
+ *
+ * ```prisma
+ * enum AuditAction { ... CREATE_REQUISITION UPDATE_REQUISITION_STATUS }
+ * enum EntityType { MEMBER USER REQUISITION }
+ * ```
+ *
+ * then switch this helper to `logAudit({ action: "UPDATE_REQUISITION_STATUS",
+ * entity: "REQUISITION", ... })`.
+ */
+export async function logRequisitionEvent(input: {
+  userId: string
+  requisitionId: string
+  title: string
+  status: string
+  message: string
+}): Promise<void> {
+  const { createNotification } = await import("@/lib/notifications")
+  await createNotification({
+    userId: input.userId,
+    title: `Requisition ${input.status.toLowerCase()}: ${input.title}`,
+    message: input.message,
+    type: "INFO",
+    link: "/dashboard/requisitions",
+  }).catch((error) => {
+    console.error("[audit] Failed to write requisition event", {
+      error,
+      requisitionId: input.requisitionId,
+    })
+  })
+}
