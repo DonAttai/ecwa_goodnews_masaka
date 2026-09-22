@@ -15,7 +15,7 @@ export default function MemberDetailSkeleton() {
           <div className="absolute inset-0 bg-linear-to-r from-primary/10 via-primary/5 to-transparent" />
           <CardContent className="relative p-6 sm:p-8">
             <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
-              <Skeleton className="h-28 w-28 shrink-0 rounded-full sm:h-32 sm:w-32" />
+              <Skeleton className="h-28 w-28 shrink-0 rounded-2xl sm:h-32 sm:w-32" />
 
               <div className="flex-1 space-y-3 text-center md:text-left">
                 <Skeleton className="h-8 w-56 sm:h-9 sm:w-72" />
