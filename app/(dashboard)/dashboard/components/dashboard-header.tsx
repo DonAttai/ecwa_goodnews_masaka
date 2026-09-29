@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Settings, UserCog, ExternalLink, Globe, Search } from "lucide-react"
+import { LogOut, Settings, UserCog, ExternalLink, Globe } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { logout } from "@/app/actions/auth"
 import NotificationBell from "./notification-bell"
@@ -17,25 +18,7 @@ import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { getInitials } from "../utils"
 
-const TITLE_MAP: Record<string, { title: string; eyebrow: string }> = {
-  "/dashboard": { title: "Overview", eyebrow: "Dashboard" },
-  "/dashboard/members": { title: "Members", eyebrow: "People" },
-  "/dashboard/requisitions": { title: "Requisitions", eyebrow: "Finance" },
-  "/dashboard/users": { title: "Team", eyebrow: "Manage" },
-  "/dashboard/settings": { title: "Settings", eyebrow: "Manage" },
-  "/dashboard/profile": { title: "Profile", eyebrow: "Account" },
-}
-
-function titleFor(pathname: string) {
-  const keys = Object.keys(TITLE_MAP).sort((a, b) => b.length - a.length)
-  for (const k of keys) {
-    if (k === "/dashboard" ? pathname === k : pathname.startsWith(k)) return TITLE_MAP[k]
-  }
-  return { title: "Dashboard", eyebrow: "Overview" }
-}
-
 interface DashboardHeaderProps {
-  title: string
   user: {
     name: string
     email: string
@@ -44,53 +27,46 @@ interface DashboardHeaderProps {
   }
 }
 
-export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
+function formatCrumb(s: string) {
+  return s.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())
+}
+
+export default function DashboardHeader({ user }: DashboardHeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
   const isAdmin = user.role === "ADMIN"
   const canManageSite = isAdmin || user.role === "EDITOR"
-  const resolved = titleFor(pathname)
-  const crumbs = pathname.split("/").filter(Boolean).slice(1)
+  const segments = pathname.split("/").filter(Boolean)
+  // ["dashboard", "members", ...] -> breadcrumb trails with hrefs
+  const crumbs = segments.map((s, i) => ({
+    label: i === 0 ? "Dashboard" : formatCrumb(s),
+    href: "/" + segments.slice(0, i + 1).join("/"),
+    isLast: i === segments.length - 1,
+  }))
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border/50 bg-card/80 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
-      {/* LEFT */}
-      <div className="flex min-w-0 items-center gap-3">
-        <div className="min-w-0">
-          <p className="text-[11px] font-bold tracking-[0.22em] text-[#8a6d1b] uppercase dark:text-[#e8d5a3]">
-            {resolved.eyebrow}
-          </p>
-          <h1 className="truncate text-xl font-bold text-foreground sm:text-2xl">
-            {title === "Dashboard" ? resolved.title : title}
-          </h1>
-          {crumbs.length > 0 && (
-            <nav aria-label="Breadcrumb" className="hidden text-xs text-muted-foreground sm:block">
-              <ol className="flex items-center gap-1">
-                {crumbs.map((c, i) => (
-                  <li key={`${c}-${i}`} className="flex items-center gap-1">
-                    {i > 0 && <span aria-hidden>/</span>}
-                    <span className={i === crumbs.length - 1 ? "font-medium text-foreground" : ""}>
-                      {c.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          )}
-        </div>
-      </div>
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border/50 bg-card/80 px-4 backdrop-blur-xl sm:px-8">
+      {/* LEFT — breadcrumb only. Page owns the h1 via PageHeader. */}
+      <nav aria-label="Breadcrumb" className="min-w-0">
+        <ol className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+          {crumbs.map((c) => (
+            <li key={c.href} className="flex min-w-0 items-center gap-1.5">
+              <span aria-hidden className="text-border">/</span>
+              {c.isLast ? (
+                <span aria-current="page" className="truncate font-medium text-foreground">
+                  {c.label}
+                </span>
+              ) : (
+                <Link href={c.href} className="shrink-0 transition hover:text-foreground">
+                  {c.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        <button
-          type="button"
-          aria-label="Search (Ctrl+K)"
-          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
-          className="hidden h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground md:inline-flex"
-        >
-          <Search className="h-4 w-4" />
-          Search…
-          <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] font-semibold">⌘K</kbd>
-        </button>
         <ModeToggle />
         <NotificationBell iconOnly className="h-10 w-10" />
         <a

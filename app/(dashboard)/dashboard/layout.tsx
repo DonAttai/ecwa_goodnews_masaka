@@ -35,7 +35,7 @@ export default async function DashboardLayout({
 
       {/* MAIN CONTENT AREA */}
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-        <DashboardHeader title="Dashboard" user={currentUser} />
+        <DashboardHeader user={currentUser} />
 
         {/* Only the main content scrolls, header and footer are fixed */}
         <main id="main-content" className="flex-1 overflow-y-auto bg-background">
