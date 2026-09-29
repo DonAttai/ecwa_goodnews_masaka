@@ -96,8 +96,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="mr-4 w-56 rounded-2xl border border-border bg-popover p-2 shadow-lg">
             <div className="px-2 py-1.5">
-              <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>
-              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+              <p className="truncate text-sm text-muted-foreground">{user.email}</p>
             </div>
             <DropdownMenuSeparator />
             {isAdmin && (
