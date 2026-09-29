@@ -168,25 +168,6 @@
     border-radius: 6px;
   }
 
-  /* Skip link */
-  .skip-link {
-    position: fixed;
-    top: -100px;
-    left: 16px;
-    z-index: 100;
-    background: var(--primary);
-    color: var(--primary-foreground);
-    padding: 10px 18px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 14px;
-    transition: top 0.2s ease;
-  }
-
-  .skip-link:focus {
-    top: 12px;
-  }
-
   /* 🔥 CUSTOM SCROLLBAR */
   ::-webkit-scrollbar {
     width: 6px;

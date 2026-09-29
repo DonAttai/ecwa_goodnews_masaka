@@ -54,9 +54,6 @@ export default function RootLayout({
       )}
     >
       <body>
-        <a href="#main-content" className="skip-link">
-          Skip to content
-        </a>
         <ThemeProvider>{children}</ThemeProvider>
         <RegisterSW />
         <CustomToaster />
