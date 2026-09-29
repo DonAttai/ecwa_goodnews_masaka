@@ -54,26 +54,27 @@ export default function SiteFooter({ settings }: { settings: SiteSettings }) {
             </span>
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-6">
-            {settings.welcomeMessage}
+            A Bible-believing ECWA family in Masaka — worship, fellowship, and growth in Christ. Come as you are.
           </p>
           <div className="mt-5 flex items-center gap-2">
             {[
               { icon: FacebookIcon, label: "Facebook", href: settings.facebookUrl },
               { icon: InstagramIcon, label: "Instagram", href: settings.instagramUrl },
               { icon: YoutubeIcon, label: "YouTube", href: settings.youtubeUrl },
-            ].map((s) => (
-              <a
-                key={s.label}
-                href={s.href ?? "/contact"}
-                {...(s.href
-                  ? { target: "_blank", rel: "noreferrer" }
-                  : {})}
-                aria-label={s.label}
-                className="rounded-full border border-white/15 p-2.5 transition hover:border-[#c9a84c] hover:text-[#e8d5a3]"
-              >
-                <s.icon className="h-4 w-4" />
-              </a>
-            ))}
+            ]
+              .filter((s) => Boolean(s.href))
+              .map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href!}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${settings.churchName} on ${s.label}`}
+                  className="rounded-full border border-white/15 p-2.5 transition hover:border-[#c9a84c] hover:text-[#e8d5a3] focus-visible:ring-2 focus-visible:ring-[#c9a84c] focus-visible:outline-none"
+                >
+                  <s.icon className="h-4 w-4" />
+                </a>
+              ))}
           </div>
         </div>
 
@@ -123,11 +124,12 @@ export default function SiteFooter({ settings }: { settings: SiteSettings }) {
               { href: "/about", label: "About us" },
               { href: "/sermons", label: "Sermons" },
               { href: "/events", label: "Events" },
+              { href: "/gallery", label: "Gallery" },
               { href: "/give", label: "Give / Offerings" },
               { href: "/contact", label: "Prayer request" },
             ].map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="transition hover:text-white">
+                <Link href={l.href} className="transition hover:text-white focus-visible:text-white">
                   {l.label}
                 </Link>
               </li>

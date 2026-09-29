@@ -1,23 +1,20 @@
 import { getCurrentUser } from "@/app/actions/auth"
 import { redirect } from "next/navigation"
-import {
-  AlertCircle,
-  Banknote,
-  CheckCircle2,
-  CircleCheck,
-  ClipboardList,
-  Clock3,
-} from "lucide-react"
+import { Clock3, CheckCircle2, Banknote, Wallet } from "lucide-react"
 import { getRequisitions } from "./actions"
 import RequisitionForm from "./components/requisition-form"
 import RequisitionTable from "./requisition-table"
+import { PipelineBar } from "./pipeline-bar"
+import { PageHeader } from "@/components/ui/page-header"
+import { RequisitionStatus } from "@/generated/prisma/enums"
 
 const PAGE_SIZE = 20
+const VALID_STATUS = ["SUBMITTED", "APPROVED", "PAID", "COMPLETED", "REJECTED"] as const
 
 export default async function RequisitionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; status?: string }>
 }) {
   const [user, params] = await Promise.all([getCurrentUser(), searchParams])
 
@@ -27,11 +24,11 @@ export default async function RequisitionsPage({
   if (user.role === "EDITOR") redirect("/dashboard")
 
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1)
+  const status = VALID_STATUS.includes(params.status as (typeof VALID_STATUS)[number])
+    ? (params.status as RequisitionStatus)
+    : undefined
 
-  const { items, total, totalPages, summary } = await getRequisitions(
-    page,
-    PAGE_SIZE
-  )
+  const { items, total, totalPages, summary } = await getRequisitions(page, PAGE_SIZE, status)
 
   const currentPage = Math.min(page, totalPages)
 
@@ -45,89 +42,50 @@ export default async function RequisitionsPage({
     paidAt: item.paidAt?.toISOString() ?? null,
   }))
 
-  const summaryCards = [
-    {
-      title: "Total",
-      value: summary.total,
-      icon: ClipboardList,
-      accent: "from-slate-700 to-slate-900",
-    },
-    {
-      title: "Submitted",
-      value: summary.submitted,
-      icon: Clock3,
-      accent: "from-amber-500 to-orange-500",
-    },
-    {
-      title: "Approved",
-      value: summary.approved,
-      icon: CheckCircle2,
-      accent: "from-emerald-500 to-green-600",
-    },
-    {
-      title: "Paid",
-      value: summary.paid,
-      icon: Banknote,
-      accent: "from-sky-500 to-cyan-600",
-    },
-    {
-      title: "Completed",
-      value: summary.completed,
-      icon: CircleCheck,
-      accent: "from-indigo-500 to-violet-600",
-    },
-    {
-      title: "Rejected",
-      value: summary.rejected,
-      icon: AlertCircle,
-      accent: "from-rose-500 to-red-600",
-    },
+  const kpis = [
+    { title: "Pending review", value: summary.submitted, icon: Clock3, hint: "Submitted awaiting action" },
+    { title: "Approved", value: summary.approved, icon: CheckCircle2, hint: "Ready for finance" },
+    { title: "Paid", value: summary.paid, icon: Banknote, hint: "Awaiting completion" },
+    { title: "Total requests", value: summary.total, icon: Wallet, hint: "All time visible to you" },
   ]
 
   return (
-    <div className="container mx-auto space-y-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {summaryCards.map((card) => {
-            const Icon = card.icon
-            return (
-              <div
-                key={card.title}
-                className="rounded-xl border border-border bg-card p-4 shadow-sm"
-              >
-                <div
-                  className={`inline-flex rounded-lg bg-linear-to-r ${card.accent} p-2 text-white`}
-                >
-                  <Icon className="size-4" />
-                </div>
-                <p className="mt-3 text-sm text-muted-foreground">{card.title}</p>
-                <p className="text-2xl font-semibold text-foreground">
-                  {card.value}
-                </p>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Finance"
+        title="Requisitions"
+        description={
+          status
+            ? `Filtered by ${status.toLowerCase()} • ${total} ${total === 1 ? "request" : "requests"}`
+            : `${summary.submitted} pending • ${summary.total} total`
+        }
+        actions={<RequisitionForm />}
+      />
 
-      <div className="space-y-4">
-        {/* Top section */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <p className="text-xl font-semibold">Requisitions</p>
-
-          <div className="sm:ml-auto">
-            <RequisitionForm />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {kpis.map((k) => (
+          <div key={k.title} className="card-elevated p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">{k.title}</p>
+              <span className="rounded-xl bg-primary/12 p-2 text-primary-deep dark:text-[#e8d5a3]">
+                <k.icon className="h-4 w-4" aria-hidden />
+              </span>
+            </div>
+            <p className="mt-2 text-3xl font-bold tracking-tight tabular-nums">{k.value}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{k.hint}</p>
           </div>
-        </div>
-
-        <RequisitionTable
-          data={formatteRequisitions}
-          role={user.role}
-          total={total}
-          currentPage={currentPage}
-          totalPages={totalPages}
-        />
+        ))}
       </div>
+
+      <PipelineBar summary={summary} active={status} />
+
+      <RequisitionTable
+        data={formatteRequisitions}
+        role={user.role}
+        total={total}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   )
 }

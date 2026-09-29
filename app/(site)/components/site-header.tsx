@@ -14,6 +14,8 @@ const NAV = [
   { href: "/sermons", label: "Sermons" },
   { href: "/events", label: "Events" },
   { href: "/ministries", label: "Ministries" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/give", label: "Give" },
   { href: "/contact", label: "Contact" },
 ]
 
@@ -78,7 +80,7 @@ export default function SiteHeader({
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
             {NAV.map((item) => {
               const active =
                 item.href === "/"
@@ -88,20 +90,28 @@ export default function SiteHeader({
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "rounded-lg px-3 py-2 text-sm font-medium transition",
+                    "relative rounded-lg px-3 py-2 text-sm font-medium transition",
                     active
-                      ? "bg-primary/15 text-foreground"
+                      ? "text-foreground"
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   )}
                 >
                   {item.label}
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-primary transition-opacity",
+                      active ? "opacity-100" : "opacity-0"
+                    )}
+                  />
                 </Link>
               )
             })}
             <Link
               href="/visit"
-              className="btn-gold ml-2 rounded-xl px-5 py-2.5 text-sm font-bold"
+              className="btn-gold ml-2 rounded-xl px-5 py-2.5 text-sm font-bold active:scale-[.98]"
             >
               Plan Your Visit
             </Link>
@@ -110,8 +120,10 @@ export default function SiteHeader({
           <div className="flex items-center gap-2 lg:hidden">
             <ModeToggle />
             <button
-              className="rounded-lg border border-border p-2"
-              aria-label="Toggle menu"
+              className="rounded-lg border border-border p-2.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="mobile-nav"
               onClick={() => setOpen((v) => !v)}
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -123,35 +135,17 @@ export default function SiteHeader({
         </div>
 
         {open && (
-          <nav className="border-t border-border bg-card px-4 py-3 lg:hidden">
+          <nav id="mobile-nav" aria-label="Mobile" className="border-t border-border bg-card px-4 py-3 lg:hidden">
             <div className="grid gap-1">
               {NAV.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={pathname === item.href ? "page" : undefined}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "rounded-lg px-3 py-2.5 text-sm font-medium",
+                    "rounded-lg px-3 py-3 text-[15px] font-medium",
                     pathname === item.href
-                      ? "bg-primary/15 text-foreground"
-                      : "text-muted-foreground hover:bg-muted/60"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              {[
-                { href: "/give", label: "Give" },
-                { href: "/gallery", label: "Gallery" },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "rounded-lg px-3 py-2.5 text-sm font-medium sm:hidden",
-                    pathname === item.href ||
-                      pathname.startsWith(`${item.href}/`)
                       ? "bg-primary/15 text-foreground"
                       : "text-muted-foreground hover:bg-muted/60"
                   )}
@@ -162,10 +156,13 @@ export default function SiteHeader({
               <Link
                 href="/visit"
                 onClick={() => setOpen(false)}
-                className="btn-gold mt-2 rounded-lg px-3 py-2.5 text-center text-sm font-bold"
+                className="btn-gold mt-2 rounded-lg px-3 py-3 text-center text-sm font-bold"
               >
                 Plan Your Visit
               </Link>
+              <p className="mt-2 px-3 text-xs text-muted-foreground">
+                Sundays 8 AM • Tuesdays 5 PM • {address ?? "Masaka"}
+              </p>
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}

@@ -1,6 +1,5 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,13 +8,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Settings, UserCog, ExternalLink, Globe } from "lucide-react"
+import { LogOut, Settings, UserCog, ExternalLink, Globe, Search } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { logout } from "@/app/actions/auth"
 import NotificationBell from "./notification-bell"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
+import { StatusBadge } from "@/components/ui/status-badge"
 import { getInitials } from "../utils"
+
+const TITLE_MAP: Record<string, { title: string; eyebrow: string }> = {
+  "/dashboard": { title: "Overview", eyebrow: "Dashboard" },
+  "/dashboard/members": { title: "Members", eyebrow: "People" },
+  "/dashboard/requisitions": { title: "Requisitions", eyebrow: "Finance" },
+  "/dashboard/users": { title: "Team", eyebrow: "Manage" },
+  "/dashboard/settings": { title: "Settings", eyebrow: "Manage" },
+  "/dashboard/profile": { title: "Profile", eyebrow: "Account" },
+}
+
+function titleFor(pathname: string) {
+  const keys = Object.keys(TITLE_MAP).sort((a, b) => b.length - a.length)
+  for (const k of keys) {
+    if (k === "/dashboard" ? pathname === k : pathname.startsWith(k)) return TITLE_MAP[k]
+  }
+  return { title: "Dashboard", eyebrow: "Overview" }
+}
 
 interface DashboardHeaderProps {
   title: string
@@ -32,33 +49,48 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
   const router = useRouter()
   const isAdmin = user.role === "ADMIN"
   const canManageSite = isAdmin || user.role === "EDITOR"
-  // Generate breadcrumb from pathname
-  const getBreadcrumb = () => {
-    const segments = pathname.split("/").filter(Boolean)
-    if (segments.length <= 1) return null
-    return segments
-      .slice(1)
-      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-      .join(" / ")
-  }
+  const resolved = titleFor(pathname)
+  const crumbs = pathname.split("/").filter(Boolean).slice(1)
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-border/50 bg-card/80 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border/50 bg-card/80 px-4 backdrop-blur-xl sm:h-20 sm:px-8">
       {/* LEFT */}
-      <div className="flex items-center">
-        <div>
-          <h1 className="text-xl font-bold text-foreground sm:text-2xl">
-            {title}
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold tracking-[0.22em] text-[#8a6d1b] uppercase dark:text-[#e8d5a3]">
+            {resolved.eyebrow}
+          </p>
+          <h1 className="truncate text-xl font-bold text-foreground sm:text-2xl">
+            {title === "Dashboard" ? resolved.title : title}
           </h1>
-          {getBreadcrumb() && (
-            <p className="text-xs text-[#c9a84c] sm:text-sm">
-              {getBreadcrumb()}
-            </p>
+          {crumbs.length > 0 && (
+            <nav aria-label="Breadcrumb" className="hidden text-xs text-muted-foreground sm:block">
+              <ol className="flex items-center gap-1">
+                {crumbs.map((c, i) => (
+                  <li key={`${c}-${i}`} className="flex items-center gap-1">
+                    {i > 0 && <span aria-hidden>/</span>}
+                    <span className={i === crumbs.length - 1 ? "font-medium text-foreground" : ""}>
+                      {c.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </nav>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          aria-label="Search (Ctrl+K)"
+          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
+          className="hidden h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground md:inline-flex"
+        >
+          <Search className="h-4 w-4" />
+          Search…
+          <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] font-semibold">⌘K</kbd>
+        </button>
         <ModeToggle />
         <NotificationBell iconOnly className="h-10 w-10" />
         <a
@@ -72,9 +104,7 @@ export default function DashboardHeader({ title, user }: DashboardHeaderProps) {
           View website
           <ExternalLink className="h-3.5 w-3.5" />
         </a>
-        <Badge className="hidden border-[#c9a84c]/30 bg-[#c9a84c]/10 px-3 py-1 text-xs font-medium text-[#c9a84c] sm:flex">
-          {user.role}
-        </Badge>
+        <StatusBadge status={user.role} className="hidden sm:inline-flex" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

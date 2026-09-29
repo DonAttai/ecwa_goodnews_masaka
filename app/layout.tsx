@@ -54,6 +54,9 @@ export default function RootLayout({
       )}
     >
       <body>
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <ThemeProvider>{children}</ThemeProvider>
         <RegisterSW />
         <CustomToaster />
@@ -66,15 +69,16 @@ function CustomToaster() {
   return (
     <Toaster
       richColors
-      position="top-center"
-      duration={3000}
-      visibleToasts={3}
+      closeButton
+      position="bottom-right"
+      duration={3500}
+      visibleToasts={4}
       className="font-sans"
       toastOptions={{
         className: "font-medium",
         style: {
-          borderRadius: "12px",
-          padding: "16px",
+          borderRadius: "14px",
+          padding: "14px 16px",
         },
       }}
     />

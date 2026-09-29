@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/app/actions/auth"
 import MemberTable from "./member-table"
+import { PageHeader } from "@/components/ui/page-header"
 
 const PAGE_SIZE = 20
 
@@ -50,21 +51,13 @@ export default async function MembersPage({ searchParams }: MembersPageProps) {
   const data = membersData as unknown as Member[]
 
   return (
-    <div className="space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-        <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Members</h1>
-          <p className="text-sm text-muted-foreground sm:text-base">
-            Manage church members
-          </p>
-        </div>
-
-        {canCreate && (
-          <div className="self-start sm:self-auto">
-            <AddMemberButton />
-          </div>
-        )}
-      </div>
+    <div className="space-y-4 sm:space-y-6">
+      <PageHeader
+        eyebrow="People"
+        title="Members"
+        description={total === 0 ? "Register your first member" : `${total} ${total === 1 ? "member" : "members"} in the family`}
+        actions={canCreate ? <AddMemberButton /> : undefined}
+      />
 
       <MemberTable
         isAdmin={isAdmin}

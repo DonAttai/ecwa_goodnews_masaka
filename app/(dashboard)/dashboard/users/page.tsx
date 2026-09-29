@@ -4,6 +4,7 @@ import UserTable from "./user-table"
 import AddUserDialog from "./components/add-user-dialog"
 import { getAllUsers, getCurrentUser } from "@/app/actions/auth"
 import { getDepartments } from "../settings/actions/department"
+import { PageHeader } from "@/components/ui/page-header"
 
 async function getData(
   page: number,
@@ -52,18 +53,13 @@ export default async function Users({
   const currentPage = Math.min(page, totalPages)
 
   return (
-    <div className="container mx-auto space-y-6 py-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Users</h1>
-
-          <p className="text-muted-foreground">
-            Manage application users and roles
-          </p>
-        </div>
-
-        <AddUserDialog departments={departments} />
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Manage"
+        title="Team"
+        description={`${total} ${total === 1 ? "user" : "users"} • invite, assign roles and departments`}
+        actions={<AddUserDialog departments={departments} />}
+      />
 
       <UserTable
         users={users}

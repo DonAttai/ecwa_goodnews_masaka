@@ -47,6 +47,25 @@ export default async function VisitPage() {
         }
         lede="Tell us you're coming — or just show up. Either way, a warm handshake and a saved seat are waiting."
         image={SITE_IMAGES.huddle}
+        breadcrumb={[{ label: "Home", href: "/" }, { label: "Visit" }]}
+        actions={
+          <>
+            <Link
+              href="/contact"
+              className="btn-gold inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-4 font-bold active:scale-[.98]"
+            >
+              Tell us you're coming <ArrowRight className="h-4 w-4" />
+            </Link>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address ?? "ECWA Goodnews Masaka")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
+            >
+              <MapPin className="h-4 w-4" /> Get directions
+            </a>
+          </>
+        }
       />
 
       {/* What to expect */}

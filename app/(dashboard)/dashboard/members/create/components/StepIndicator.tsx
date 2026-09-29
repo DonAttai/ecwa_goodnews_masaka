@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 interface StepItem {
@@ -71,8 +72,8 @@ export function StepIndicator({
               <Icon className="h-4 w-4" />
               <span className="text-sm font-medium sm:inline">{step.title}</span>
               {(isCompleted || hasPassport) && (
-                <Badge variant="secondary" className="ml-1">
-                  ✓
+                <Badge variant="secondary" className="ml-1 gap-1">
+                  <Check className="h-3 w-3" aria-hidden /> Done
                 </Badge>
               )}
             </div>

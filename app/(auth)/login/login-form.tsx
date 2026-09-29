@@ -37,6 +37,7 @@ type FormSchemaType = z.infer<typeof formSchema>
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [capsLock, setCapsLock] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -69,7 +70,7 @@ export default function LoginForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
       <AuthThemeCorner />
-      <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg">
+      <Card className="w-full max-w-md">
         <CardHeader className="space-y-2 px-4 pt-6 text-center sm:px-6 sm:pt-8">
           <div className="mb-1 flex justify-center">
             <Image
@@ -110,7 +111,8 @@ export default function LoginForm() {
                       id={field.name}
                       aria-invalid={fieldState.invalid}
                       placeholder="admin@ecwa.com"
-                      autoComplete="off"
+                      autoComplete="email"
+                      inputMode="email"
                       className="border-border bg-muted/30 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                     />
                     {fieldState.invalid && (
@@ -138,7 +140,8 @@ export default function LoginForm() {
                         id={field.name}
                         aria-invalid={fieldState.invalid}
                         placeholder="Enter your password"
-                        autoComplete="new-password"
+                        autoComplete="current-password"
+                        onKeyUp={(e) => setCapsLock(e.getModifierState?.("CapsLock") ?? false)}
                         className="border-border bg-muted/30 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                         type={showPassword ? "text" : "password"}
                       />
@@ -157,7 +160,7 @@ export default function LoginForm() {
                     </div>
                     <div className="flex items-center justify-between">
                       <FieldDescription className="text-muted-foreground">
-                        Password must be at least 8 characters.
+                        {capsLock ? "Caps Lock is on." : "Use your church leader account."}
                       </FieldDescription>
                       <Link
                         href="/forgot-password"
@@ -193,6 +196,12 @@ export default function LoginForm() {
             <ArrowLeft size={16} />
             Back to website
           </Link>
+          <p className="text-xs text-muted-foreground">
+            Need access?{" "}
+            <Link href="/contact" className="font-semibold text-primary-deep hover:underline">
+              Contact the church office
+            </Link>
+          </p>
         </CardFooter>
       </Card>
     </div>

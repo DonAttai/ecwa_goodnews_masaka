@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, PlayCircle, CalendarDays, MapPin, HeartHandshake } from "lucide-react"
+import { ArrowRight, PlayCircle, CalendarDays, MapPin, HeartHandshake, Check } from "lucide-react"
 import {
   getSiteSettings,
   getPublicEvents,
@@ -47,12 +47,13 @@ export default async function SiteHomePage() {
   return (
     <div>
       {/* ————— HERO ————— */}
-      <section className="relative flex min-h-[92svh] items-end overflow-hidden bg-[#101828]">
+      <section className="relative flex min-h-[78svh] items-end overflow-hidden bg-[#101828] lg:min-h-[92svh]">
         <Image
           src={settings.heroImageUrl ?? SITE_IMAGES.hero}
           alt="Worship at ECWA Goodnews"
           fill
           priority
+          sizes="100vw"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#101828] via-[#101828]/55 to-[#101828]/25" />
@@ -73,10 +74,10 @@ export default async function SiteHomePage() {
             </p>
           </Reveal>
 
-          <Reveal delay={150} className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Reveal delay={150} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
               href="/visit"
-              className="btn-gold group inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-4 text-center font-bold"
+              className="btn-gold group inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-4 text-center font-bold active:scale-[.98]"
             >
               Plan Your Visit
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -91,6 +92,16 @@ export default async function SiteHomePage() {
               <PlayCircle className="h-5 w-5" />
               {settings.livestreamUrl ? "Watch Live" : "Watch Latest Message"}
             </Link>
+            <span className="inline-flex items-center gap-2 text-sm text-white/70 sm:ml-2">
+              <span className="flex -space-x-2" aria-hidden>
+                {["J", "G", "A"].map((l) => (
+                  <span key={l} className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#101828] bg-[#c9a84c] text-xs font-bold text-[#141c2b]">
+                    {l}
+                  </span>
+                ))}
+              </span>
+              Loved by families across Masaka
+            </span>
           </Reveal>
 
           <Reveal
@@ -169,8 +180,8 @@ export default async function SiteHomePage() {
                 "Prayer, welfare & visitation when life happens",
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3 text-sm sm:text-base">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs text-primary">
-                    ✓
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary-deep dark:text-[#e8d5a3]">
+                    <Check className="h-3.5 w-3.5" aria-hidden />
                   </span>
                   {t}
                 </li>
@@ -376,7 +387,7 @@ export default async function SiteHomePage() {
               <Reveal key={a.id} delay={(i % 3) * 90}>
                 <div className="h-full rounded-[1.5rem] border border-border bg-card p-6">
                   <p className="font-semibold">
-                    {a.pinned && <span className="mr-2 text-primary">✦</span>}
+                    {a.pinned && <span className="mr-2 inline-block h-2 w-2 rounded-full bg-primary align-middle" aria-label="Pinned" />}
                     {a.title}
                   </p>
                   <p className="mt-2 text-sm leading-6 whitespace-pre-line text-muted-foreground">

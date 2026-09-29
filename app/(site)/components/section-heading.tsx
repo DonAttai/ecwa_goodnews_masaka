@@ -8,6 +8,7 @@ export default function SectionHeading({
   lede,
   align = "center",
   dark = false,
+  as: Tag = "h2",
   className,
 }: {
   eyebrow: string
@@ -15,6 +16,7 @@ export default function SectionHeading({
   lede?: string
   align?: "center" | "left"
   dark?: boolean
+  as?: "h2" | "h3"
   className?: string
 }) {
   return (
@@ -27,20 +29,20 @@ export default function SectionHeading({
     >
       <p
         className={cn(
-          "text-xs font-semibold tracking-[0.28em] uppercase",
-          dark ? "text-[#e8d5a3]" : "text-primary"
+          "eyebrow",
+          dark ? "text-[#e8d5a3]" : "text-gold-deep"
         )}
       >
         {eyebrow}
       </p>
-      <h2
+      <Tag
         className={cn(
           "font-display mt-3 text-3xl leading-[1.08] font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl",
           dark ? "text-white" : "text-foreground"
         )}
       >
         {title}
-      </h2>
+      </Tag>
       {lede && (
         <p
           className={cn(

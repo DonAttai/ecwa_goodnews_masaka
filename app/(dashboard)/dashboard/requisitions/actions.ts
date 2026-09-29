@@ -375,11 +375,12 @@ const REQUISITION_INCLUDE = {
   department: { select: { id: true, name: true } },
 } satisfies Prisma.RequisitionInclude
 
-export async function getRequisitions(page: number, pageSize: number) {
+export async function getRequisitions(page: number, pageSize: number, status?: RequisitionStatus) {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
-  const where = getRequisitionWhere(user)
+  const baseWhere = getRequisitionWhere(user)
+  const where = status ? { ...baseWhere, status } : baseWhere
 
   const [total, items, statusGroups] = await Promise.all([
     prisma.requisition.count({ where }),
