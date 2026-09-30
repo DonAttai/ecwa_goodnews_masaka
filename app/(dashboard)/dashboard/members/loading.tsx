@@ -1,17 +1,10 @@
 import { Skeleton } from "@/components/ui/skeleton"
+import { PageHeaderSkeleton } from "@/components/ui/page-header-skeleton"
 
 export default function MembersLoading() {
   return (
-    <div className="space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-36 sm:h-9" />
-          <Skeleton className="h-4 w-48" />
-        </div>
-
-        <Skeleton className="h-9 w-36 self-start rounded-md sm:self-auto" />
-      </div>
+    <div className="space-y-4 sm:space-y-6">
+      <PageHeaderSkeleton />
 
       {/* Table */}
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">

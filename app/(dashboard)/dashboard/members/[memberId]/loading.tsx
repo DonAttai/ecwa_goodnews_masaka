@@ -29,6 +29,20 @@ export default function MemberDetailSkeleton() {
           </CardContent>
         </Card>
 
+        {/* Suggestions & Notes */}
+        <Card className="overflow-hidden border-0 bg-linear-to-r from-amber-50 to-yellow-50 shadow-lg dark:from-amber-950/30 dark:to-yellow-950/30">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <Skeleton className="h-5 w-5 shrink-0 rounded-md" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-44" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* QUICK STATS GRID */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -107,6 +121,26 @@ export default function MemberDetailSkeleton() {
                     <Skeleton className="h-3 w-36" />
                   </div>
                   <Skeleton className="h-6 w-16 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Previous Church */}
+            <Card className="overflow-hidden border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-5 rounded-md" />
+                  <Skeleton className="h-5 w-40" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2 rounded-lg border p-4">
+                  <Skeleton className="h-3 w-40" />
+                  <Skeleton className="h-5 w-56" />
+                </div>
+                <div className="space-y-2 rounded-lg border p-4">
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-5 w-48" />
                 </div>
               </CardContent>
             </Card>

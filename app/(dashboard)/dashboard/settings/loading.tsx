@@ -4,14 +4,19 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function SettingsLoading() {
   return (
     <div className="min-h-screen bg-background md:flex">
-      {/* Sidebar - Desktop */}
-      <div className="hidden w-72 shrink-0 border-r border-border bg-card/80 p-6 md:block">
-        <div className="mb-10">
-          <Skeleton className="h-10 w-10 rounded-xl" />
+      {/* Mobile header with hamburger */}
+      <div className="flex items-center justify-between border-b border-border bg-card/80 p-4 md:hidden">
+        <div className="space-y-1.5">
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-4 w-20" />
         </div>
+        <Skeleton className="h-10 w-10 rounded-md" />
+      </div>
 
+      {/* Sidebar - Desktop: General, Website, Membership, Fellowships, Departments */}
+      <div className="hidden w-72 shrink-0 border-r border-border bg-card/80 p-6 backdrop-blur-sm md:block">
         <nav className="space-y-1">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
               className="flex items-center gap-3 rounded-xl px-4 py-3"

@@ -63,6 +63,24 @@ export default function Loading() {
                 </div>
               </div>
             </div>
+
+            <div className="my-8 h-px bg-border" />
+
+            {/* Notifications */}
+            <div>
+              <Skeleton className="mb-5 h-6 w-44" />
+
+              <div className="rounded-2xl border border-border bg-muted/30 p-7">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-4 w-64 max-w-full" />
+                  </div>
+
+                  <Skeleton className="h-10 w-24 rounded-full" />
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
