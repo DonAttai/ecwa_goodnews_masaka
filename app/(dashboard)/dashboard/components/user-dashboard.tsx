@@ -86,16 +86,16 @@ export default function UserDashboard({
   return (
     <div className="mx-auto max-w-6xl space-y-6 pb-6">
       {/* Hero Section */}
-      <section className="overflow-hidden rounded-3xl border border-[#e2dcd5]/70 bg-linear-to-br from-[#1a2332] via-[#22304a] to-[#2f4362] p-6 text-white shadow-sm sm:p-8">
+      <section className="overflow-hidden rounded-3xl border border-[#e2dcd5]/70 bg-linear-to-br from-[#f3e8cd] via-[#faf5ea] to-[#ffffff] p-6 shadow-sm sm:p-8 dark:border-white/10 dark:from-[#1a2332] dark:via-[#22304a] dark:to-[#2f4362]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium tracking-[0.25em] text-[#e8d5a3] uppercase">
+            <p className="text-sm font-medium tracking-[0.25em] text-[#8a6d1b] uppercase dark:text-[#e8d5a3]">
               User dashboard
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1a2332] sm:text-4xl dark:text-white">
               {greeting}, {user.name}
             </h1>
-            <p className="mt-3 max-w-xl text-sm text-slate-200 sm:text-base">
+            <p className="mt-3 max-w-xl text-sm text-[#5b6a85] sm:text-base dark:text-slate-200">
               Welcome to your church dashboard. You can review your profile, and
               manage requests.
             </p>

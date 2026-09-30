@@ -34,15 +34,15 @@ export default function StaffWorkerDashboard({
   return (
     <div className="space-y-6">
       {/* Greeting */}
-      <div className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-[#1a2332] via-[#22304a] to-[#2f4362] p-6 text-white shadow-sm sm:p-8">
-        <p className="text-sm font-medium tracking-[0.25em] text-[#e8d5a3] uppercase">
+      <div className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-[#f3e8cd] via-[#faf5ea] to-[#ffffff] p-6 shadow-sm sm:p-8 dark:border-white/10 dark:from-[#1a2332] dark:via-[#22304a] dark:to-[#2f4362]">
+        <p className="text-sm font-medium tracking-[0.25em] text-[#8a6d1b] uppercase dark:text-[#e8d5a3]">
           Worker dashboard
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1a2332] dark:text-white">
           {greeting}
           {userName ? `, ${userName}` : ""}
         </h1>
-        <p className="mt-2 max-w-xl text-sm text-slate-200">
+        <p className="mt-2 max-w-xl text-sm text-[#5b6a85] dark:text-slate-200">
           {departmentName
             ? `Frontline operations · ${departmentName}`
             : "Frontline operations overview"}

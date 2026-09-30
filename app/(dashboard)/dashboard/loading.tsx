@@ -33,10 +33,10 @@ function StatCardSkeleton() {
 
 function HeroSkeleton() {
   return (
-    <div className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-[#1a2332] via-[#22304a] to-[#2f4362] p-6 sm:p-8">
-      <div className="h-3 w-40 animate-pulse rounded bg-white/20" />
-      <div className="mt-3 h-8 w-72 animate-pulse rounded-xl bg-white/20" />
-      <div className="mt-3 h-4 w-56 animate-pulse rounded bg-white/15" />
+    <div className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-[#f3e8cd] via-[#faf5ea] to-[#ffffff] p-6 sm:p-8 dark:border-white/10 dark:from-[#1a2332] dark:via-[#22304a] dark:to-[#2f4362]">
+      <div className="h-3 w-40 animate-pulse rounded bg-[#1a2332]/10 dark:bg-white/20" />
+      <div className="mt-3 h-8 w-72 animate-pulse rounded-xl bg-[#1a2332]/10 dark:bg-white/20" />
+      <div className="mt-3 h-4 w-56 animate-pulse rounded bg-[#1a2332]/5 dark:bg-white/15" />
     </div>
   )
 }
