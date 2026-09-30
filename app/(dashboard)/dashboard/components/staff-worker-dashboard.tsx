@@ -11,16 +11,19 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { StatCard } from "./stat-card"
+import type { Role } from "@/lib/prisma"
 import type { WorkerDashboardData } from "../lib/dashboard-data"
 
 interface StaffWorkerDashboardProps {
   data: WorkerDashboardData
+  role: Role
   userName?: string
   departmentName?: string | null
 }
 
 export default function StaffWorkerDashboard({
   data,
+  role,
   userName,
   departmentName,
 }: StaffWorkerDashboardProps) {
@@ -31,12 +34,14 @@ export default function StaffWorkerDashboard({
     return "Good evening"
   })()
 
+  const roleLabel = role.charAt(0) + role.slice(1).toLowerCase()
+
   return (
     <div className="space-y-6">
       {/* Greeting */}
       <div className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-[#f3e8cd] via-[#faf5ea] to-[#ffffff] p-6 shadow-sm sm:p-8 dark:border-white/10 dark:from-[#1a2332] dark:via-[#22304a] dark:to-[#2f4362]">
         <p className="text-sm font-medium tracking-[0.25em] text-[#8a6d1b] uppercase dark:text-[#e8d5a3]">
-          Worker dashboard
+          {roleLabel} dashboard
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1a2332] dark:text-white">
           {greeting}

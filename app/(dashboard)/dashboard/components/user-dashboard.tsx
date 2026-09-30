@@ -90,7 +90,7 @@ export default function UserDashboard({
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-sm font-medium tracking-[0.25em] text-[#8a6d1b] uppercase dark:text-[#e8d5a3]">
-              User dashboard
+              {roleLabel} dashboard
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1a2332] sm:text-4xl dark:text-white">
               {greeting}, {user.name}

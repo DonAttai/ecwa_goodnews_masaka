@@ -34,6 +34,7 @@ export default async function StaffDashboard({
   return (
     <StaffWorkerDashboard
       data={data}
+      role={role}
       userName={name}
       departmentName={departmentName}
     />
