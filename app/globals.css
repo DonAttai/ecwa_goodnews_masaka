@@ -139,6 +139,12 @@
   --sidebar-accent-foreground: #c9a84c;
   --sidebar-border: #1a2332;
   --sidebar-ring: #c9a84c;
+  /* Chart tokens tuned for navy backgrounds (light values reused would vanish) */
+  --chart-1: #c9a84c;
+  --chart-2: #7d93b2;
+  --chart-3: #8a95a8;
+  --chart-4: #e8d5a3;
+  --chart-5: #7a8799;
 }
 
 @layer base {

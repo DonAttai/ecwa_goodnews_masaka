@@ -74,27 +74,28 @@ export function MembershipChart({ data, genderData }: MembershipChartProps) {
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
+                  stroke="var(--border)"
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  axisLine={{ stroke: "var(--border)" }}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
                     borderRadius: "8px",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                   }}
-                  labelStyle={{ color: "hsl(var(--foreground))" }}
+                  labelStyle={{ color: "var(--foreground)" }}
+                  itemStyle={{ color: "var(--foreground)" }}
                 />
                 <Area
                   type="monotone"
@@ -132,9 +133,26 @@ export function MembershipChart({ data, genderData }: MembershipChartProps) {
                   paddingAngle={2}
                   dataKey="value"
                   nameKey="label"
-                  label={({ payload, percent }) =>
-                    `${payload?.label ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
-                  }
+                  label={(props) => {
+                    const { x, y, payload, percent } = props as {
+                      x?: number
+                      y?: number
+                      payload?: { label?: string }
+                      percent?: number
+                    }
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fill="var(--foreground)"
+                        fontSize={12}
+                      >
+                        {`${payload?.label ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                      </text>
+                    )
+                  }}
                   labelLine={false}
                 />
                 <Legend
@@ -142,7 +160,9 @@ export function MembershipChart({ data, genderData }: MembershipChartProps) {
                   position="right"
                   iconType="circle"
                   iconSize={8}
-                  formatter={(value) => value}
+                  formatter={(value) => (
+                    <span style={{ color: "var(--foreground)" }}>{value}</span>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>
