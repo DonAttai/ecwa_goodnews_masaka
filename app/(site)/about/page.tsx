@@ -113,13 +113,13 @@ export default async function AboutPage() {
           <Reveal>
             <div className="grid items-center gap-8 overflow-hidden rounded-[2rem] border border-border bg-card p-6 sm:p-10 lg:grid-cols-[280px_1fr] lg:gap-12">
               {settings.pastorPhotoUrl && (
-                <div className="relative mx-auto aspect-square w-full max-w-70 overflow-hidden rounded-[1.5rem]">
+                <div className="relative mx-auto aspect-[3/4] w-full max-w-70 overflow-hidden rounded-[1.5rem]">
                   <Image
                     src={settings.pastorPhotoUrl}
                     alt={settings.pastorName ?? "Our pastor"}
                     fill
                     sizes="(max-width: 1024px) 100vw, 280px"
-                    className="object-cover"
+                    className="object-cover object-top"
                   />
                 </div>
               )}
