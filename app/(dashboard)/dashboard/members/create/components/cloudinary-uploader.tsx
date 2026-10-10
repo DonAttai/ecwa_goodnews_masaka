@@ -34,6 +34,7 @@ export function CloudinaryUploader({
               src={currentImage}
               alt="Passport"
               fill
+              sizes="128px"
               className="object-cover"
             />
           </div>

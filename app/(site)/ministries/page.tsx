@@ -43,6 +43,7 @@ export default async function MinistriesPage() {
                     src={m.imageUrl ?? COVERS[i % COVERS.length]}
                     alt={m.name}
                     fill
+                    sizes="(max-width: 640px) 100vw, 50vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                 </div>

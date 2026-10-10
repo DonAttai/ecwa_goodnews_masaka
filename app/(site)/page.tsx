@@ -234,6 +234,7 @@ export default async function SiteHomePage() {
                       src={SITE_IMAGES.bible}
                       alt="Latest sermon"
                       fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   )}
@@ -275,6 +276,7 @@ export default async function SiteHomePage() {
                       src={SITE_IMAGES.worship}
                       alt="Upcoming event"
                       fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   )}
@@ -322,6 +324,7 @@ export default async function SiteHomePage() {
                     src={MINISTRY_COVERS[i % MINISTRY_COVERS.length]}
                     alt={m.name}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
@@ -407,6 +410,7 @@ export default async function SiteHomePage() {
           alt=""
           aria-hidden
           fill
+          sizes="100vw"
           className="object-cover opacity-20"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#141c2b] via-[#141c2b]/85 to-[#141c2b]/60" />
@@ -471,6 +475,7 @@ export default async function SiteHomePage() {
               alt=""
               aria-hidden
               fill
+              sizes="100vw"
               className="object-cover opacity-25"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-[#141c2b]/60 to-[#141c2b]" />
