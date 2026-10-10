@@ -33,6 +33,7 @@ import {
   deleteGalleryImage,
   markMessageRead,
 } from "../actions/website"
+import SiteImageField from "./site-image-field"
 
 export type WebsiteData = {
   sermons: Array<{ id: string; title: string; preacher: string }>
@@ -134,11 +135,21 @@ export default function WebsiteSection({
   const ministryFormRef = useRef<HTMLFormElement>(null)
   const galleryFormRef = useRef<HTMLFormElement>(null)
 
+  // Upload-backed image URLs. Identity fields init from server data and
+  // persist after save; create-form fields start empty and clear on success.
+  const [heroUrl, setHeroUrl] = useState(data.identity.heroImageUrl ?? "")
+  const [pastorUrl, setPastorUrl] = useState(
+    data.identity.pastorPhotoUrl ?? ""
+  )
+  const [flyerUrl, setFlyerUrl] = useState("")
+  const [galleryUrl, setGalleryUrl] = useState("")
+  const [ministryImageUrl, setMinistryImageUrl] = useState("")
+
   async function wrap(
     fn: () => Promise<{ success: boolean; message: string }>,
     key?: string,
     resetRef?: RefObject<HTMLFormElement | null>
-  ) {
+  ): Promise<boolean> {
     if (key) setBusyId(key)
     try {
       const res = await fn()
@@ -146,7 +157,9 @@ export default function WebsiteSection({
         toast.success(res.message)
         resetRef?.current?.reset()
         router.refresh()
+        return true
       } else toast.error(res.message)
+      return false
     } finally {
       if (key) setBusyId(null)
     }
@@ -194,9 +207,9 @@ export default function WebsiteSection({
         <div className="space-y-4">
           <form
             ref={sermonFormRef}
-            action={(fd) =>
-              wrap(() => createSermon(fd), undefined, sermonFormRef)
-            }
+            action={(fd) => {
+              void wrap(() => createSermon(fd), undefined, sermonFormRef)
+            }}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add sermon</p>
@@ -266,7 +279,14 @@ export default function WebsiteSection({
         <div className="space-y-4">
           <form
             ref={eventFormRef}
-            action={(fd) => wrap(() => createEvent(fd), undefined, eventFormRef)}
+            action={async (fd) => {
+              const ok = await wrap(
+                () => createEvent(fd),
+                undefined,
+                eventFormRef
+              )
+              if (ok) setFlyerUrl("")
+            }}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add event</p>
@@ -283,10 +303,14 @@ export default function WebsiteSection({
                 <Label>Starts</Label>
                 <Input name="startsAt" type="datetime-local" required />
               </div>
-              <div className="space-y-1">
-                <Label>Flyer URL (optional)</Label>
-                <Input name="flyerUrl" placeholder="Cloudinary URL" />
-              </div>
+              <SiteImageField
+                name="flyerUrl"
+                label="Flyer (optional)"
+                value={flyerUrl}
+                onChange={setFlyerUrl}
+                folder="events"
+                hint="Shown on the event page. Max 5MB."
+              />
             </div>
             <div className="space-y-1">
               <Label>Description</Label>
@@ -327,9 +351,13 @@ export default function WebsiteSection({
         <div className="space-y-4">
           <form
             ref={noticeFormRef}
-            action={(fd) =>
-              wrap(() => createAnnouncement(fd), undefined, noticeFormRef)
-            }
+            action={(fd) => {
+              void wrap(
+                () => createAnnouncement(fd),
+                undefined,
+                noticeFormRef
+              )
+            }}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add announcement</p>
@@ -385,9 +413,14 @@ export default function WebsiteSection({
         <div className="space-y-4">
           <form
             ref={ministryFormRef}
-            action={(fd) =>
-              wrap(() => createMinistry(fd), undefined, ministryFormRef)
-            }
+            action={async (fd) => {
+              const ok = await wrap(
+                () => createMinistry(fd),
+                undefined,
+                ministryFormRef
+              )
+              if (ok) setMinistryImageUrl("")
+            }}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add ministry</p>
@@ -405,6 +438,14 @@ export default function WebsiteSection({
               <Label>Description</Label>
               <Textarea name="description" rows={3} />
             </div>
+            <SiteImageField
+              name="imageUrl"
+              label="Cover photo (optional)"
+              value={ministryImageUrl}
+              onChange={setMinistryImageUrl}
+              folder="ministries"
+              hint="Shown on /ministries. Blank = rotating default cover. Max 5MB."
+            />
             <SaveButton
               label="Save ministry"
               pendingLabel="Saving ministry…"
@@ -453,24 +494,25 @@ export default function WebsiteSection({
         <div className="space-y-4">
           <form
             ref={galleryFormRef}
-            action={(fd) =>
-              wrap(() => createGalleryImage(fd), undefined, galleryFormRef)
-            }
+            action={async (fd) => {
+              const ok = await wrap(
+                () => createGalleryImage(fd),
+                undefined,
+                galleryFormRef
+              )
+              if (ok) setGalleryUrl("")
+            }}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Add photo</p>
-            <p className="text-sm text-muted-foreground">
-              Upload the photo via Media (Cloudinary) or any image host, then
-              paste the URL here.
-            </p>
-            <div className="space-y-1">
-              <Label>Image URL</Label>
-              <Input
-                name="imageUrl"
-                required
-                placeholder="https://res.cloudinary.com/..."
-              />
-            </div>
+            <SiteImageField
+              name="imageUrl"
+              label="Photo"
+              value={galleryUrl}
+              onChange={setGalleryUrl}
+              folder="gallery"
+              hint="Upload straight to Cloudinary. Max 5MB."
+            />
             <div className="space-y-1">
               <Label>Caption (optional)</Label>
               <Input name="caption" placeholder="Sunday Service" />
@@ -523,7 +565,9 @@ export default function WebsiteSection({
       {tab === "giving" && (
         <div className="space-y-4">
           <form
-            action={(fd) => wrap(() => updateGiveDetails(fd))}
+            action={(fd) => {
+              void wrap(() => updateGiveDetails(fd))
+            }}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Bank details shown on /give</p>
@@ -572,18 +616,20 @@ export default function WebsiteSection({
       {tab === "identity" && (
         <div className="space-y-4">
           <form
-            action={(fd) => wrap(() => updateSiteIdentity(fd))}
+            action={(fd) => {
+              void wrap(() => updateSiteIdentity(fd))
+            }}
             className="grid gap-3 rounded-2xl border border-border bg-card/60 p-4"
           >
             <p className="font-semibold">Homepage hero</p>
-            <div className="space-y-1">
-              <Label>Hero image URL (blank = default photo)</Label>
-              <Input
-                name="heroImageUrl"
-                defaultValue={data.identity.heroImageUrl ?? ""}
-                placeholder="https://res.cloudinary.com/..."
-              />
-            </div>
+            <SiteImageField
+              name="heroImageUrl"
+              label="Hero image (blank = default photo)"
+              value={heroUrl}
+              onChange={setHeroUrl}
+              folder="site/hero"
+              hint="Wide banner shown on the homepage. Max 5MB."
+            />
             <div className="space-y-1">
               <Label>Hero verse / tagline</Label>
               <Input
@@ -602,14 +648,17 @@ export default function WebsiteSection({
                   placeholder="Rev. ..."
                 />
               </div>
-              <div className="space-y-1">
-                <Label>Pastor photo URL</Label>
-                <Input
-                  name="pastorPhotoUrl"
-                  defaultValue={data.identity.pastorPhotoUrl ?? ""}
-                  placeholder="https://..."
-                />
-              </div>
+              <SiteImageField
+                name="pastorPhotoUrl"
+                label="Pastor photo"
+                value={pastorUrl}
+                onChange={setPastorUrl}
+                folder="site/pastor"
+                circle
+                cropping
+                croppingAspectRatio={1}
+                hint="Square portrait. Max 5MB."
+              />
             </div>
             <div className="space-y-1">
               <Label>Welcome message</Label>

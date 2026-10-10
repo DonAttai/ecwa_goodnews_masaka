@@ -12,6 +12,20 @@ describe("upload folder allowlist ($0)", () => {
     expect(isAllowedUploadFolder("receipts/2026")).toBe(true)
   })
 
+  it("allows website image folders (site, ministries, branding)", () => {
+    expect(isAllowedUploadFolder("site")).toBe(true)
+    expect(isAllowedUploadFolder("site/hero")).toBe(true)
+    expect(isAllowedUploadFolder("site/pastor")).toBe(true)
+    expect(isAllowedUploadFolder("ministries")).toBe(true)
+    expect(isAllowedUploadFolder("branding")).toBe(true)
+    expect(
+      validateUploadFile(fakeFile("image/jpeg", 10), "site/hero")
+    ).toBeNull()
+    expect(
+      validateUploadFile(fakeFile("image/jpeg", 10), "branding")
+    ).toBeNull()
+  })
+
   it("rejects unknown folders", () => {
     expect(isAllowedUploadFolder("secrets")).toBe(false)
     expect(isAllowedUploadFolder("")).toBe(false)

@@ -16,6 +16,9 @@ export const ALLOWED_UPLOAD_FOLDERS = [
   "gallery",
   "receipts",
   "requisitions",
+  "site",
+  "ministries",
+  "branding",
 ] as const
 
 export type AllowedUploadFolder = (typeof ALLOWED_UPLOAD_FOLDERS)[number]

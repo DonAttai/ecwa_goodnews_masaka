@@ -19,6 +19,18 @@ function date(v: FormDataEntryValue | null | undefined) {
   return isNaN(d.getTime()) ? undefined : d
 }
 
+/**
+ * Optional image URL from the dashboard uploader or manual paste fallback.
+ * Empty -> null (clear), https:// + reasonable length -> trimmed URL,
+ * anything else -> undefined (invalid, caller rejects).
+ */
+function imgUrl(v: FormDataEntryValue | null | undefined) {
+  const s = str(v)
+  if (!s) return null
+  if (s.length > 2048 || !s.startsWith("https://")) return undefined
+  return s
+}
+
 // ---- Sermons ----
 export async function createSermon(formData: FormData) {
   try {
@@ -72,6 +84,9 @@ export async function createEvent(formData: FormData) {
     const startsAt = date(formData.get("startsAt"))
     if (!title || !startsAt)
       return { success: false, message: "Title and start date required" }
+    const flyerUrl = imgUrl(formData.get("flyerUrl"))
+    if (flyerUrl === undefined)
+      return { success: false, message: "Flyer must be an https:// URL" }
     await prisma.event.create({
       data: {
         title,
@@ -79,7 +94,7 @@ export async function createEvent(formData: FormData) {
         endsAt: date(formData.get("endsAt")),
         description: str(formData.get("description")),
         venue: str(formData.get("venue")),
-        flyerUrl: str(formData.get("flyerUrl")),
+        flyerUrl,
         published: checkbox(formData.get("published")),
       },
     })
@@ -153,12 +168,15 @@ export async function createMinistry(formData: FormData) {
     await requireAdmin()
     const name = str(formData.get("name"))
     if (!name) return { success: false, message: "Ministry name required" }
+    const imageUrl = imgUrl(formData.get("imageUrl"))
+    if (imageUrl === undefined)
+      return { success: false, message: "Cover photo must be an https:// URL" }
     await prisma.ministry.create({
       data: {
         name,
         description: str(formData.get("description")),
         leaderName: str(formData.get("leaderName")),
-        imageUrl: str(formData.get("imageUrl")),
+        imageUrl,
       },
     })
     revalidatePath("/ministries")
@@ -189,11 +207,15 @@ export async function deleteMinistry(id: string) {
 export async function updateSiteIdentity(formData: FormData) {
   try {
     await requireEditor()
+    const heroImageUrl = imgUrl(formData.get("heroImageUrl"))
+    const pastorPhotoUrl = imgUrl(formData.get("pastorPhotoUrl"))
+    if (heroImageUrl === undefined || pastorPhotoUrl === undefined)
+      return { success: false, message: "Photos must be https:// URLs" }
     const data = {
-      heroImageUrl: str(formData.get("heroImageUrl")) ?? null,
+      heroImageUrl,
       heroVerse: str(formData.get("heroVerse")) ?? null,
       pastorName: str(formData.get("pastorName")) ?? null,
-      pastorPhotoUrl: str(formData.get("pastorPhotoUrl")) ?? null,
+      pastorPhotoUrl,
       pastorMessage: str(formData.get("pastorMessage")) ?? null,
       livestreamUrl: str(formData.get("livestreamUrl")) ?? null,
       facebookUrl: str(formData.get("facebookUrl")) ?? null,
@@ -249,8 +271,11 @@ export async function updateGiveDetails(formData: FormData) {
 export async function createGalleryImage(formData: FormData) {
   try {
     await requireEditor()
-    const imageUrl = str(formData.get("imageUrl"))
-    if (!imageUrl) return { success: false, message: "Image URL required" }
+    const imageUrl = imgUrl(formData.get("imageUrl"))
+    if (imageUrl === undefined)
+      return { success: false, message: "Photo must be an https:// URL" }
+    if (!imageUrl)
+      return { success: false, message: "Upload a photo first" }
     await prisma.galleryImage.create({
       data: {
         imageUrl,

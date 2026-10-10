@@ -24,6 +24,9 @@ const ALLOWED_FOLDERS = [
   "gallery",
   "receipts",
   "requisitions",
+  "site",
+  "ministries",
+  "branding",
 ] as const
 
 const signSchema = z.object({
