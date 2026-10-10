@@ -146,7 +146,7 @@ export default async function SiteHomePage() {
           </div>
           <div className="absolute -top-5 -left-3 rounded-2xl bg-[#141c2b] px-5 py-4 text-white shadow-xl lg:-left-6">
             <p className="font-display text-2xl font-semibold text-[#e8d5a3]">
-              Since faith
+              Sincere faith
             </p>
             <p className="text-xs tracking-[0.2em] text-white/60 uppercase">
               Rooted in Masaka
