@@ -105,6 +105,41 @@ export default async function AboutPage() {
         </div>
       </section>
 
+      {/* Pastor's welcome — rendered only when set in dashboard Settings → Website → Identity */}
+      {(settings.pastorName ||
+        settings.pastorPhotoUrl ||
+        settings.pastorMessage) && (
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24">
+          <Reveal>
+            <div className="grid items-center gap-8 overflow-hidden rounded-[2rem] border border-border bg-card p-6 sm:p-10 lg:grid-cols-[280px_1fr] lg:gap-12">
+              {settings.pastorPhotoUrl && (
+                <div className="relative mx-auto aspect-square w-full max-w-70 overflow-hidden rounded-[1.5rem]">
+                  <Image
+                    src={settings.pastorPhotoUrl}
+                    alt={settings.pastorName ?? "Our pastor"}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 280px"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div>
+                <SectionHeading
+                  align="left"
+                  eyebrow="Pastor's welcome"
+                  title={settings.pastorName ?? "Welcome"}
+                />
+                {settings.pastorMessage && (
+                  <p className="mt-5 leading-7 whitespace-pre-line text-muted-foreground sm:text-lg sm:leading-8">
+                    {settings.pastorMessage}
+                  </p>
+                )}
+              </div>
+            </div>
+          </Reveal>
+        </section>
+      )}
+
       {/* Beliefs */}
       <section className="border-y border-border bg-muted/40 py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
