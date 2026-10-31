@@ -2,11 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { notFound, redirect } from "next/navigation"
 import UpdateMemberForm from "./components/update-member-form"
 import { getCurrentUser } from "@/app/actions/auth"
-import type {
-  Child,
-  Member,
-  MemberFellowship,
-} from "@/generated/prisma/client"
+import type { Child, Member, MemberFellowship } from "@/generated/prisma/client"
 
 type EditPageProps = {
   params: Promise<{ memberId: string }>
@@ -40,6 +36,7 @@ function mapMemberToFormValues(member: MemberWithRelations) {
     presentAddress: member.presentAddress,
     phoneNumber: member.phoneNumber,
     email: member.email ?? undefined,
+    passportUrl: member.passportUrl ?? undefined,
     previousPlaceOfWorship: member.previousPlaceOfWorship ?? undefined,
     maritalStatus: member.maritalStatus ?? undefined,
     spouseName: member.spouseName ?? undefined,

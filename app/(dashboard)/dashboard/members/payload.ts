@@ -72,23 +72,25 @@ export function resolveMemberPayload(
     ...OPTIONAL_STRING_FIELDS,
   ]) {
     const value = formData.get(key)
-    if (value != null && value !== "") {
-      let normalized = String(value)
-      if (key === "phoneNumber") {
-        normalized = normalized.replace(/[\s\-()]/g, "")
-        if (/^234[789][01]\d{8}$/.test(normalized)) {
-          normalized = `+${normalized}`
-        }
+    if (value == null) continue
+    // Empty passportUrl is meaningful: it clears an existing photo.
+    if (value === "" && key !== "passportUrl") continue
+    let normalized = String(value)
+    if (key === "phoneNumber") {
+      normalized = normalized.replace(/[\s\-()]/g, "")
+      if (/^234[789][01]\d{8}$/.test(normalized)) {
+        normalized = `+${normalized}`
       }
-      data[key] = normalized
     }
+    data[key] = normalized
   }
 
   const children = parseJsonArray(formData.get("children"))
   if (children.length > 0) data.children = children
 
   const fellowshipGroupIds = parseJsonArray(formData.get("fellowshipGroupIds"))
-  if (fellowshipGroupIds.length > 0) data.fellowshipGroupIds = fellowshipGroupIds
+  if (fellowshipGroupIds.length > 0)
+    data.fellowshipGroupIds = fellowshipGroupIds
 
   return data
 }

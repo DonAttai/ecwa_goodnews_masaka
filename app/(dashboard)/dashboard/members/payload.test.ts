@@ -78,4 +78,17 @@ describe("resolveMemberPayload", () => {
       expect(parsed.data.beenOnDiscipline).toBe("NO")
     }
   })
+
+  it("preserves a passport URL", () => {
+    const url = "https://res.cloudinary.com/demo/image/upload/members/jane.jpg"
+    const payload = resolveMemberPayload(makeFormData({ passportUrl: url }))
+
+    expect(payload.passportUrl).toBe(url)
+  })
+
+  it("preserves an explicitly cleared passport URL", () => {
+    const payload = resolveMemberPayload(makeFormData({ passportUrl: "" }))
+
+    expect(payload.passportUrl).toBe("")
+  })
 })

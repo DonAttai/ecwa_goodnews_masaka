@@ -1,11 +1,12 @@
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import { PersonalInformation } from "../../../components/member-form/sections/personal-information"
 import { FamilyInformation } from "../../../components/member-form/sections/family-information"
 import { ChurchLife } from "../../../components/member-form/sections/church-life"
 import { SpiritualStatus } from "../../../components/member-form/sections/spiritual status"
 import { Discipline } from "../../../components/member-form/sections/discipline"
+import PassportPhotoStep from "../../../create/steps/PassportPhotoStep"
 import { Button } from "@/components/ui/button"
 import { baseMemberFormSchema } from "../../../schemas"
 import { useTransition, useMemo } from "react"
@@ -39,6 +40,7 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
       presentAddress: member.presentAddress,
       phoneNumber: member.phoneNumber,
       email: member.email || "",
+      passportUrl: member.passportUrl || "",
       maritalStatus: member.maritalStatus,
       spouseName: member.spouseName || "",
       homeCell: member.homeCell || "",
@@ -78,6 +80,8 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
     name: "children",
   })
 
+  const passportUrl = useWatch({ control: form.control, name: "passportUrl" })
+
   const onSubmit = async (data: PartialMemberFormValues) => {
     const formDataToSend = toMemberFormData(data)
 
@@ -106,6 +110,18 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
 
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <PassportPhotoStep
+              passportUrl={passportUrl || null}
+              onUpload={(url) => {
+                form.setValue("passportUrl", url, { shouldDirty: true })
+                toast.success("Passport photograph uploaded successfully!")
+              }}
+              onRemove={() =>
+                form.setValue("passportUrl", "", { shouldDirty: true })
+              }
+              isOptional
+            />
+
             <PersonalInformation form={form} />
 
             <FamilyInformation
