@@ -171,6 +171,7 @@ const AddUserFormInner = memo(function AddUserFormInner({
                   <SelectItem value="ELDER">Elder</SelectItem>
                   <SelectItem value="PASTOR">Pastor</SelectItem>
                   <SelectItem value="FINANCE">Finance</SelectItem>
+                  <SelectItem value="EDITOR">Editor</SelectItem>
                   <SelectItem value="ADMIN">Administrator</SelectItem>
                 </SelectContent>
               </Select>
