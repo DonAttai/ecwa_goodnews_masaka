@@ -21,4 +21,22 @@ describe("toMemberFormData", () => {
     expect(formData.has("email")).toBe(false)
     expect(formData.has("spouseName")).toBe(false)
   })
+
+  it("includes a linked spouse id", () => {
+    const formData = toMemberFormData({ spouseId: "member_1" })
+
+    expect(formData.get("spouseId")).toBe("member_1")
+  })
+
+  it("includes an explicitly cleared spouse id", () => {
+    const formData = toMemberFormData({ spouseId: "" })
+
+    expect(formData.get("spouseId")).toBe("")
+  })
+
+  it("serializes an empty children list instead of omitting it", () => {
+    const formData = toMemberFormData({ children: [] })
+
+    expect(formData.get("children")).toBe("[]")
+  })
 })

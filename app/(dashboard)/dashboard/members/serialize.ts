@@ -15,8 +15,8 @@ export function toMemberFormData(
 
   for (const [key, value] of Object.entries(values)) {
     if (value === undefined || value === null) continue
-    // Empty passportUrl is meaningful: it clears an existing photo.
-    if (value === "" && key !== "passportUrl") continue
+    // Empty passportUrl / spouseId are meaningful: they clear a value.
+    if (value === "" && key !== "passportUrl" && key !== "spouseId") continue
 
     if (key === "children" || key === "fellowshipGroupIds") {
       formData.append(key, JSON.stringify(value))

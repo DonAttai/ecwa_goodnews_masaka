@@ -19,6 +19,11 @@ export default async function MemberPage({ params }: MemberPageProps) {
     where: { id: memberId },
     include: {
       children: true,
+      spouse: {
+        include: {
+          children: true,
+        },
+      },
       fellowshipGroups: {
         include: {
           fellowship: true,
@@ -39,6 +44,16 @@ export default async function MemberPage({ params }: MemberPageProps) {
             (fg) => fg.fellowship.id
           ),
         } as MemberFormValues
+      }
+      spouse={
+        member.spouse
+          ? {
+              id: member.spouse.id,
+              firstName: member.spouse.firstName,
+              surname: member.spouse.surname,
+              children: member.spouse.children,
+            }
+          : null
       }
       isAdmin={isAdmin}
     />

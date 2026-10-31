@@ -91,4 +91,23 @@ describe("resolveMemberPayload", () => {
 
     expect(payload.passportUrl).toBe("")
   })
+
+  it("reads a linked spouse id", () => {
+    const payload = resolveMemberPayload(makeFormData({ spouseId: "member_1" }))
+
+    expect(payload.spouseId).toBe("member_1")
+  })
+
+  it("preserves an explicitly cleared spouse id", () => {
+    const payload = resolveMemberPayload(makeFormData({ spouseId: "" }))
+
+    expect(payload.spouseId).toBe("")
+  })
+
+  it("passes through an empty children list so rows can be removed", () => {
+    const formData = makeFormData()
+    formData.append("children", "[]")
+
+    expect(resolveMemberPayload(formData).children).toEqual([])
+  })
 })

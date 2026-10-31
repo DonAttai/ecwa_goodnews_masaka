@@ -54,6 +54,22 @@ describe("memberFormSchema phone validation", () => {
     expect(r.success).toBe(false)
   })
 
+  it("rejects the same child listed twice, ignoring case and spacing", () => {
+    const r = memberFormSchema.safeParse({
+      ...baseValid,
+      children: [{ name: "John Doe" }, { name: "  john   doe " }],
+    })
+    expect(r.success).toBe(false)
+  })
+
+  it("accepts distinct children", () => {
+    const r = memberFormSchema.safeParse({
+      ...baseValid,
+      children: [{ name: "John Doe" }, { name: "Jane Doe" }],
+    })
+    expect(r.success).toBe(true)
+  })
+
   it("requires marital status (no longer nullable)", () => {
     for (const bad of [null, undefined, ""]) {
       const payload = { ...baseValid, maritalStatus: bad }

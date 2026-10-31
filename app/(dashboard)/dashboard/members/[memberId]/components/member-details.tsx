@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { normalizeChildName } from "../../child-utils"
 import {
   MapPin,
   MapPinned,
@@ -25,16 +27,41 @@ import { EditButton } from "./edit-member-button"
 import { DeleteButton } from "./delete-member-button"
 import { MemberFormValues } from "../../schemas"
 
+type SpouseSummary = {
+  id: string
+  firstName: string
+  surname: string
+  children: Array<{ id: string; name: string; contact: string | null }>
+}
+
 type MemberDetailsPageProps = {
   member: MemberFormValues
   isAdmin: boolean
+  spouse?: SpouseSummary | null
 }
 
 export default async function MemberDetailsPage({
   member,
   isAdmin,
+  spouse,
 }: MemberDetailsPageProps) {
   if (!member) notFound()
+
+  const familyChildren = (() => {
+    const seen = new Set<string>()
+    const result: Array<{ id?: string; name: string; contact?: string }> = []
+    for (const child of [...member.children, ...(spouse?.children ?? [])]) {
+      const key = normalizeChildName(child.name)
+      if (seen.has(key)) continue
+      seen.add(key)
+      result.push({
+        id: child.id,
+        name: child.name,
+        contact: child.contact ?? undefined,
+      })
+    }
+    return result
+  })()
 
   const getInitials = () => {
     return `${member.firstName?.[0] || ""}${member.surname?.[0] || ""}`.toUpperCase()
@@ -103,7 +130,17 @@ export default async function MemberDetailsPage({
                     </p>
                     {member.spouseName && (
                       <p className="font-mono text-sm text-muted-foreground">
-                        Spouse: {member.spouseName}
+                        Spouse:{" "}
+                        {spouse ? (
+                          <Link
+                            href={`/dashboard/members/${spouse.id}`}
+                            className="font-semibold text-primary underline-offset-4 hover:underline"
+                          >
+                            {member.spouseName}
+                          </Link>
+                        ) : (
+                          member.spouseName
+                        )}
                       </p>
                     )}
                   </div>
@@ -347,16 +384,16 @@ export default async function MemberDetailsPage({
         </div>
 
         {/* CHILDREN SECTION - Full Width */}
-        {member.children && member.children.length > 0 && (
+        {familyChildren.length > 0 && (
           <Card className="overflow-hidden border-0 shadow-lg">
             <CardHeader className="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <Heart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                Children ({member.children.length})
+                Children ({familyChildren.length})
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2 lg:grid-cols-3">
-              {member.children.map((child, idx) => (
+              {familyChildren.map((child, idx) => (
                 <ChildCard key={child.id || idx} child={child} />
               ))}
             </CardContent>

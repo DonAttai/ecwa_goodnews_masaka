@@ -61,6 +61,9 @@ model Member {
   maritalStatus          MaritalStatus?
   gender                 Gender?
   spouseName             String?
+  spouseId               String?            @unique
+  spouse                 Member?            @relation("MemberSpouse", fields: [spouseId], references: [id], onDelete: SetNull)
+  spouseOf               Member?            @relation("MemberSpouse")
   stateOfOrigin          String
   lga                    String
   tribe                  String

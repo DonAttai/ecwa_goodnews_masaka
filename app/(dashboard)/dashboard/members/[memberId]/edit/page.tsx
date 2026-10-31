@@ -40,6 +40,7 @@ function mapMemberToFormValues(member: MemberWithRelations) {
     previousPlaceOfWorship: member.previousPlaceOfWorship ?? undefined,
     maritalStatus: member.maritalStatus ?? undefined,
     spouseName: member.spouseName ?? undefined,
+    spouseId: member.spouseId ?? undefined,
     homeCell: member.homeCell ?? undefined,
     zone: member.zone ?? undefined,
     acceptedChrist: mapYesNo(member.acceptedChrist),

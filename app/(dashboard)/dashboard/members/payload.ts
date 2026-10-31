@@ -19,6 +19,7 @@ const OPTIONAL_STRING_FIELDS = [
   "email",
   "previousPlaceOfWorship",
   "spouseName",
+  "spouseId",
   "homeCell",
   "zone",
   "passportUrl",
@@ -73,8 +74,8 @@ export function resolveMemberPayload(
   ]) {
     const value = formData.get(key)
     if (value == null) continue
-    // Empty passportUrl is meaningful: it clears an existing photo.
-    if (value === "" && key !== "passportUrl") continue
+    // Empty passportUrl / spouseId are meaningful: they clear a value.
+    if (value === "" && key !== "passportUrl" && key !== "spouseId") continue
     let normalized = String(value)
     if (key === "phoneNumber") {
       normalized = normalized.replace(/[\s\-()]/g, "")
@@ -85,8 +86,8 @@ export function resolveMemberPayload(
     data[key] = normalized
   }
 
-  const children = parseJsonArray(formData.get("children"))
-  if (children.length > 0) data.children = children
+  const childrenRaw = formData.get("children")
+  if (childrenRaw != null) data.children = parseJsonArray(childrenRaw)
 
   const fellowshipGroupIds = parseJsonArray(formData.get("fellowshipGroupIds"))
   if (fellowshipGroupIds.length > 0)

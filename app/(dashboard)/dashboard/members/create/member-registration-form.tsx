@@ -123,6 +123,7 @@ const DEFAULT_VALUES: Omit<MemberFormValues, "id"> = {
   maritalStatus: "SINGLE" as const,
   gender: undefined as unknown as "MALE" | "FEMALE",
   spouseName: "",
+  spouseId: "",
   homeCell: "",
   zone: "",
   stateOfOrigin: "",
@@ -785,6 +786,17 @@ export default function MemberRegistrationForm({
                 isMarried={isMarried}
                 selectedState={selectedState}
                 availableLgas={availableLgas}
+                onSpouseChange={(spouse) => {
+                  form.setValue("spouseId", spouse?.id ?? "", {
+                    shouldDirty: true,
+                  })
+                  if (spouse) {
+                    form.setValue("spouseName", spouse.name, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                }}
               />
             )}
 

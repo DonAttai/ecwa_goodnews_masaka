@@ -1,6 +1,6 @@
 "use client"
 
-import { Controller, Control } from "react-hook-form"
+import { Controller, Control, useWatch } from "react-hook-form"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
@@ -14,19 +14,24 @@ import { Textarea } from "@/components/ui/textarea"
 import RequiredLabel from "../components/RequiredLabel"
 import { nigeriaStates } from "@/lib/nigeria-locations"
 import { MemberFormValues } from "../../schemas"
+import { SpousePicker, type SpouseOption } from "../../components/spouse-picker"
 
 interface PersonalInfoStepProps {
   control: Control<MemberFormValues>
   selectedState: string
   availableLgas: string[]
   isMarried: boolean
+  onSpouseChange: (spouse: SpouseOption | null) => void
 }
 
 export default function PersonalInfoStep({
   control,
   availableLgas,
   isMarried,
+  onSpouseChange,
 }: PersonalInfoStepProps) {
+  const spouseId = useWatch({ control, name: "spouseId" })
+  const spouseName = useWatch({ control, name: "spouseName" })
   return (
     <div className="space-y-6">
       {/* Name fields - 2 columns on desktop, 1 on mobile */}
@@ -336,6 +341,12 @@ export default function PersonalInfoStep({
                 <FieldError>{fieldState.error?.message}</FieldError>
               </Field>
             )}
+          />
+
+          <SpousePicker
+            value={spouseId}
+            spouseName={spouseName}
+            onChange={onSpouseChange}
           />
         </div>
       )}

@@ -43,6 +43,7 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
       passportUrl: member.passportUrl || "",
       maritalStatus: member.maritalStatus,
       spouseName: member.spouseName || "",
+      spouseId: member.spouseId || "",
       homeCell: member.homeCell || "",
       zone: member.zone || "",
       acceptedChrist: member.acceptedChrist,
@@ -129,6 +130,7 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
               fields={fields}
               append={append}
               remove={remove}
+              currentMemberId={member.id}
             />
 
             <ChurchLife form={form} />

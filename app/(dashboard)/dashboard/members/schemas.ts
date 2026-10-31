@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { normalizeChildName } from "./child-utils"
 
 /**
  * Optional date field that normalizes empty/absent values to `null`. Keeps
@@ -56,6 +57,8 @@ export const baseMemberFormSchema = z.object({
   ),
 
   spouseName: z.string().optional(),
+  // Optional link to the spouse's member record (when they are registered).
+  spouseId: z.string().optional(),
   homeCell: z.string().optional(),
   zone: z.string().optional(),
   stateOfOrigin: z.string().min(1, "Please select state of origin"),
@@ -132,6 +135,21 @@ export const memberFormSchema = baseMemberFormSchema.superRefine(
         message: "Please state the reason for discipline",
         path: ["disciplineReason"],
       })
+    }
+
+    const seenChildren = new Set<string>()
+    for (const child of data.children) {
+      const key = normalizeChildName(child.name)
+      if (!key) continue
+      if (seenChildren.has(key)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `"${child.name}" is listed more than once`,
+          path: ["children"],
+        })
+        break
+      }
+      seenChildren.add(key)
     }
   }
 )

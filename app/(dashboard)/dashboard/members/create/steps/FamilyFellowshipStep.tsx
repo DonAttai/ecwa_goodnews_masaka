@@ -1,10 +1,11 @@
 "use client"
 
-import { Controller, Control } from "react-hook-form"
+import { Controller, Control, useWatch } from "react-hook-form"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Badge } from "@/components/ui/badge"
 import ChildTable from "../components/ChildTable"
 import FellowshipSelector from "../components/FellowshipSelector"
+import { SpouseChildrenNotice } from "../../components/spouse-children-notice"
 import { MemberFormValues } from "../../schemas"
 
 interface FamilyFellowshipStepProps {
@@ -32,6 +33,8 @@ export default function FamilyFellowshipStep({
   isLoadingFellowships,
   showChildrenField, // Make sure to destructure this
 }: FamilyFellowshipStepProps) {
+  const spouseId = useWatch({ control, name: "spouseId" })
+
   return (
     <div className="space-y-8">
       {/* Children Section - Only show when not single */}
@@ -47,6 +50,7 @@ export default function FamilyFellowshipStep({
             onChildRemove={onChildRemove}
             onChildUpdate={onChildUpdate}
           />
+          <SpouseChildrenNotice spouseId={spouseId} />
           <Controller
             control={control}
             name="children"

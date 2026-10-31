@@ -11,6 +11,8 @@ import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RHFInput } from "../fields/rhf-input"
 import { RHFSelect } from "../fields/rhf-select"
+import { SpousePicker } from "../../../components/spouse-picker"
+import { SpouseChildrenNotice } from "../../../components/spouse-children-notice"
 
 import { PartialMemberFormValues } from "../../../[memberId]/edit/components/update-member-form"
 
@@ -21,12 +23,27 @@ type Props = {
   }[]
   append: UseFieldArrayAppend<PartialMemberFormValues, "children">
   remove: UseFieldArrayRemove
+  currentMemberId?: string
 }
 
-export function FamilyInformation({ form, fields, append, remove }: Props) {
+export function FamilyInformation({
+  form,
+  fields,
+  append,
+  remove,
+  currentMemberId,
+}: Props) {
   const maritalStatus = useWatch({
     control: form.control,
     name: "maritalStatus",
+  })
+  const spouseId = useWatch({
+    control: form.control,
+    name: "spouseId",
+  })
+  const spouseName = useWatch({
+    control: form.control,
+    name: "spouseName",
   })
 
   return (
@@ -59,13 +76,33 @@ export function FamilyInformation({ form, fields, append, remove }: Props) {
         />
 
         {maritalStatus === "MARRIED" && (
-          <RHFInput
-            control={form.control}
-            name="spouseName"
-            label="Spouse Name"
-          />
+          <>
+            <RHFInput
+              control={form.control}
+              name="spouseName"
+              label="Spouse Name"
+            />
+            <SpousePicker
+              value={spouseId}
+              spouseName={spouseName}
+              currentMemberId={currentMemberId}
+              onChange={(spouse) => {
+                form.setValue("spouseId", spouse?.id ?? "", {
+                  shouldDirty: true,
+                })
+                if (spouse) {
+                  form.setValue("spouseName", spouse.name, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              }}
+            />
+          </>
         )}
       </div>
+
+      <SpouseChildrenNotice spouseId={spouseId} />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
