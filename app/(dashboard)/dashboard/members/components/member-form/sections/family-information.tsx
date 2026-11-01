@@ -13,6 +13,10 @@ import { RHFInput } from "../fields/rhf-input"
 import { RHFSelect } from "../fields/rhf-select"
 import { SpousePicker } from "../../../components/spouse-picker"
 import { SpouseChildrenNotice } from "../../../components/spouse-children-notice"
+import { ChildDuplicateNotice } from "../../../components/child-duplicate-notice"
+import { normalizeChildName } from "../../../child-utils"
+import type { ChildMatch } from "../../../matching"
+import { toast } from "sonner"
 
 import { PartialMemberFormValues } from "../../../[memberId]/edit/components/update-member-form"
 
@@ -24,6 +28,8 @@ type Props = {
   append: UseFieldArrayAppend<PartialMemberFormValues, "children">
   remove: UseFieldArrayRemove
   currentMemberId?: string
+  childDuplicateAcks: string[]
+  onChildDuplicateAcksChange: (names: string[]) => void
 }
 
 export function FamilyInformation({
@@ -32,6 +38,8 @@ export function FamilyInformation({
   append,
   remove,
   currentMemberId,
+  childDuplicateAcks,
+  onChildDuplicateAcksChange,
 }: Props) {
   const maritalStatus = useWatch({
     control: form.control,
@@ -45,6 +53,37 @@ export function FamilyInformation({
     control: form.control,
     name: "spouseName",
   })
+  const surname = useWatch({ control: form.control, name: "surname" })
+  const address = useWatch({ control: form.control, name: "presentAddress" })
+  const homeCell = useWatch({ control: form.control, name: "homeCell" })
+  const zone = useWatch({ control: form.control, name: "zone" })
+  const gender = useWatch({ control: form.control, name: "gender" }) as
+    | "MALE"
+    | "FEMALE"
+    | undefined
+  const children = useWatch({ control: form.control, name: "children" })
+
+  const linkFamily = (match: ChildMatch, matchedNames: string[]) => {
+    form.setValue("spouseId", match.memberId, { shouldDirty: true })
+    form.setValue("spouseName", match.name, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
+    const keys = new Set(matchedNames.map(normalizeChildName))
+    const current = (form.getValues("children") ?? []) as Array<{
+      id?: string
+      name: string
+      contact?: string
+    }>
+    form.setValue(
+      "children",
+      current.filter((child) => !keys.has(normalizeChildName(child.name))),
+      { shouldDirty: true, shouldValidate: true }
+    )
+
+    toast.success(`${match.name} linked. Matching children are now shared.`)
+  }
 
   return (
     <section className="space-y-6">
@@ -86,6 +125,12 @@ export function FamilyInformation({
               value={spouseId}
               spouseName={spouseName}
               currentMemberId={currentMemberId}
+              surname={surname}
+              address={address}
+              homeCell={homeCell}
+              zone={zone}
+              childNames={(children ?? []).map((child) => child.name)}
+              gender={gender}
               onChange={(spouse) => {
                 form.setValue("spouseId", spouse?.id ?? "", {
                   shouldDirty: true,
@@ -150,6 +195,19 @@ export function FamilyInformation({
             </div>
           </div>
         ))}
+
+        <ChildDuplicateNotice
+          childNames={(children ?? []).map((child) => child.name)}
+          currentMemberId={currentMemberId}
+          spouseId={spouseId}
+          surname={surname}
+          address={address}
+          homeCell={homeCell}
+          zone={zone}
+          acknowledgedNames={childDuplicateAcks}
+          onLinkFamily={linkFamily}
+          onAcknowledgedChange={onChildDuplicateAcksChange}
+        />
       </div>
     </section>
   )

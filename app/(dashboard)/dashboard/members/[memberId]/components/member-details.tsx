@@ -25,6 +25,7 @@ import { ChildCard } from "./child-card"
 import { FellowshipGroupCard } from "./fellowship-group-card"
 import { EditButton } from "./edit-member-button"
 import { DeleteButton } from "./delete-member-button"
+import { LinkSpouseDialog } from "./link-spouse-dialog"
 import { MemberFormValues } from "../../schemas"
 
 type SpouseSummary = {
@@ -143,6 +144,24 @@ export default async function MemberDetailsPage({
                         )}
                       </p>
                     )}
+                    {isAdmin &&
+                      member.maritalStatus === "MARRIED" &&
+                      !member.spouseId && (
+                        <div className="flex justify-center md:justify-start">
+                          <LinkSpouseDialog
+                            memberId={member.id}
+                            spouseName={member.spouseName}
+                            surname={member.surname}
+                            address={member.presentAddress}
+                            homeCell={member.homeCell}
+                            zone={member.zone}
+                            childNames={(member.children ?? []).map(
+                              (child) => child.name
+                            )}
+                            gender={member.gender}
+                          />
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>

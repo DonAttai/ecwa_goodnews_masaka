@@ -9,7 +9,7 @@ import { Discipline } from "../../../components/member-form/sections/discipline"
 import PassportPhotoStep from "../../../create/steps/PassportPhotoStep"
 import { Button } from "@/components/ui/button"
 import { baseMemberFormSchema } from "../../../schemas"
-import { useTransition, useMemo } from "react"
+import { useTransition, useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { updateMember } from "../../../actions"
 import { toMemberFormData } from "../../../serialize"
@@ -28,6 +28,7 @@ type UpdateMemberFormProp = {
 
 export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
   const [isPending, startTransition] = useTransition()
+  const [childDuplicateAcks, setChildDuplicateAcks] = useState<string[]>([])
   const router = useRouter()
   const memberName = `${member.firstName} ${member.surname}`
 
@@ -85,6 +86,10 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
 
   const onSubmit = async (data: PartialMemberFormValues) => {
     const formDataToSend = toMemberFormData(data)
+    formDataToSend.append(
+      "childDuplicateAcks",
+      JSON.stringify(childDuplicateAcks)
+    )
 
     startTransition(async () => {
       const result = await updateMember(member.id!, formDataToSend)
@@ -94,6 +99,13 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
         router.push(`/dashboard/members/${member.id}`)
         router.refresh()
       } else {
+        if (result.fieldErrors) {
+          for (const [field, errors] of Object.entries(result.fieldErrors)) {
+            form.setError(field as keyof PartialMemberFormValues, {
+              message: errors[0],
+            })
+          }
+        }
         toast.error(result.message)
       }
     })
@@ -131,6 +143,8 @@ export default function UpdateMemberForm({ member }: UpdateMemberFormProp) {
               append={append}
               remove={remove}
               currentMemberId={member.id}
+              childDuplicateAcks={childDuplicateAcks}
+              onChildDuplicateAcksChange={setChildDuplicateAcks}
             />
 
             <ChurchLife form={form} />

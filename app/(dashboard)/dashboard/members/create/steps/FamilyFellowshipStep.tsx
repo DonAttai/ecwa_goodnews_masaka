@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import ChildTable from "../components/ChildTable"
 import FellowshipSelector from "../components/FellowshipSelector"
 import { SpouseChildrenNotice } from "../../components/spouse-children-notice"
+import { ChildDuplicateNotice } from "../../components/child-duplicate-notice"
 import { MemberFormValues } from "../../schemas"
+import type { ChildMatch } from "../../matching"
 
 interface FamilyFellowshipStepProps {
   control: Control<MemberFormValues>
@@ -21,6 +23,9 @@ interface FamilyFellowshipStepProps {
   fellowships: Array<{ id: string; name: string; description?: string }>
   isLoadingFellowships: boolean
   showChildrenField: boolean
+  childDuplicateAcks: string[]
+  onLinkFamily: (match: ChildMatch, matchedNames: string[]) => void
+  onChildDuplicateAcksChange: (names: string[]) => void
 }
 
 export default function FamilyFellowshipStep({
@@ -32,8 +37,15 @@ export default function FamilyFellowshipStep({
   fellowships,
   isLoadingFellowships,
   showChildrenField, // Make sure to destructure this
+  childDuplicateAcks,
+  onLinkFamily,
+  onChildDuplicateAcksChange,
 }: FamilyFellowshipStepProps) {
   const spouseId = useWatch({ control, name: "spouseId" })
+  const surname = useWatch({ control, name: "surname" })
+  const address = useWatch({ control, name: "presentAddress" })
+  const homeCell = useWatch({ control, name: "homeCell" })
+  const zone = useWatch({ control, name: "zone" })
 
   return (
     <div className="space-y-8">
@@ -51,6 +63,17 @@ export default function FamilyFellowshipStep({
             onChildUpdate={onChildUpdate}
           />
           <SpouseChildrenNotice spouseId={spouseId} />
+          <ChildDuplicateNotice
+            childNames={childrenList.map((child) => child.name)}
+            spouseId={spouseId}
+            surname={surname}
+            address={address}
+            homeCell={homeCell}
+            zone={zone}
+            acknowledgedNames={childDuplicateAcks}
+            onLinkFamily={onLinkFamily}
+            onAcknowledgedChange={onChildDuplicateAcksChange}
+          />
           <Controller
             control={control}
             name="children"

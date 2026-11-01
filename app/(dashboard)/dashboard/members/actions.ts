@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import type { Prisma } from "@/generated/prisma/client"
 import { revalidatePath } from "next/cache"
 import { requireAdmin, requireEditor } from "@/lib/auth"
 import { sendMemberCreationEmail } from "@/lib/email/send-member-creation-email"
@@ -13,7 +14,19 @@ import {
   type MemberUpdateInput,
 } from "./schemas"
 import { resolveMemberPayload } from "./payload"
-import { normalizeChildName } from "./child-utils"
+import {
+  findChildNameOverlap,
+  findInternalChildDuplicates,
+  normalizeChildName,
+  uniqueChildKeys,
+} from "./child-utils"
+import {
+  rankChildMatch,
+  rankSpouseCandidate,
+  tokenizePersonName,
+  type ChildMatch,
+  type SpouseCandidate,
+} from "./matching"
 import { toActionResultError, type ActionResult } from "../lib/action-result"
 import { logAudit } from "../lib/audit"
 
@@ -25,30 +38,144 @@ function toDateOrNull(value: string | null | undefined): Date | null {
 
 type ChildInput = { id?: string; name: string; contact?: string }
 
-function findChildNameOverlap(
-  children: Array<{ name: string }>,
-  otherChildren: Array<{ name: string }>
-): string[] {
-  const otherKeys = new Set(
-    otherChildren.map((child) => normalizeChildName(child.name))
-  )
-  return children
-    .filter((child) => otherKeys.has(normalizeChildName(child.name)))
-    .map((child) => child.name)
+function getChildDuplicateAcks(
+  input: MemberCreateInput | MemberUpdateInput | FormData
+): Set<string> {
+  if (!(input instanceof FormData)) return new Set()
+  const raw = input.get("childDuplicateAcks")
+  if (!raw) return new Set()
+  try {
+    const parsed = JSON.parse(String(raw))
+    if (!Array.isArray(parsed)) return new Set()
+    return new Set(
+      parsed
+        .map((name) => normalizeChildName(String(name)))
+        .filter((name) => name)
+    )
+  } catch {
+    return new Set()
+  }
 }
 
-function findInternalChildDuplicates(
-  children: Array<{ name: string }>
-): string[] {
-  const seen = new Set<string>()
-  const duplicates = new Set<string>()
-  for (const child of children) {
-    const key = normalizeChildName(child.name)
-    if (!key) continue
-    if (seen.has(key)) duplicates.add(child.name)
-    seen.add(key)
+type ChildMatchRow = {
+  name: string
+  member: {
+    id: string
+    firstName: string
+    surname: string
+    presentAddress: string
+    homeCell: string | null
+    zone: string | null
+    phoneNumber: string
+    spouseId: string | null
+    children: Array<{ name: string }>
   }
-  return [...duplicates]
+}
+
+/**
+ * Finds children already recorded under other members. This is the safety net
+ * that works even when the spouse was never linked: the volunteer recognises
+ * the child and can link the family on the spot.
+ */
+async function findChildMatchGroups(params: {
+  names: string[]
+  excludeMemberId?: string
+  excludeSpouseIds?: Array<string | null | undefined>
+  surname?: string
+  address?: string
+  homeCell?: string
+  zone?: string
+}): Promise<ChildMatch[]> {
+  const targets = uniqueChildKeys(params.names)
+  if (targets.length === 0) return []
+
+  const targetTokens = targets.map((name) => name.split(" ").filter(Boolean))
+  const excluded = [
+    params.excludeMemberId,
+    ...(params.excludeSpouseIds ?? []),
+  ].filter((id): id is string => Boolean(id))
+
+  const rows = await prisma.child.findMany({
+    where: {
+      ...(excluded.length > 0 ? { memberId: { notIn: excluded } } : {}),
+      OR: targetTokens.map((tokens) => ({
+        AND: tokens.map((token) => ({
+          name: { contains: token, mode: "insensitive" },
+        })),
+      })),
+    },
+    select: {
+      name: true,
+      member: {
+        select: {
+          id: true,
+          firstName: true,
+          surname: true,
+          presentAddress: true,
+          homeCell: true,
+          zone: true,
+          phoneNumber: true,
+          spouseId: true,
+          children: { select: { name: true }, orderBy: { createdAt: "asc" } },
+        },
+      },
+    },
+    take: 300,
+  })
+
+  const targetSet = new Set(targets)
+  const groups = new Map<
+    string,
+    { member: ChildMatchRow["member"]; matched: Set<string> }
+  >()
+
+  for (const row of rows) {
+    if (!targetSet.has(normalizeChildName(row.name))) continue
+    const existing = groups.get(row.member.id)
+    if (existing) {
+      existing.matched.add(row.name)
+    } else {
+      groups.set(row.member.id, {
+        member: row.member,
+        matched: new Set([row.name]),
+      })
+    }
+  }
+
+  return [...groups.values()]
+    .map(({ member, matched }) => {
+      const matchedChildren = [...matched]
+      const { score, reasons } = rankChildMatch(matchedChildren, member, params)
+      return {
+        memberId: member.id,
+        name: `${member.firstName} ${member.surname}`,
+        address: member.presentAddress,
+        homeCell: member.homeCell,
+        zone: member.zone,
+        phoneNumber: member.phoneNumber,
+        spouseId: member.spouseId,
+        matchedChildren,
+        allChildren: member.children.map((child) => child.name),
+        reasons,
+        score,
+      }
+    })
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .slice(0, 20)
+}
+
+function blockingChildMatches(
+  matches: ChildMatch[],
+  acks: Set<string>
+): ChildMatch[] {
+  return matches
+    .map((match) => ({
+      ...match,
+      matchedChildren: match.matchedChildren.filter(
+        (name) => !acks.has(normalizeChildName(name))
+      ),
+    }))
+    .filter((match) => match.matchedChildren.length > 0)
 }
 
 export async function createMember(
@@ -166,6 +293,33 @@ export async function createMember(
             ],
           },
         }
+      }
+    }
+
+    const acks = getChildDuplicateAcks(input)
+    const childMatches = await findChildMatchGroups({
+      names: data.children.map((child) => child.name),
+      excludeSpouseIds: [spouseId],
+      surname: data.surname,
+      address: data.presentAddress,
+      homeCell: data.homeCell,
+      zone: data.zone,
+    })
+    const unresolvedMatches = blockingChildMatches(childMatches, acks)
+    if (unresolvedMatches.length > 0) {
+      const summary = unresolvedMatches
+        .map(
+          (match) => `${match.matchedChildren.join(", ")} under ${match.name}`
+        )
+        .join("; ")
+      return {
+        success: false,
+        message: "Some children are already recorded elsewhere",
+        fieldErrors: {
+          children: [
+            `Already recorded: ${summary}. Link the family or confirm they are different children.`,
+          ],
+        },
       }
     }
 
@@ -423,10 +577,30 @@ export async function updateMember(
         .map((child) => child.id)
     }
 
-    const internalDuplicates = findInternalChildDuplicates([
-      ...childrenToUpdate,
-      ...childrenToCreate,
-    ])
+    // Renamed rows and brand-new rows must not duplicate another record.
+    // Untouched rows are left alone so pre-existing data can be cleaned up
+    // without blocking unrelated edits.
+    const renamedChildren = childrenToUpdate.filter((child) => {
+      const previous = existingMember.children.find(
+        (existing) => existing.id === child.id
+      )
+      return (
+        previous &&
+        normalizeChildName(previous.name) !== normalizeChildName(child.name)
+      )
+    })
+    const childrenToCheck = [...renamedChildren, ...childrenToCreate]
+
+    const untouchedChildren = existingMember.children.filter(
+      (child) =>
+        !childIdsToDelete.includes(child.id) &&
+        !renamedChildren.some((renamed) => renamed.id === child.id)
+    )
+
+    const internalDuplicates = [
+      ...findInternalChildDuplicates(childrenToCheck),
+      ...findChildNameOverlap(childrenToCheck, untouchedChildren),
+    ]
     if (internalDuplicates.length > 0) {
       return {
         success: false,
@@ -439,48 +613,62 @@ export async function updateMember(
       }
     }
 
-    if (desiredSpouseId) {
-      // Renamed rows and brand-new rows must not duplicate the spouse's list.
-      // Untouched rows are left alone so pre-existing data can be cleaned up
-      // without blocking unrelated edits.
-      const renamedChildren = childrenToUpdate.filter((child) => {
-        const previous = existingMember.children.find(
-          (existing) => existing.id === child.id
-        )
-        return (
-          previous &&
-          normalizeChildName(previous.name) !== normalizeChildName(child.name)
-        )
-      })
-      const childrenToCheck = [...renamedChildren, ...childrenToCreate]
+    if (desiredSpouseId && childrenToCheck.length > 0) {
+      let spouseChildren = newSpouse?.children
+      if (!spouseChildren) {
+        const linkedSpouse = await prisma.member.findUnique({
+          where: { id: desiredSpouseId },
+          select: { children: { select: { name: true } } },
+        })
+        spouseChildren = linkedSpouse?.children ?? []
+      }
 
-      if (childrenToCheck.length > 0) {
-        let spouseChildren = newSpouse?.children
-        if (!spouseChildren) {
-          const linkedSpouse = await prisma.member.findUnique({
-            where: { id: desiredSpouseId },
-            select: { children: { select: { name: true } } },
-          })
-          spouseChildren = linkedSpouse?.children ?? []
+      const duplicateChildren = findChildNameOverlap(
+        childrenToCheck,
+        spouseChildren
+      )
+      if (duplicateChildren.length > 0) {
+        const spouseName = newSpouse
+          ? `${newSpouse.firstName} ${newSpouse.surname}`
+          : (existingMember.spouseName ?? "your spouse")
+        return {
+          success: false,
+          message: `Some children are already recorded under ${spouseName}`,
+          fieldErrors: {
+            children: [
+              `Already recorded under ${spouseName}: ${duplicateChildren.join(", ")}. They already show on both records.`,
+            ],
+          },
         }
+      }
+    }
 
-        const duplicateChildren = findChildNameOverlap(
-          childrenToCheck,
-          spouseChildren
-        )
-        if (duplicateChildren.length > 0) {
-          const spouseName = newSpouse
-            ? `${newSpouse.firstName} ${newSpouse.surname}`
-            : (existingMember.spouseName ?? "your spouse")
-          return {
-            success: false,
-            message: `Some children are already recorded under ${spouseName}`,
-            fieldErrors: {
-              children: [
-                `Already recorded under ${spouseName}: ${duplicateChildren.join(", ")}. They already show on both records.`,
-              ],
-            },
-          }
+    if (childrenToCheck.length > 0) {
+      const acks = getChildDuplicateAcks(input)
+      const childMatches = await findChildMatchGroups({
+        names: childrenToCheck.map((child) => child.name),
+        excludeMemberId: memberId,
+        excludeSpouseIds: [existingSpouseId, desiredSpouseId],
+        surname: data.surname ?? existingMember.surname,
+        address: data.presentAddress ?? existingMember.presentAddress,
+        homeCell: data.homeCell ?? existingMember.homeCell ?? undefined,
+        zone: data.zone ?? existingMember.zone ?? undefined,
+      })
+      const unresolvedMatches = blockingChildMatches(childMatches, acks)
+      if (unresolvedMatches.length > 0) {
+        const summary = unresolvedMatches
+          .map(
+            (match) => `${match.matchedChildren.join(", ")} under ${match.name}`
+          )
+          .join("; ")
+        return {
+          success: false,
+          message: "Some children are already recorded elsewhere",
+          fieldErrors: {
+            children: [
+              `Already recorded: ${summary}. Link the family or confirm they are different children.`,
+            ],
+          },
         }
       }
     }
@@ -593,49 +781,230 @@ export async function updateMember(
   }
 }
 
-export async function searchMembersForSpouse(
-  query: string,
+export async function searchMembersForSpouse(params: {
+  name: string
   excludeId?: string
-): Promise<
-  Array<{
-    id: string
-    name: string
-    spouseId: string | null
-    children: string[]
-  }>
-> {
+  surname?: string
+  address?: string
+  homeCell?: string
+  zone?: string
+  childNames?: string[]
+  gender?: string | null
+}): Promise<SpouseCandidate[]> {
   await requireEditor()
 
-  const term = query.trim()
-  if (term.length < 2) return []
+  const tokens = tokenizePersonName(params.name)
+  if (tokens.length === 0) return []
 
-  const members = await prisma.member.findMany({
+  const exclude = params.excludeId ? { id: { not: params.excludeId } } : {}
+  const select = {
+    id: true,
+    firstName: true,
+    surname: true,
+    otherNames: true,
+    spouseId: true,
+    presentAddress: true,
+    homeCell: true,
+    zone: true,
+    gender: true,
+    maritalStatus: true,
+    children: { select: { name: true }, orderBy: { createdAt: "asc" } },
+  } as const
+
+  let members = await prisma.member.findMany({
     where: {
-      ...(excludeId ? { id: { not: excludeId } } : {}),
-      OR: [
-        { firstName: { contains: term, mode: "insensitive" } },
-        { surname: { contains: term, mode: "insensitive" } },
-        { otherNames: { contains: term, mode: "insensitive" } },
-      ],
+      ...exclude,
+      AND: tokens.map((token) => ({
+        OR: [
+          { firstName: { contains: token, mode: "insensitive" } },
+          { surname: { contains: token, mode: "insensitive" } },
+          { otherNames: { contains: token, mode: "insensitive" } },
+        ],
+      })),
     },
-    select: {
-      id: true,
-      firstName: true,
-      surname: true,
-      otherNames: true,
-      spouseId: true,
-      children: { select: { name: true }, orderBy: { createdAt: "asc" } },
-    },
-    orderBy: [{ surname: "asc" }, { firstName: "asc" }],
-    take: 8,
+    select,
+    take: 40,
   })
 
-  return members.map((member) => ({
-    id: member.id,
-    name: `${member.firstName} ${member.surname}`,
-    spouseId: member.spouseId,
-    children: member.children.map((child) => child.name),
-  }))
+  // If the paper name is misspelled or the spouse uses a different name, fall
+  // back to the household details already being entered. This also runs when
+  // the name search only found a few weak candidates, so the right person is
+  // not hidden by a coincidental name match.
+  if (members.length < 3) {
+    const fallback: Prisma.MemberWhereInput[] = []
+    const address = params.address?.trim() ?? ""
+    const homeCell = params.homeCell?.trim() ?? ""
+    if (address.length >= 5) {
+      fallback.push({
+        presentAddress: { contains: address, mode: "insensitive" },
+      })
+    }
+    if (homeCell.length >= 3) {
+      fallback.push({ homeCell: { contains: homeCell, mode: "insensitive" } })
+    }
+    if (fallback.length > 0) {
+      const householdMatches = await prisma.member.findMany({
+        where: { ...exclude, maritalStatus: "MARRIED", OR: fallback },
+        select,
+        take: 40,
+      })
+      const seen = new Set(members.map((member) => member.id))
+      members = [
+        ...members,
+        ...householdMatches.filter((member) => !seen.has(member.id)),
+      ]
+    }
+  }
+
+  return members
+    .map((member) => {
+      const { score, reasons } = rankSpouseCandidate(member, params)
+      return { member, score, reasons }
+    })
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        a.member.surname.localeCompare(b.member.surname) ||
+        a.member.firstName.localeCompare(b.member.firstName)
+    )
+    .slice(0, 8)
+    .map(({ member, reasons }) => ({
+      id: member.id,
+      name: `${member.firstName} ${member.surname}`,
+      firstName: member.firstName,
+      surname: member.surname,
+      otherNames: member.otherNames,
+      spouseId: member.spouseId,
+      address: member.presentAddress,
+      homeCell: member.homeCell,
+      zone: member.zone,
+      gender: member.gender,
+      maritalStatus: member.maritalStatus,
+      children: member.children.map((child) => child.name),
+      reasons,
+    }))
+}
+
+export async function findChildMatches(params: {
+  names: string[]
+  excludeMemberId?: string
+  excludeSpouseId?: string | null
+  surname?: string
+  address?: string
+  homeCell?: string
+  zone?: string
+}): Promise<ChildMatch[]> {
+  await requireEditor()
+
+  return findChildMatchGroups({
+    names: params.names,
+    excludeMemberId: params.excludeMemberId,
+    excludeSpouseIds: [params.excludeSpouseId],
+    surname: params.surname,
+    address: params.address,
+    homeCell: params.homeCell,
+    zone: params.zone,
+  })
+}
+
+export async function linkMemberSpouse(
+  memberId: string,
+  spouseId: string
+): Promise<ActionResult> {
+  try {
+    const admin = await requireAdmin()
+
+    if (memberId === spouseId) {
+      return { success: false, message: "A member cannot be their own spouse" }
+    }
+
+    const [member, spouse] = await Promise.all([
+      prisma.member.findUnique({
+        where: { id: memberId },
+        select: {
+          id: true,
+          firstName: true,
+          surname: true,
+          spouseId: true,
+          children: { select: { name: true } },
+        },
+      }),
+      prisma.member.findUnique({
+        where: { id: spouseId },
+        select: {
+          id: true,
+          firstName: true,
+          surname: true,
+          spouseId: true,
+          children: { select: { name: true } },
+        },
+      }),
+    ])
+
+    if (!member || !spouse) {
+      return { success: false, message: "Member not found" }
+    }
+
+    if (member.spouseId === spouseId && spouse.spouseId === memberId) {
+      return { success: true, message: "Spouse already linked" }
+    }
+
+    if (member.spouseId && member.spouseId !== spouseId) {
+      return {
+        success: false,
+        message: "This member is already linked to another spouse",
+      }
+    }
+
+    if (spouse.spouseId && spouse.spouseId !== memberId) {
+      return {
+        success: false,
+        message: "That member is already linked to another spouse",
+      }
+    }
+
+    const duplicateChildren = findChildNameOverlap(
+      member.children,
+      spouse.children
+    )
+    if (duplicateChildren.length > 0) {
+      return {
+        success: false,
+        message: `Remove the duplicate child entries first: ${duplicateChildren.join(", ")}`,
+      }
+    }
+
+    await prisma.$transaction([
+      prisma.member.update({
+        where: { id: memberId },
+        data: { spouseId },
+      }),
+      prisma.member.update({
+        where: { id: spouseId },
+        data: { spouseId: memberId },
+      }),
+    ])
+
+    await logAudit({
+      user: admin,
+      action: "UPDATE_MEMBER",
+      entity: "MEMBER",
+      entityId: memberId,
+      description: `${admin.name} linked ${member.firstName} ${member.surname} to spouse ${spouse.firstName} ${spouse.surname}`,
+      metadata: { spouseId },
+    })
+
+    revalidatePath(`/dashboard/members/${memberId}`)
+    revalidatePath(`/dashboard/members/${spouseId}`)
+    revalidatePath("/dashboard/members")
+
+    return {
+      success: true,
+      message: `Linked to ${spouse.firstName} ${spouse.surname}`,
+    }
+  } catch (error) {
+    return toActionResultError(error, "Failed to link spouse")
+  }
 }
 
 export async function getSpouseChildren(

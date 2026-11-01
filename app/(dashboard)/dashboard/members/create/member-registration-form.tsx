@@ -45,6 +45,8 @@ import { getLgasByState } from "@/lib/nigeria-locations"
 import { memberFormSchema, MemberFormValues } from "../schemas"
 import { createMember } from "../actions"
 import { toMemberFormData } from "../serialize"
+import { normalizeChildName } from "../child-utils"
+import type { ChildMatch } from "../matching"
 import { StepIndicator } from "./components/StepIndicator"
 import { FormProgress } from "./form-progress"
 import PersonalInfoStep from "./steps/PersonalInfoStep"
@@ -193,6 +195,9 @@ export default function MemberRegistrationForm({
     id: string
     name: string
   } | null>(null)
+  const [childDuplicateAcks, setChildDuplicateAcks] = React.useState<string[]>(
+    []
+  )
   const titleRef = React.useRef<HTMLHeadingElement>(null)
   const prevStateRef = React.useRef<string>("")
 
@@ -338,6 +343,7 @@ export default function MemberRegistrationForm({
     setMaxVisited(0)
     setPendingDraft(null)
     setDuplicateMatch(null)
+    setChildDuplicateAcks([])
     clearDraft()
   }
 
@@ -398,6 +404,31 @@ export default function MemberRegistrationForm({
       shouldValidate: true,
       shouldDirty: true,
     })
+  }
+
+  const linkFamilyFromChildMatch = (
+    match: ChildMatch,
+    matchedNames: string[]
+  ) => {
+    form.setValue("spouseId", match.memberId, { shouldDirty: true })
+    form.setValue("spouseName", match.name, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
+    // The matching children already live under the linked spouse. Remove the
+    // local copies so they are shared instead of duplicated.
+    const keys = new Set(matchedNames.map(normalizeChildName))
+    const currentChildren = (form.getValues("children") as Child[]) || []
+    form.setValue(
+      "children",
+      currentChildren.filter(
+        (child) => !keys.has(normalizeChildName(child.name))
+      ),
+      { shouldValidate: true, shouldDirty: true }
+    )
+
+    toast.success(`${match.name} linked. Matching children are now shared.`)
   }
 
   const handlePassportUpload = (url: string) => {
@@ -614,6 +645,10 @@ export default function MemberRegistrationForm({
 
     try {
       const formDataToSend = toMemberFormData(data)
+      formDataToSend.append(
+        "childDuplicateAcks",
+        JSON.stringify(childDuplicateAcks)
+      )
 
       // Only append passportUrl if it exists
       if (passportUrl) {
@@ -810,6 +845,9 @@ export default function MemberRegistrationForm({
                 fellowships={fellowships}
                 isLoadingFellowships={isLoadingFellowships}
                 showChildrenField={showChildrenField}
+                childDuplicateAcks={childDuplicateAcks}
+                onLinkFamily={linkFamilyFromChildMatch}
+                onChildDuplicateAcksChange={setChildDuplicateAcks}
               />
             )}
 

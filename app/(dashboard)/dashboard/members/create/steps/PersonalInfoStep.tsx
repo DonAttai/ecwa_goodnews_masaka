@@ -32,6 +32,12 @@ export default function PersonalInfoStep({
 }: PersonalInfoStepProps) {
   const spouseId = useWatch({ control, name: "spouseId" })
   const spouseName = useWatch({ control, name: "spouseName" })
+  const surname = useWatch({ control, name: "surname" })
+  const address = useWatch({ control, name: "presentAddress" })
+  const homeCell = useWatch({ control, name: "homeCell" })
+  const zone = useWatch({ control, name: "zone" })
+  const children = useWatch({ control, name: "children" })
+  const gender = useWatch({ control, name: "gender" })
   return (
     <div className="space-y-6">
       {/* Name fields - 2 columns on desktop, 1 on mobile */}
@@ -346,6 +352,12 @@ export default function PersonalInfoStep({
           <SpousePicker
             value={spouseId}
             spouseName={spouseName}
+            surname={surname}
+            address={address}
+            homeCell={homeCell}
+            zone={zone}
+            childNames={(children ?? []).map((child) => child.name)}
+            gender={gender}
             onChange={onSpouseChange}
           />
         </div>

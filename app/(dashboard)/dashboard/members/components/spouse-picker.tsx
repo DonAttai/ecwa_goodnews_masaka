@@ -1,44 +1,56 @@
 "use client"
 
 import * as React from "react"
-import { Loader2, Search, Unlink, Users } from "lucide-react"
+import { Loader2, MapPin, Unlink, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { searchMembersForSpouse } from "../actions"
+import type { SpouseCandidate } from "../matching"
 
-export interface SpouseOption {
-  id: string
-  name: string
-  spouseId: string | null
-  children: string[]
-}
+export type SpouseOption = SpouseCandidate
 
 interface SpousePickerProps {
   value?: string | null
   spouseName?: string | null
   currentMemberId?: string
-  onChange: (spouse: SpouseOption | null) => void
+  surname?: string
+  address?: string
+  homeCell?: string
+  zone?: string
+  childNames?: string[]
+  gender?: string | null
+  onChange: (spouse: SpouseCandidate | null) => void
 }
 
 export function SpousePicker({
   value,
   spouseName,
   currentMemberId,
+  surname,
+  address,
+  homeCell,
+  zone,
+  childNames,
+  gender,
   onChange,
 }: SpousePickerProps) {
-  const [query, setQuery] = React.useState("")
-  const [results, setResults] = React.useState<SpouseOption[]>([])
+  const [results, setResults] = React.useState<SpouseCandidate[]>([])
   const [isSearching, setIsSearching] = React.useState(false)
+  const [searchedTerm, setSearchedTerm] = React.useState("")
   const [error, setError] = React.useState<string | null>(null)
+
+  const term = (spouseName ?? "").trim()
+  const childKey = (childNames ?? []).join("\u0000")
 
   React.useEffect(() => {
     if (value) return
-    const term = query.trim()
+
     if (term.length < 2) {
       setResults([])
       setIsSearching(false)
+      setSearchedTerm("")
+      setError(null)
       return
     }
 
@@ -46,9 +58,19 @@ export function SpousePicker({
     setIsSearching(true)
     const timer = setTimeout(async () => {
       try {
-        const found = await searchMembersForSpouse(term, currentMemberId)
+        const found = await searchMembersForSpouse({
+          name: term,
+          excludeId: currentMemberId,
+          surname,
+          address,
+          homeCell,
+          zone,
+          childNames: childKey ? childKey.split("\u0000") : [],
+          gender,
+        })
         if (!cancelled) {
           setResults(found)
+          setSearchedTerm(term)
           setError(null)
         }
       } catch {
@@ -56,13 +78,23 @@ export function SpousePicker({
       } finally {
         if (!cancelled) setIsSearching(false)
       }
-    }, 300)
+    }, 400)
 
     return () => {
       cancelled = true
       clearTimeout(timer)
     }
-  }, [query, value, currentMemberId])
+  }, [
+    term,
+    value,
+    currentMemberId,
+    surname,
+    address,
+    homeCell,
+    zone,
+    childKey,
+    gender,
+  ])
 
   if (value) {
     return (
@@ -92,70 +124,83 @@ export function SpousePicker({
 
   return (
     <div className="space-y-2">
-      <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search registered members to link spouse (optional)"
-          className="pl-8"
-          aria-label="Search registered members to link spouse"
-        />
-        {isSearching && (
-          <Loader2 className="absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-        )}
-      </div>
-
-      {error && <p className="text-xs text-red-500">{error}</p>}
-
-      {query.trim().length >= 2 && !isSearching && results.length === 0 && (
+      {term.length < 2 && (
         <p className="text-xs text-muted-foreground">
-          No registered member found. Leave the spouse name above as free text.
+          Type the spouse&apos;s full name from the membership form — registered
+          members will appear here automatically.
         </p>
       )}
 
-      {results.length > 0 && (
-        <ul className="divide-y overflow-hidden rounded-lg border">
-          {results.map((member) => {
-            const alreadyLinked = Boolean(member.spouseId)
-            return (
-              <li key={member.id}>
-                <button
-                  type="button"
-                  disabled={alreadyLinked}
-                  onClick={() => {
-                    onChange(member)
-                    setQuery("")
-                    setResults([])
-                  }}
-                  className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate font-medium">
-                      {member.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {member.children.length > 0
-                        ? `${member.children.length} child${member.children.length === 1 ? "" : "ren"} recorded`
-                        : "No children recorded"}
-                    </span>
-                  </span>
-                  {alreadyLinked && (
-                    <Badge variant="outline" className="shrink-0 text-xs">
-                      Already linked
-                    </Badge>
-                  )}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+      {isSearching && (
+        <p className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          Looking for “{term}”…
+        </p>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        Leave this blank if your spouse is not registered — the name above is
-        still saved.
-      </p>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+
+      {!isSearching &&
+        term.length >= 2 &&
+        searchedTerm === term &&
+        results.length === 0 && (
+          <p className="text-xs text-muted-foreground">
+            No registered member found for “{term}”. You can save now and link
+            the spouse later from the member&apos;s page.
+          </p>
+        )}
+
+      {results.length > 0 && searchedTerm === term && (
+        <>
+          <ul className="divide-y overflow-hidden rounded-lg border">
+            {results.map((member) => {
+              const alreadyLinked =
+                Boolean(member.spouseId) && member.spouseId !== currentMemberId
+              return (
+                <li key={member.id}>
+                  <button
+                    type="button"
+                    disabled={alreadyLinked}
+                    onClick={() => onChange(member)}
+                    className="flex w-full items-start justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <span className="min-w-0 space-y-0.5">
+                      <span className="block truncate font-medium">
+                        {member.name}
+                      </span>
+                      {member.address && (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{member.address}</span>
+                        </span>
+                      )}
+                      <span className="block text-xs text-muted-foreground">
+                        {member.children.length > 0
+                          ? `${member.children.length} child${member.children.length === 1 ? "" : "ren"} recorded`
+                          : "No children recorded"}
+                        {member.reasons.length > 0
+                          ? ` · ${member.reasons.join(" · ")}`
+                          : ""}
+                      </span>
+                    </span>
+                    {alreadyLinked ? (
+                      <Badge variant="outline" className="shrink-0 text-xs">
+                        Already linked
+                      </Badge>
+                    ) : (
+                      <Badge className="shrink-0 text-xs">Link</Badge>
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="text-xs text-muted-foreground">
+            Click the right person to link. The app never links a spouse
+            automatically.
+          </p>
+        </>
+      )}
     </div>
   )
 }
